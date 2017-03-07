@@ -1,0 +1,27 @@
+{
+  "name": "dasframeworken.js",
+  "version": "1.0.0",
+  "description": "A stupid simple javascript framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --env build",
+    "dev": "webpack --progress --colors --watch --env dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ericmackrodt/dasframeworken.js.git"
+  },
+  "author": "Eric Mackrodt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ericmackrodt/dasframeworken.js/issues"
+  },
+  "homepage": "https://github.com/ericmackrodt/dasframeworken.js#readme",
+  "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-loader": "^6.4.0",
+    "babel-preset-env": "^1.2.1",
+    "webpack": "^2.2.1"
+  }
+}
