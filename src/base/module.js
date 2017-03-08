@@ -1,4 +1,5 @@
 import { componentFactory } from './component.factory';
+import { TemplateBuilder } from './template.builder';
 
 export class Module {
     get types() {
@@ -39,10 +40,19 @@ export class Module {
 
     _buildComponent(type, element) {
         const controller = this._container.resolve(this._name, type);
-        element.innerHTML = type.metadata.template;
-        componentFactory(this._components).processElement(element, controller, (component) => {
-            return this._container.resolve(this._name, component);
-        });
+        if (typeof type.metadata.template === 'function') {
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+            const builder = new TemplateBuilder(element, controller);
+            type.metadata.template(builder);
+        } else {
+            element.innerHTML = type.metadata.template;
+            componentFactory(this._components).processElement(element, controller, (component) => {
+                return this._container.resolve(this._name, component);
+            });
+        }
+
         return element;
     }
 

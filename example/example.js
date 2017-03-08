@@ -61,7 +61,21 @@ class HomeComponent {
     static get metadata() {
         return {
             selector: 'home-comp',
-            template: '<p>{{prop}}</p><input binding="prop"></input><button on:click="clicked()">click here</button>',
+            template: (builder) => {
+                const component0 = builder.createElement('component');
+                builder.setAttribute('selector', 'a-component', component0);
+                builder.setAttribute('controller', 'controller', component0);
+
+                const p0 = builder.createElement('p');
+                builder.boundText('prop', p0);
+
+                const input0 = builder.createElement('input');
+                builder.setAttribute('binding', 'prop', input0);
+
+                const button0 = builder.createElement('button');
+                builder.setAttribute('trigger:click', 'clicked()', button0);
+                builder.setText('click here', button0);
+            },
             dependencies: [FakeService]
         };
     }

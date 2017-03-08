@@ -296,6 +296,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _component = __webpack_require__(1);
 
+var _template = __webpack_require__(5);
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Module = exports.Module = function () {
@@ -356,10 +358,19 @@ var Module = exports.Module = function () {
             var _this3 = this;
 
             var controller = this._container.resolve(this._name, type);
-            element.innerHTML = type.metadata.template;
-            (0, _component.componentFactory)(this._components).processElement(element, controller, function (component) {
-                return _this3._container.resolve(_this3._name, component);
-            });
+            if (typeof type.metadata.template === 'function') {
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+                var builder = new _template.TemplateBuilder(element, controller);
+                type.metadata.template(builder);
+            } else {
+                element.innerHTML = type.metadata.template;
+                (0, _component.componentFactory)(this._components).processElement(element, controller, function (component) {
+                    return _this3._container.resolve(_this3._name, component);
+                });
+            }
+
             return element;
         }
     }, {
@@ -417,6 +428,113 @@ debugger;
 (function (window) {
     window.frameworken = new _frameworken.Frameworken();
 })(window);
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var TemplateBuilder = exports.TemplateBuilder = function () {
+    function TemplateBuilder(baseElement, controller) {
+        _classCallCheck(this, TemplateBuilder);
+
+        this._subscriptions = [];
+        this._baseElement = baseElement;
+        this._controller = controller;
+    }
+
+    _createClass(TemplateBuilder, [{
+        key: '_send',
+        value: function _send(subs, val) {
+            subs.forEach(function (f) {
+                return f.element[f.elProp] = val;
+            });
+        }
+    }, {
+        key: '_bound',
+        value: function _bound(element, elementProp, ctrl, controlProp) {
+            var _this = this;
+
+            var subs = this._subscriptions[controlProp];
+            if (!subs) {
+                subs = this._subscriptions[controlProp] = [];
+            }
+
+            subs.push({ element: element, elProp: elementProp });
+
+            ctrl.onPropetyChanged = function (name) {
+                setTimeout(function () {
+                    _this._send(_this._subscriptions[name], ctrl[name]);
+                });
+            };
+        }
+    }, {
+        key: '_inwardBinding',
+        value: function _inwardBinding(element, ctrl, prop) {
+            element.addEventListener('input', function (change) {
+                var _this2 = this;
+
+                setTimeout(function () {
+                    var start = _this2.selectionStart;
+                    var end = _this2.selectionEnd;
+                    ctrl[prop] = change.target.value;
+                    _this2.setSelectionRange(start, end);
+                });
+            }, true);
+        }
+    }, {
+        key: 'createElement',
+        value: function createElement(name, parent) {
+            parent = parent || this._baseElement;
+            var element = document.createElement(name);
+            parent.appendChild(element);
+            return element;
+        }
+    }, {
+        key: 'setAttribute',
+        value: function setAttribute(name, value, parent) {
+            var _this3 = this;
+
+            if (name.startsWith('trigger:')) {
+                //localName
+                var key = value.replace('()', '');
+                parent.addEventListener(name.replace('trigger:', ''), function (arg) {
+                    _this3._controller[key](arg);
+                }, false);
+            } else if (name === 'binding') {
+                this._bound(parent, 'value', this._controller, value);
+                this._inwardBinding(parent, this._controller, value);
+            } else {
+                parent.setAttribute(name, value);
+            }
+        }
+    }, {
+        key: 'setText',
+        value: function setText(text, parent) {
+            var node = document.createTextNode(text);
+            parent.appendChild(node);
+        }
+    }, {
+        key: 'boundText',
+        value: function boundText(key, parent) {
+            var node = document.createTextNode('');
+            parent.appendChild(node);
+            this._bound(node, 'textContent', this._controller, key);
+        }
+    }]);
+
+    return TemplateBuilder;
+}();
 
 /***/ })
 /******/ ]);
