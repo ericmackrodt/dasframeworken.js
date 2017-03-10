@@ -1,5 +1,5 @@
 import { componentFactory } from './component.factory';
-import { TemplateBuilder } from './template.builder';
+import { ComponentContainer } from './component.container';
 
 export class Module {
     get types() {
@@ -35,19 +35,30 @@ export class Module {
 
     _registerComponents(module, components) {
         this._components = {};
-        components.forEach((c) => this._components[c.metadata.selector] = c);
+        components.forEach((c) => { 
+            if (typeof c === 'function' && typeof c.metadata.template) {    
+                this._components[c.metadata.selector] = c;
+            } else if (typeof c === 'object' && typeof c.render === 'function') {
+                this._components[c.selector] = c;
+            }
+        });
     }
 
     _buildComponent(type, element) {
-        const controller = this._container.resolve(this._name, type);
-        if (typeof type.metadata.template === 'function') {
-            while (element.firstChild) {
-                element.removeChild(element.firstChild);
-            }
-            const builder = new TemplateBuilder(element, controller);
-            type.metadata.template(builder);
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
+        }
+        if (typeof type === 'function' && typeof type.metadata.template === 'function') {
+            const controller = this._container.resolve(this._name, type);
+            const container = new ComponentContainer(type.metadata.template, controller);
+            container.initialize(element);
+        } else if (typeof type === 'object' && typeof type.render === 'function') {
+            const controller = this._container.resolve(this._name, type.controller);
+            const container = new ComponentContainer(type.render, controller);
+            container.initialize(element);
         } else {
             element.innerHTML = type.metadata.template;
+            const controller = this._container.resolve(this._name, type);
             componentFactory(this._components).processElement(element, controller, (component) => {
                 return this._container.resolve(this._name, component);
             });

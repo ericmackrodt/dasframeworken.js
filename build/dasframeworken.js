@@ -2,11 +2,11 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define("dasframeworken", [], factory);
+		define("", [], factory);
 	else if(typeof exports === 'object')
-		exports["dasframeworken"] = factory();
+		exports[""] = factory();
 	else
-		root["dasframeworken"] = factory();
+		root[""] = factory();
 })(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -73,11 +73,16 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 13);
 /******/ })
 /************************************************************************/
 /******/ ([
-/* 0 */
+/* 0 */,
+/* 1 */,
+/* 2 */,
+/* 3 */,
+/* 4 */,
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -90,9 +95,9 @@ exports.Frameworken = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _module = __webpack_require__(3);
+var _module = __webpack_require__(10);
 
-var _di = __webpack_require__(2);
+var _di = __webpack_require__(9);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -120,7 +125,53 @@ var Frameworken = exports.Frameworken = function () {
 }();
 
 /***/ }),
-/* 1 */
+/* 6 */,
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.ComponentContainer = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _template = __webpack_require__(11);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ComponentContainer = exports.ComponentContainer = function () {
+    function ComponentContainer(template, controller) {
+        _classCallCheck(this, ComponentContainer);
+
+        this._template = template;
+        this._controller = controller;
+        // this._events = [];
+    }
+
+    _createClass(ComponentContainer, [{
+        key: 'initialize',
+        value: function initialize(element) {
+            this._templateBuilder = new _template.TemplateBuilder(element, this._controller);
+            this._template(this._templateBuilder);
+        }
+    }, {
+        key: 'teardown',
+        value: function teardown() {
+            if (this._instance && typeof this._instance.onTeardown === 'function') {
+                this._instance.teardown();
+            }
+        }
+    }]);
+
+    return ComponentContainer;
+}();
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -214,7 +265,7 @@ function componentFactory(components) {
 }
 
 /***/ }),
-/* 2 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -281,7 +332,7 @@ var DIContainer = exports.DIContainer = function () {
 }();
 
 /***/ }),
-/* 3 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -292,11 +343,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Module = undefined;
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _component = __webpack_require__(1);
+var _component = __webpack_require__(8);
 
-var _template = __webpack_require__(5);
+var _component2 = __webpack_require__(7);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -349,7 +402,11 @@ var Module = exports.Module = function () {
 
             this._components = {};
             components.forEach(function (c) {
-                return _this2._components[c.metadata.selector] = c;
+                if (typeof c === 'function' && _typeof(c.metadata.template)) {
+                    _this2._components[c.metadata.selector] = c;
+                } else if ((typeof c === 'undefined' ? 'undefined' : _typeof(c)) === 'object' && typeof c.render === 'function') {
+                    _this2._components[c.selector] = c;
+                }
             });
         }
     }, {
@@ -357,16 +414,21 @@ var Module = exports.Module = function () {
         value: function _buildComponent(type, element) {
             var _this3 = this;
 
-            var controller = this._container.resolve(this._name, type);
-            if (typeof type.metadata.template === 'function') {
-                while (element.firstChild) {
-                    element.removeChild(element.firstChild);
-                }
-                var builder = new _template.TemplateBuilder(element, controller);
-                type.metadata.template(builder);
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+            if (typeof type === 'function' && typeof type.metadata.template === 'function') {
+                var controller = this._container.resolve(this._name, type);
+                var container = new _component2.ComponentContainer(type.metadata.template, controller);
+                container.initialize(element);
+            } else if ((typeof type === 'undefined' ? 'undefined' : _typeof(type)) === 'object' && typeof type.render === 'function') {
+                var _controller = this._container.resolve(this._name, type.controller);
+                var _container = new _component2.ComponentContainer(type.render, _controller);
+                _container.initialize(element);
             } else {
                 element.innerHTML = type.metadata.template;
-                (0, _component.componentFactory)(this._components).processElement(element, controller, function (component) {
+                var _controller2 = this._container.resolve(this._name, type);
+                (0, _component.componentFactory)(this._components).processElement(element, _controller2, function (component) {
                     return _this3._container.resolve(_this3._name, component);
                 });
             }
@@ -415,22 +477,7 @@ var Module = exports.Module = function () {
 }();
 
 /***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _frameworken = __webpack_require__(0);
-
-debugger;
-
-(function (window) {
-    window.frameworken = new _frameworken.Frameworken();
-})(window);
-
-/***/ }),
-/* 5 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -477,6 +524,8 @@ var TemplateBuilder = exports.TemplateBuilder = function () {
                     _this._send(_this._subscriptions[name], ctrl[name]);
                 });
             };
+
+            element[elementProp] = ctrl[controlProp];
         }
     }, {
         key: '_inwardBinding',
@@ -491,6 +540,14 @@ var TemplateBuilder = exports.TemplateBuilder = function () {
                     _this2.setSelectionRange(start, end);
                 });
             }, true);
+        }
+    }, {
+        key: 'createRoot',
+        value: function createRoot(name, controller) {
+            parent = this._baseElement;
+            var element = document.createElement(name);
+            parent.appendChild(element);
+            return element;
         }
     }, {
         key: 'createElement',
@@ -535,6 +592,20 @@ var TemplateBuilder = exports.TemplateBuilder = function () {
 
     return TemplateBuilder;
 }();
+
+/***/ }),
+/* 12 */,
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _frameworken = __webpack_require__(5);
+
+(function (window) {
+    window.frameworken = new _frameworken.Frameworken();
+})(window);
 
 /***/ })
 /******/ ]);

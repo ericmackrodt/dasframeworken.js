@@ -22,6 +22,8 @@ export class TemplateBuilder {
                 this._send(this._subscriptions[name], ctrl[name]);
             });
         };
+
+        element[elementProp] = ctrl[controlProp];
     }
 
     _inwardBinding(element, ctrl, prop) {
@@ -33,6 +35,13 @@ export class TemplateBuilder {
                 this.setSelectionRange(start, end);
             });
         }, true);
+    }
+
+    createRoot(name, controller) {
+        parent = this._baseElement;
+        const element = document.createElement(name);
+        parent.appendChild(element);
+        return element;
     }
 
     createElement(name, parent) {

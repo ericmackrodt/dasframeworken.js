@@ -6,7 +6,7 @@ const UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 const path = require('path');
 const env  = require('yargs').argv.env; // use --env with webpack 2
 
-let libraryName = 'dasframeworken';
+let libraryName = '';
 
 let plugins = [], outputFile;
 
@@ -17,13 +17,22 @@ if (env === 'build') {
   outputFile = libraryName + '.js';
 }
 
+// path: __dirname + '/build/',
+//         publicPath: '/',
+//         filename: fileNameWithVersion('scripts/[name].covata.bundle.{version}.js'),
+//         chunkFilename: fileNameWithVersion('scripts/[id].covata.bundle.{version}.js'),
+//         sourceMapFilename: '[file].map'
+
 const config = {
-  entry: __dirname + '/src/dasframeworken.js',
+  entry: { 
+    dasframeworken: __dirname + '/src/dasframeworken.js',
+    example: __dirname + '/example/example.js'
+  },
   devtool: 'source-map',
   output: {
     path: __dirname + '/build',
-    filename: outputFile,
-    library: libraryName,
+    filename: '[name]' + outputFile,
+    library: [libraryName],
     libraryTarget: 'umd',
     umdNamedDefine: true
   },
@@ -33,6 +42,14 @@ const config = {
         test: /(\.jsx|\.js)$/,
         loader: 'babel-loader',
         exclude: /(node_modules|bower_components)/
+      },
+      {
+        test: /(\.html)$/,
+        loaders: [
+          'babel-loader',
+          __dirname + '/template.builder/template.loader.js'
+        ],
+        exclude: '/node_modules'
       }
     //   {
     //     test: /(\.jsx|\.js)$/,

@@ -1,16 +1,11 @@
 function render(builder) {
-	const component0 = builder.createElement('component');
-	builder.setAttribute('selector', 'a-component', component0);
-	builder.setAttribute('controller', 'controller', component0);
-
-	const p0 = builder.createElement('p');
+	const component0 = builder.createRoot('a-component', 'controller');
+	const p0 = builder.createElement('p', component0);
 	builder.boundText('prop', p0);
-
-	const input0 = builder.createElement('input');
+	builder.setText(' is cool', p0);
+	const input0 = builder.createElement('input', component0);
 	builder.setAttribute('binding', 'prop', input0);
-
-	const button0 = builder.createElement('button');
-	builder.setAttribute('on:click', 'clicked()', button0);
+	const button0 = builder.createElement('button', component0);
+	builder.setAttribute('trigger:click', 'clicked()', button0);
 	builder.setText('click here', button0);
-
 }
