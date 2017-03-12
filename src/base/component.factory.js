@@ -10,8 +10,8 @@ export function componentFactory(components) {
         }
 
         subs.push({ element: obj, elProp: oprop });
-
-        ctrl.onPropetyChanged = (name) => {
+        debugger;
+        ctrl.onPropertyChanged = (name) => {
             setTimeout(() => {
                 send(subscriptions[name], ctrl[name]);
             });

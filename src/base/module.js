@@ -1,15 +1,8 @@
 import { componentFactory } from './component.factory';
 import { ComponentContainer } from './component.container';
+import { Router } from './router';
 
 export class Module {
-    get types() {
-        return this._types;
-    }
-
-    get components() {
-        return this._components;
-    }
-
     get rootComponent() {
         return this._rootComponent;
     }
@@ -18,22 +11,30 @@ export class Module {
         this._container = container;
         options = options || {};
         this._name = name;
-        this._types = options.types;
-        this._components = options.components;
         this._rootComponent = options.rootComponent;
-        this._routes = options.routes;
 
-        this._registerTypes(name, this._types);
-        this._registerComponents(name, this._components);
+        if (options.types) this._registerTypes(options.types);
+        if (options.components) this._registerComponents(options.components);
+        if (options.routes) this._registerRoutes(options.routes);
     }
 
-    _registerTypes(module, types) {
+    _registerRoutes(routes) {
+        this._router = new Router(routes);
+        this._router.onRouteChanged = (route) => {
+            const outlet = document.getElementsByTagName('router-outlet')[0];
+            if (route.root && outlet) {
+                this._buildComponent(route.root, outlet);
+            }
+        };
+    }
+
+    _registerTypes(types) {
         types.forEach((type) => {
-            this._container.registerType(module, type);
+            this._container.registerType(type);
         });
     }
 
-    _registerComponents(module, components) {
+    _registerComponents(components) {
         this._components = {};
         components.forEach((c) => { 
             if (typeof c === 'function' && typeof c.metadata.template) {    
@@ -48,31 +49,18 @@ export class Module {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }
-        if (typeof type === 'function' && typeof type.metadata.template === 'function') {
-            const controller = this._container.resolve(this._name, type);
-            const container = new ComponentContainer(type.metadata.template, controller);
-            container.initialize(element);
-        } else if (typeof type === 'object' && typeof type.render === 'function') {
-            const controller = this._container.resolve(this._name, type.controller);
-            const container = new ComponentContainer(type.render, controller);
+        if (typeof type === 'object' && typeof type.render === 'function') {
+            const container = new ComponentContainer(this._container, type);
             container.initialize(element);
         } else {
             element.innerHTML = type.metadata.template;
-            const controller = this._container.resolve(this._name, type);
+            const controller = this._container.resolve(type);
             componentFactory(this._components).processElement(element, controller, (component) => {
-                return this._container.resolve(this._name, component);
+                return this._container.resolve(component);
             });
         }
 
         return element;
-    }
-
-    _router(element) {
-        const url = location.hash.slice(1) || '/';
-        const route = this._routes.find(r => r.path === url);
-        if (element && route.root) {
-            this._buildComponent(route.root, element);
-        }
     }
 
     _initializeRouting(element) {
@@ -83,10 +71,6 @@ export class Module {
     deploy(element) {
         if (this._rootComponent) {
             this._buildComponent(this._rootComponent, element);
-            const outlet = document.getElementsByTagName('router-outlet');
-            if (outlet.length > 0) {
-                this._initializeRouting(outlet[0]);
-            }
         } else if (this._routes) {
             this._initializeRouting(element);
         }

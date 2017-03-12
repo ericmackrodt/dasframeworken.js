@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 12);
+/******/ 	return __webpack_require__(__webpack_require__.s = 18);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -107,13 +107,35 @@ var FakeService = exports.FakeService = function () {
 }();
 
 /***/ }),
-/* 1 */
+/* 1 */,
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _homeComponent = __webpack_require__(6);
+var _anotherComponent = __webpack_require__(6);
+
+module.exports = {
+				selector: 'another-comp',
+				controller: _anotherComponent.AnotherComponent,
+				render: function render(builder) {
+								var component0 = builder.createRoot('another-comp', _anotherComponent.AnotherComponent);
+								var h10 = builder.createElement('h1', component0);
+								builder.setText('Another comp', h10);
+								var title_comp0 = builder.createElement('title-comp', component0);
+				}
+
+};
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _homeComponent = __webpack_require__(15);
 
 module.exports = {
 				selector: 'a-component',
@@ -134,7 +156,53 @@ module.exports = {
 };
 
 /***/ }),
-/* 2 */
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _rootComponent = __webpack_require__(7);
+
+module.exports = {
+				selector: 'root-comp',
+				controller: _rootComponent.RootComponent,
+				render: function render(builder) {
+								var component0 = builder.createRoot('root-comp', _rootComponent.RootComponent);
+								var h10 = builder.createElement('h1', component0);
+								builder.setText('Application Root', h10);
+								var router_outlet0 = builder.createElement('router-outlet', component0);
+				}
+
+};
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _titleComponent = __webpack_require__(8);
+
+module.exports = {
+				selector: 'title-comp',
+				controller: _titleComponent.TitleComponent,
+				render: function render(builder) {
+								var component0 = builder.createRoot('title-comp', _titleComponent.TitleComponent);
+								var h10 = builder.createElement('h1', component0);
+								builder.setText('This is a title component', h10);
+								var div0 = builder.createElement('div', component0);
+								builder.setText('{{potato}}', div0);
+								var button0 = builder.createElement('button', component0);
+								builder.setAttribute('on:click', 'clicked()', button0);
+								builder.setText('POtato button', button0);
+				}
+
+};
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -156,8 +224,6 @@ var AnotherComponent = exports.AnotherComponent = function () {
         key: 'metadata',
         get: function get() {
             return {
-                selector: 'another-comp',
-                template: '<h1>Another comp</h1><title-comp></title-comp>',
                 dependencies: [_fake.FakeService]
             };
         }
@@ -173,7 +239,7 @@ var AnotherComponent = exports.AnotherComponent = function () {
 }();
 
 /***/ }),
-/* 3 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -189,11 +255,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var RootComponent = exports.RootComponent = function () {
     _createClass(RootComponent, null, [{
-        key: 'metadata',
+        key: "metadata",
         get: function get() {
             return {
-                selector: 'root-comp',
-                template: '<h1>Application Root</h1><router-outlet></router-outlet>',
                 dependencies: []
             };
         }
@@ -207,7 +271,7 @@ var RootComponent = exports.RootComponent = function () {
 }();
 
 /***/ }),
-/* 4 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -230,15 +294,13 @@ var TitleComponent = exports.TitleComponent = function () {
         set: function set(val) {
             if (val !== this._something) {
                 this._something = val;
-                this.notifyChange('prop');
+                this._notifyChange('potato');
             }
         }
     }], [{
         key: 'metadata',
         get: function get() {
             return {
-                selector: 'title-comp',
-                template: '<h1>This is a title component</h1><div>{{potato}}</div><button on:click="clicked()">POtato button</button>',
                 dependencies: []
             };
         }
@@ -253,126 +315,134 @@ var TitleComponent = exports.TitleComponent = function () {
         value: function clicked() {
             this.potato = this.potato + ' Clicked!';
         }
-    }, {
-        key: 'notifyChange',
-        value: function notifyChange(propertyName) {
-            var _this = this;
-
-            if (typeof this.onPropetyChanged === 'function') {
-                setTimeout(function () {
-                    _this.onPropetyChanged(propertyName);
-                }, 1);
-            }
-
-            return this;
-        }
     }]);
 
     return TitleComponent;
 }();
 
 /***/ }),
-/* 5 */,
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.HomeComponent = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _fake = __webpack_require__(0);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var HomeComponent = exports.HomeComponent = function () {
-    _createClass(HomeComponent, [{
-        key: 'prop',
-        get: function get() {
-            return this._something;
-        },
-        set: function set(val) {
-            if (val !== this._something) {
-                this._something = val;
-                this.notifyChange('prop');
-            }
-        }
-    }], [{
-        key: 'metadata',
-        get: function get() {
-            return {
-                dependencies: [_fake.FakeService]
-            };
-        }
-    }]);
-
-    function HomeComponent(fakeService) {
-        _classCallCheck(this, HomeComponent);
-
-        fakeService.doSomething();
-        fakeService.kept = 'kept instance';
-        this._something = 'predefined!';
-    }
-
-    _createClass(HomeComponent, [{
-        key: 'clicked',
-        value: function clicked() {
-            this.prop = this.prop + ' Clicked!';
-        }
-    }, {
-        key: 'notifyChange',
-        value: function notifyChange(propertyName) {
-            var _this = this;
-
-            if (typeof this.onPropetyChanged === 'function') {
-                setTimeout(function () {
-                    _this.onPropetyChanged(propertyName);
-                }, 1);
-            }
-
-            return this;
-        }
-    }]);
-
-    return HomeComponent;
-}();
-
-/***/ }),
-/* 7 */,
-/* 8 */,
 /* 9 */,
 /* 10 */,
 /* 11 */,
-/* 12 */
+/* 12 */,
+/* 13 */,
+/* 14 */,
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var fake_service_1 = __webpack_require__(0);
+var ts_1 = __webpack_require__(17);
+var HomeComponent = (function () {
+    function HomeComponent(fakeService) {
+        fakeService.doSomething();
+        fakeService.kept = 'kept instance';
+        this.prop = 'predefined';
+    }
+    Object.defineProperty(HomeComponent, "metadata", {
+        get: function () {
+            return {
+                dependencies: [fake_service_1.FakeService]
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    HomeComponent.prototype.clicked = function () {
+        this.prop = this.prop + ' Clicked!';
+    };
+    return HomeComponent;
+}());
+__decorate([
+    ts_1.observable(),
+    __metadata("design:type", String)
+], HomeComponent.prototype, "prop", void 0);
+exports.HomeComponent = HomeComponent;
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function observable() {
+    return function (target, propertyKey) {
+        var _private;
+        return {
+            get: function () {
+                return _private;
+            },
+            set: function (val) {
+                if (_private !== val) {
+                    _private = val;
+                    this._notifyChange(propertyKey);
+                }
+            },
+            enumerable: true
+        };
+    };
+}
+exports.observable = observable;
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(16));
+
+
+/***/ }),
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _another = __webpack_require__(2);
+var _anotherComponent = __webpack_require__(2);
 
-var _homeComponent = __webpack_require__(1);
+var AnotherComponent = _interopRequireWildcard(_anotherComponent);
+
+var _homeComponent = __webpack_require__(3);
 
 var HomeComponent = _interopRequireWildcard(_homeComponent);
 
-var _root = __webpack_require__(3);
+var _rootComponent = __webpack_require__(4);
 
-var _title = __webpack_require__(4);
+var RootComponent = _interopRequireWildcard(_rootComponent);
+
+var _titleComponent = __webpack_require__(5);
+
+var TitleComponent = _interopRequireWildcard(_titleComponent);
 
 var _fake = __webpack_require__(0);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var app = frameworken.module('app', {
-    routes: [{ path: '/', root: HomeComponent }, { path: '/another', root: _another.AnotherComponent }],
+    routes: [{ path: '/', root: HomeComponent }, { path: '/another', root: AnotherComponent }],
     types: [_fake.FakeService],
-    components: [HomeComponent, _another.AnotherComponent, _root.RootComponent, _title.TitleComponent],
-    rootComponent: _root.RootComponent
+    components: [HomeComponent, AnotherComponent, RootComponent, TitleComponent],
+    rootComponent: RootComponent
 }); /* global frameworken */
 
 

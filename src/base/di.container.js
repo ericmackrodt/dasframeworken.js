@@ -3,32 +3,32 @@ export class DIContainer {
         this._typeRegistry = {};
     }
 
-    _getName(module, type) {
-        return module + ':' + type.name;
+    _getName(type) {
+        return type.name;
     }
 
-    resolve(module, type) {
+    resolve(type) {
         const dependencies = type.metadata && type.metadata.dependencies || type.dependencies;
 
         if (!dependencies) {
             return new (type.bind.apply(type, [type]))();
         }
 
-        const instances = dependencies.map((d) => this.getInstance(module, d));
+        const instances = dependencies.map((d) => this.getInstance(d));
         return new (type.bind.apply(type, [type].concat(instances)))();
     }
 
-    getInstance(module, type) {
-        const name = this._getName(module, type);
+    getInstance(type) {
+        const name = this._getName(type);
         const registered = this._typeRegistry[name];
         if (!registered.instance) {
-            registered.instance = this.resolve(module, registered.type);
+            registered.instance = this.resolve(registered.type);
         }
         return registered.instance;
     }
 
-    registerType(module, type) {
-        const name = this._getName(module, type);
+    registerType(type) {
+        const name = this._getName( type);
         let registered = this._typeRegistry[name];
         if (!registered) {
             this._typeRegistry[name] = { type: type, instance: null };

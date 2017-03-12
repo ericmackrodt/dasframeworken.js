@@ -44,6 +44,11 @@ const config = {
         exclude: /(node_modules|bower_components)/
       },
       {
+        test: /(\.tsx|\.ts)$/,
+        loader: 'ts-loader',
+        exclude: /(node_modules|bower_components)/
+      },
+      {
         test: /(\.html)$/,
         loaders: [
           'babel-loader',
@@ -60,7 +65,7 @@ const config = {
   },
   resolve: {
     modules: [path.resolve('./src')],
-    extensions: ['.json', '.js']
+    extensions: ['.json', '.js', '.ts']
   },
   plugins: plugins
 };

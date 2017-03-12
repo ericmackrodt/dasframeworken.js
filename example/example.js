@@ -1,8 +1,8 @@
 /* global frameworken */
-import { AnotherComponent } from './components/another.component';
+import * as AnotherComponent from './components/another.component.html';
 import * as HomeComponent from './components/home.component.html';
-import { RootComponent } from './components/root.component';
-import { TitleComponent } from './components/title.component';
+import * as RootComponent from './components/root.component.html';
+import * as TitleComponent from './components/title.component.html';
 import { FakeService } from './services/fake.service';
 
 const app = frameworken.module('app', {

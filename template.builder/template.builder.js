@@ -136,6 +136,7 @@ module.exports = function (html) {
     const key = Object.keys(imports[0])[0];
     console.log(key);
     var wrap = [ 
+        '"use strict";',
         imps.join('\r\n'),
         'module.exports = {\r\n',
         '    selector: \'', selector, '\',\r\n',

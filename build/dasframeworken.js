@@ -73,16 +73,12 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 13);
+/******/ 	return __webpack_require__(__webpack_require__.s = 19);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */,
-/* 1 */,
-/* 2 */,
-/* 3 */,
-/* 4 */,
-/* 5 */
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -95,9 +91,9 @@ exports.Frameworken = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _module = __webpack_require__(10);
+var _module = __webpack_require__(13);
 
-var _di = __webpack_require__(9);
+var _di = __webpack_require__(12);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -125,8 +121,14 @@ var Frameworken = exports.Frameworken = function () {
 }();
 
 /***/ }),
+/* 2 */,
+/* 3 */,
+/* 4 */,
+/* 5 */,
 /* 6 */,
-/* 7 */
+/* 7 */,
+/* 8 */,
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -139,24 +141,31 @@ exports.ComponentContainer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _template = __webpack_require__(11);
+var _template = __webpack_require__(14);
+
+var _component = __webpack_require__(11);
+
+var utils = _interopRequireWildcard(_component);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var ComponentContainer = exports.ComponentContainer = function () {
-    function ComponentContainer(template, controller) {
+    function ComponentContainer(diContainer, component) {
         _classCallCheck(this, ComponentContainer);
 
-        this._template = template;
-        this._controller = controller;
-        // this._events = [];
+        this._container = diContainer;
+        utils.setupController(component.controller);
+        this._component = component;
     }
 
     _createClass(ComponentContainer, [{
         key: 'initialize',
         value: function initialize(element) {
+            this._controller = this._container.resolve(this._component.controller);
             this._templateBuilder = new _template.TemplateBuilder(element, this._controller);
-            this._template(this._templateBuilder);
+            this._component.render(this._templateBuilder);
         }
     }, {
         key: 'teardown',
@@ -171,7 +180,7 @@ var ComponentContainer = exports.ComponentContainer = function () {
 }();
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -195,8 +204,8 @@ function componentFactory(components) {
         }
 
         subs.push({ element: obj, elProp: oprop });
-
-        ctrl.onPropetyChanged = function (name) {
+        debugger;
+        ctrl.onPropertyChanged = function (name) {
             setTimeout(function () {
                 send(subscriptions[name], ctrl[name]);
             });
@@ -265,7 +274,33 @@ function componentFactory(components) {
 }
 
 /***/ }),
-/* 9 */
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.setupController = setupController;
+function setupController(controllerType) {
+    debugger;
+    controllerType.prototype._notifyChange = function (propertyName) {
+        var _this = this;
+
+        if (typeof this.onPropertyChanged === 'function') {
+            setTimeout(function () {
+                _this.onPropertyChanged(propertyName);
+            }, 1);
+        }
+
+        return this;
+    };
+}
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -287,13 +322,13 @@ var DIContainer = exports.DIContainer = function () {
     }
 
     _createClass(DIContainer, [{
-        key: '_getName',
-        value: function _getName(module, type) {
-            return module + ':' + type.name;
+        key: "_getName",
+        value: function _getName(type) {
+            return type.name;
         }
     }, {
-        key: 'resolve',
-        value: function resolve(module, type) {
+        key: "resolve",
+        value: function resolve(type) {
             var _this = this;
 
             var dependencies = type.metadata && type.metadata.dependencies || type.dependencies;
@@ -303,24 +338,24 @@ var DIContainer = exports.DIContainer = function () {
             }
 
             var instances = dependencies.map(function (d) {
-                return _this.getInstance(module, d);
+                return _this.getInstance(d);
             });
             return new (type.bind.apply(type, [type].concat(instances)))();
         }
     }, {
-        key: 'getInstance',
-        value: function getInstance(module, type) {
-            var name = this._getName(module, type);
+        key: "getInstance",
+        value: function getInstance(type) {
+            var name = this._getName(type);
             var registered = this._typeRegistry[name];
             if (!registered.instance) {
-                registered.instance = this.resolve(module, registered.type);
+                registered.instance = this.resolve(registered.type);
             }
             return registered.instance;
         }
     }, {
-        key: 'registerType',
-        value: function registerType(module, type) {
-            var name = this._getName(module, type);
+        key: "registerType",
+        value: function registerType(type) {
+            var name = this._getName(type);
             var registered = this._typeRegistry[name];
             if (!registered) {
                 this._typeRegistry[name] = { type: type, instance: null };
@@ -332,7 +367,7 @@ var DIContainer = exports.DIContainer = function () {
 }();
 
 /***/ }),
-/* 10 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -347,24 +382,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _component = __webpack_require__(8);
+var _component = __webpack_require__(10);
 
-var _component2 = __webpack_require__(7);
+var _component2 = __webpack_require__(9);
+
+var _router = __webpack_require__(21);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Module = exports.Module = function () {
     _createClass(Module, [{
-        key: 'types',
-        get: function get() {
-            return this._types;
-        }
-    }, {
-        key: 'components',
-        get: function get() {
-            return this._components;
-        }
-    }, {
         key: 'rootComponent',
         get: function get() {
             return this._rootComponent;
@@ -377,85 +404,80 @@ var Module = exports.Module = function () {
         this._container = container;
         options = options || {};
         this._name = name;
-        this._types = options.types;
-        this._components = options.components;
         this._rootComponent = options.rootComponent;
-        this._routes = options.routes;
 
-        this._registerTypes(name, this._types);
-        this._registerComponents(name, this._components);
+        if (options.types) this._registerTypes(options.types);
+        if (options.components) this._registerComponents(options.components);
+        if (options.routes) this._registerRoutes(options.routes);
     }
 
     _createClass(Module, [{
-        key: '_registerTypes',
-        value: function _registerTypes(module, types) {
+        key: '_registerRoutes',
+        value: function _registerRoutes(routes) {
             var _this = this;
 
+            this._router = new _router.Router(routes);
+            this._router.onRouteChanged = function (route) {
+                var outlet = document.getElementsByTagName('router-outlet')[0];
+                if (route.root && outlet) {
+                    _this._buildComponent(route.root, outlet);
+                }
+            };
+        }
+    }, {
+        key: '_registerTypes',
+        value: function _registerTypes(types) {
+            var _this2 = this;
+
             types.forEach(function (type) {
-                _this._container.registerType(module, type);
+                _this2._container.registerType(type);
             });
         }
     }, {
         key: '_registerComponents',
-        value: function _registerComponents(module, components) {
-            var _this2 = this;
+        value: function _registerComponents(components) {
+            var _this3 = this;
 
             this._components = {};
             components.forEach(function (c) {
                 if (typeof c === 'function' && _typeof(c.metadata.template)) {
-                    _this2._components[c.metadata.selector] = c;
+                    _this3._components[c.metadata.selector] = c;
                 } else if ((typeof c === 'undefined' ? 'undefined' : _typeof(c)) === 'object' && typeof c.render === 'function') {
-                    _this2._components[c.selector] = c;
+                    _this3._components[c.selector] = c;
                 }
             });
         }
     }, {
         key: '_buildComponent',
         value: function _buildComponent(type, element) {
-            var _this3 = this;
+            var _this4 = this;
 
             while (element.firstChild) {
                 element.removeChild(element.firstChild);
             }
-            if (typeof type === 'function' && typeof type.metadata.template === 'function') {
-                var controller = this._container.resolve(this._name, type);
-                var container = new _component2.ComponentContainer(type.metadata.template, controller);
+            if ((typeof type === 'undefined' ? 'undefined' : _typeof(type)) === 'object' && typeof type.render === 'function') {
+                var container = new _component2.ComponentContainer(this._container, type);
                 container.initialize(element);
-            } else if ((typeof type === 'undefined' ? 'undefined' : _typeof(type)) === 'object' && typeof type.render === 'function') {
-                var _controller = this._container.resolve(this._name, type.controller);
-                var _container = new _component2.ComponentContainer(type.render, _controller);
-                _container.initialize(element);
             } else {
                 element.innerHTML = type.metadata.template;
-                var _controller2 = this._container.resolve(this._name, type);
-                (0, _component.componentFactory)(this._components).processElement(element, _controller2, function (component) {
-                    return _this3._container.resolve(_this3._name, component);
+                var controller = this._container.resolve(type);
+                (0, _component.componentFactory)(this._components).processElement(element, controller, function (component) {
+                    return _this4._container.resolve(component);
                 });
             }
 
             return element;
         }
     }, {
-        key: '_router',
-        value: function _router(element) {
-            var url = location.hash.slice(1) || '/';
-            var route = this._routes.find(function (r) {
-                return r.path === url;
-            });
-            if (element && route.root) {
-                this._buildComponent(route.root, element);
-            }
-        }
-    }, {
         key: '_initializeRouting',
         value: function _initializeRouting(element) {
-            var _this4 = this;
+            var _this5 = this;
 
             window.addEventListener('hashchange', function () {
-                return _this4._router(element);
+                return _this5._router(element);
             });
             window.addEventListener('load', function () {
-                return _this4._router(element);
+                return _this5._router(element);
             });
         }
     }, {
@@ -463,10 +485,6 @@ var Module = exports.Module = function () {
         value: function deploy(element) {
             if (this._rootComponent) {
                 this._buildComponent(this._rootComponent, element);
-                var outlet = document.getElementsByTagName('router-outlet');
-                if (outlet.length > 0) {
-                    this._initializeRouting(outlet[0]);
-                }
             } else if (this._routes) {
                 this._initializeRouting(element);
             }
@@ -477,7 +495,7 @@ var Module = exports.Module = function () {
 }();
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -492,7 +510,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var TemplateBuilder = exports.TemplateBuilder = function () {
-    function TemplateBuilder(baseElement, controller) {
+    function TemplateBuilder(baseElement, controller, component) {
         _classCallCheck(this, TemplateBuilder);
 
         this._subscriptions = [];
@@ -518,8 +536,9 @@ var TemplateBuilder = exports.TemplateBuilder = function () {
             }
 
             subs.push({ element: element, elProp: elementProp });
+            debugger;
 
-            ctrl.onPropetyChanged = function (name) {
+            ctrl.onPropertyChanged = function (name) {
                 setTimeout(function () {
                     _this._send(_this._subscriptions[name], ctrl[name]);
                 });
@@ -594,18 +613,68 @@ var TemplateBuilder = exports.TemplateBuilder = function () {
 }();
 
 /***/ }),
-/* 12 */,
-/* 13 */
+/* 15 */,
+/* 16 */,
+/* 17 */,
+/* 18 */,
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _frameworken = __webpack_require__(5);
+var _frameworken = __webpack_require__(1);
 
 (function (window) {
     window.frameworken = new _frameworken.Frameworken();
 })(window);
+
+/***/ }),
+/* 20 */,
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Router = exports.Router = function () {
+    function Router(routes) {
+        var _this = this;
+
+        _classCallCheck(this, Router);
+
+        this._routes = routes;
+        this._onChange = function () {
+            var url = location.hash.slice(1) || '/';
+            var route = _this._routes.find(function (r) {
+                return r.path === url;
+            });
+            if (route && typeof _this.onRouteChanged === 'function') {
+                _this.onRouteChanged(route);
+            }
+        };
+        window.addEventListener('hashchange', this._onChange);
+        window.addEventListener('load', this._onChange);
+    }
+
+    _createClass(Router, [{
+        key: 'destroy',
+        value: function destroy() {
+            window.removeEventListener('hashchange', this._onChange);
+            window.removeEventListener('load', this._onChange);
+        }
+    }]);
+
+    return Router;
+}();
 
 /***/ })
 /******/ ]);

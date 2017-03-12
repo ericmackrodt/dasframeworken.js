@@ -1,5 +1,7 @@
+
+
 export class TemplateBuilder {
-    constructor(baseElement, controller) {
+    constructor(baseElement, controller, component) {
         this._subscriptions = [];
         this._baseElement = baseElement;
         this._controller = controller;
@@ -16,8 +18,9 @@ export class TemplateBuilder {
         }
 
         subs.push({ element: element, elProp: elementProp });
+        debugger;
 
-        ctrl.onPropetyChanged = (name) => {
+        ctrl.onPropertyChanged = (name) => {
             setTimeout(() => {
                 this._send(this._subscriptions[name], ctrl[name]);
             });
