@@ -24,10 +24,15 @@ export class Module {
 
     _registerRoutes(routes) {
         this._router = new Router(routes);
+        this._router.onRouteChanging = (oldRoute, newRoute) => {
+            if (this._routeComponentContainer) {
+                this._routeComponentContainer.teardown();
+            }
+        };
         this._router.onRouteChanged = (route) => {
             const outlet = document.getElementsByTagName('router-outlet')[0];
             if (route.root && outlet) {
-                this._buildComponent(route.root, outlet);
+                this._routeComponentContainer = this._buildComponent(route.root, outlet);
             }
         };
     }
@@ -53,18 +58,21 @@ export class Module {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }
-        if (typeof type === 'object' && typeof type.render === 'function') {
-            const container = new ComponentContainer(this, type);
-            container.initialize(element);
-        } else {
-            element.innerHTML = type.metadata.template;
-            const controller = this._container.resolve(type);
-            componentFactory(this._components).processElement(element, controller, (component) => {
-                return this._container.resolve(component);
-            });
-        }
 
-        return element;
+        const container = new ComponentContainer(this, type);
+        container.initialize(element);
+
+        // if (typeof type === 'object' && typeof type.render === 'function') {
+            
+        // } else {
+        //     element.innerHTML = type.metadata.template;
+        //     const controller = this._container.resolve(type);
+        //     componentFactory(this._components).processElement(element, controller, (component) => {
+        //         return this._container.resolve(component);
+        //     });
+        // }
+
+        return container;
     }
 
     _initializeRouting(element) {
@@ -78,7 +86,7 @@ export class Module {
 
     deploy(element) {
         if (this._rootComponent) {
-            this._buildComponent(this._rootComponent, element);
+            this._rootComponentContainer = this._buildComponent(this._rootComponent, element);
         } else if (this._routes) {
             this._initializeRouting(element);
         }

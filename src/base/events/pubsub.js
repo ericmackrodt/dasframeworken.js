@@ -33,8 +33,8 @@ export class Pubsub {
     }
 
     teardown() {
-        for (let key of this._subscriptions){
-            this.unsubscribe(name);
+        for (let key of Object.keys(this._subscriptions)) {
+            this.unsubscribe(key);
         }
         delete this._subscriptions;
     }

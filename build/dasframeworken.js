@@ -258,7 +258,7 @@ var ComponentContainer = exports.ComponentContainer = function () {
 
             while (this._eventListeners.length) {
                 var listener = this._eventListeners[0];
-                listener.event.removeEventListener(listener.event, listener.callback);
+                listener.element.removeEventListener(listener.event, listener.callback);
                 this._eventListeners.splice(0, 1);
             }
             delete this._eventListeners;
@@ -521,10 +521,10 @@ var Pubsub = exports.Pubsub = function () {
             var _iteratorError = undefined;
 
             try {
-                for (var _iterator = this._subscriptions[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                for (var _iterator = Object.keys(this._subscriptions)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                     var key = _step.value;
 
-                    this.unsubscribe(name);
+                    this.unsubscribe(key);
                 }
             } catch (err) {
                 _didIteratorError = true;
@@ -661,10 +661,15 @@ var Module = exports.Module = function () {
             var _this = this;
 
             this._router = new _router.Router(routes);
+            this._router.onRouteChanging = function (oldRoute, newRoute) {
+                if (_this._routeComponentContainer) {
+                    _this._routeComponentContainer.teardown();
+                }
+            };
             this._router.onRouteChanged = function (route) {
                 var outlet = document.getElementsByTagName('router-outlet')[0];
                 if (route.root && outlet) {
-                    _this._buildComponent(route.root, outlet);
+                    _this._routeComponentContainer = _this._buildComponent(route.root, outlet);
                 }
             };
         }
@@ -694,34 +699,35 @@ var Module = exports.Module = function () {
     }, {
         key: '_buildComponent',
         value: function _buildComponent(type, element) {
-            var _this4 = this;
-
             while (element.firstChild) {
                 element.removeChild(element.firstChild);
             }
-            if ((typeof type === 'undefined' ? 'undefined' : _typeof(type)) === 'object' && typeof type.render === 'function') {
-                var container = new _component2.ComponentContainer(this, type);
-                container.initialize(element);
-            } else {
-                element.innerHTML = type.metadata.template;
-                var controller = this._container.resolve(type);
-                (0, _component.componentFactory)(this._components).processElement(element, controller, function (component) {
-                    return _this4._container.resolve(component);
-                });
-            }
 
-            return element;
+            var container = new _component2.ComponentContainer(this, type);
+            container.initialize(element);
+
+            // if (typeof type === 'object' && typeof type.render === 'function') {
+
+            // } else {
+            //     element.innerHTML = type.metadata.template;
+            //     const controller = this._container.resolve(type);
+            //     componentFactory(this._components).processElement(element, controller, (component) => {
+            //         return this._container.resolve(component);
+            //     });
+            // }
+
+            return container;
         }
     }, {
         key: '_initializeRouting',
         value: function _initializeRouting(element) {
-            var _this5 = this;
+            var _this4 = this;
 
             window.addEventListener('hashchange', function () {
-                return _this5._router(element);
+                return _this4._router(element);
             });
             window.addEventListener('load', function () {
-                return _this5._router(element);
+                return _this4._router(element);
             });
         }
     }, {
@@ -733,7 +739,7 @@ var Module = exports.Module = function () {
         key: 'deploy',
         value: function deploy(element) {
             if (this._rootComponent) {
-                this._buildComponent(this._rootComponent, element);
+                this._rootComponentContainer = this._buildComponent(this._rootComponent, element);
             } else if (this._routes) {
                 this._initializeRouting(element);
             }
@@ -765,13 +771,20 @@ var Router = exports.Router = function () {
         _classCallCheck(this, Router);
 
         this._routes = routes;
+        this._currentRoute = null;
         this._onChange = function () {
             var url = location.hash.slice(1) || '/';
             var route = _this._routes.find(function (r) {
                 return r.path === url;
             });
-            if (route && typeof _this.onRouteChanged === 'function') {
-                _this.onRouteChanged(route);
+            if (!route) return;
+
+            if (typeof _this.onRouteChanging === 'function') {
+                _this.onRouteChanging(_this._currentRoute, route);
+            }
+            _this._currentRoute = route;
+            if (typeof _this.onRouteChanged === 'function') {
+                _this.onRouteChanged(_this._currentRoute);
             }
         };
         window.addEventListener('hashchange', this._onChange);

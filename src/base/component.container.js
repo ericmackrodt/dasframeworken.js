@@ -82,7 +82,7 @@ export class ComponentContainer {
         
         while (this._eventListeners.length) {
             const listener = this._eventListeners[0];
-            listener.event.removeEventListener(listener.event, listener.callback);
+            listener.element.removeEventListener(listener.event, listener.callback);
             this._eventListeners.splice(0, 1);
         }
         delete this._eventListeners;
