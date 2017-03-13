@@ -33,7 +33,11 @@ export class ComponentContainer {
     }
 
     setBinding(element, elementProperty, controllerProperty) {
-        this._bindings.subscribe(controllerProperty, (key) => element[elementProperty] = this._controller[key]);
+        this._bindings.subscribe(controllerProperty, (key) => { 
+            if (element[elementProperty] !== this._controller[key]) {
+                element[elementProperty] = this._controller[key]; 
+            }
+        });
         if (typeof this._controller.onPropertyChanged !== 'function') {
             this._controller.onPropertyChanged = (name) => this._bindings.emit(name, name);
         }
@@ -42,11 +46,11 @@ export class ComponentContainer {
 
     setInwardBinding(element, controllerProperty) {
         this._registerEvent(element, 'input', (change) => {
+            const start = element.selectionStart;
+            const end = element.selectionEnd;
             setTimeout(() => {
-                const start = element.selectionStart;
-                const end = element.selectionEnd;
                 this._controller[controllerProperty] = change.target.value;
-                element.setSelectionRange(start, end);
+                setTimeout(() => element.setSelectionRange(start, end));
             });
         });
     }

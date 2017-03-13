@@ -198,7 +198,9 @@ var ComponentContainer = exports.ComponentContainer = function () {
             var _this = this;
 
             this._bindings.subscribe(controllerProperty, function (key) {
-                return element[elementProperty] = _this._controller[key];
+                if (element[elementProperty] !== _this._controller[key]) {
+                    element[elementProperty] = _this._controller[key];
+                }
             });
             if (typeof this._controller.onPropertyChanged !== 'function') {
                 this._controller.onPropertyChanged = function (name) {
@@ -213,11 +215,13 @@ var ComponentContainer = exports.ComponentContainer = function () {
             var _this2 = this;
 
             this._registerEvent(element, 'input', function (change) {
+                var start = element.selectionStart;
+                var end = element.selectionEnd;
                 setTimeout(function () {
-                    var start = element.selectionStart;
-                    var end = element.selectionEnd;
                     _this2._controller[controllerProperty] = change.target.value;
-                    element.setSelectionRange(start, end);
+                    setTimeout(function () {
+                        return element.setSelectionRange(start, end);
+                    });
                 });
             });
         }
