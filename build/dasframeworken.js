@@ -165,9 +165,27 @@ var ComponentContainer = exports.ComponentContainer = function () {
         this._container = diContainer;
         utils.setupController(component.controller);
         this._component = component;
+        this._chilren = [];
     }
 
     _createClass(ComponentContainer, [{
+        key: '_registerEvent',
+        value: function _registerEvent(element, event, callback) {
+            var listener = this._eventListeners.find(function (e) {
+                return e.element === element && e.event === event;
+            });
+            if (!listener) {
+                listener = {
+                    element: element,
+                    event: event,
+                    callback: callback
+                };
+
+                element.addEventListener(event, callback, true);
+                this._eventListeners.push(listener);
+            }
+        }
+    }, {
         key: 'initialize',
         value: function initialize(element) {
             this._controller = this._container.resolve(this._component.controller);
@@ -180,12 +198,13 @@ var ComponentContainer = exports.ComponentContainer = function () {
             var _this = this;
 
             this._bindings.subscribe(controllerProperty, function (key) {
-                debugger;
-                element[elementProperty] = _this._controller[key];
+                return element[elementProperty] = _this._controller[key];
             });
-            this._controller.onPropertyChanged = function (name) {
-                return _this._bindings.emit(name);
-            };
+            if (typeof this._controller.onPropertyChanged !== 'function') {
+                this._controller.onPropertyChanged = function (name) {
+                    return _this._bindings.emit(name, name);
+                };
+            }
             element[elementProperty] = this._controller[controllerProperty];
         }
 
@@ -196,14 +215,14 @@ var ComponentContainer = exports.ComponentContainer = function () {
         value: function setInwardBinding(element, controllerProperty) {
             var _this2 = this;
 
-            element.addEventListener('input', function (change) {
+            this._registerEvent(element, 'input', function (change) {
                 setTimeout(function () {
                     var start = element.selectionStart;
                     var end = element.selectionEnd;
                     _this2._controller[controllerProperty] = change.target.value;
                     element.setSelectionRange(start, end);
                 });
-            }, true);
+            });
         }
     }, {
         key: 'setEvent',
@@ -211,14 +230,21 @@ var ComponentContainer = exports.ComponentContainer = function () {
             var _this3 = this;
 
             var key = callback.replace('()', '');
-            element.addEventListener(event.replace('trigger:', ''), function (arg) {
+            this._registerEvent(element, event.replace('trigger:', ''), function (arg) {
                 _this3._controller[key](arg);
-            }, false);
+            });
         }
     }, {
         key: 'teardown',
         value: function teardown() {
             this._bindings.teardown();
+
+            while (this._eventListeners.length) {
+                var listener = this._eventListeners[0];
+                listener.event.removeEventListener(listener.event, listener.callback);
+                this._eventListeners.splice(0, 1);
+            }
+            delete this._eventListeners;
 
             if (this._instance && typeof this._instance.onTeardown === 'function') {
                 this._instance.teardown();

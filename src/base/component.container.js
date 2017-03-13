@@ -9,6 +9,21 @@ export class ComponentContainer {
         this._container = diContainer;
         utils.setupController(component.controller);
         this._component = component;
+        this._chilren = [];
+    }
+
+    _registerEvent(element, event, callback) {
+        let listener = this._eventListeners.find(e => e.element === element && e.event === event);
+        if (!listener) {
+            listener = {
+                element: element,
+                event: event,
+                callback: callback
+            };
+
+            element.addEventListener(event, callback, true);
+            this._eventListeners.push(listener);
+        }
     }
 
     initialize(element) {
@@ -18,34 +33,41 @@ export class ComponentContainer {
     }
 
     setBinding(element, elementProperty, controllerProperty) {
-        this._bindings.subscribe(controllerProperty, (key) =>  { 
-            debugger;
-            element[elementProperty] = this._controller[key] });
-        this._controller.onPropertyChanged = (name) => this._bindings.emit(name);
+        this._bindings.subscribe(controllerProperty, (key) => element[elementProperty] = this._controller[key]);
+        if (typeof this._controller.onPropertyChanged !== 'function') {
+            this._controller.onPropertyChanged = (name) => this._bindings.emit(name, name);
+        }
         element[elementProperty] = this._controller[controllerProperty];
     }
 
     // TODO: fixme
     setInwardBinding(element, controllerProperty) {
-        element.addEventListener('input', (change) => {
+        this._registerEvent(element, 'input', (change) => {
             setTimeout(() => {
                 const start = element.selectionStart;
                 const end = element.selectionEnd;
                 this._controller[controllerProperty] = change.target.value;
                 element.setSelectionRange(start, end);
             });
-        }, true);
+        });
     }
     
     setEvent(element, event, callback) {
         const key = callback.replace('()', '');
-        element.addEventListener(event.replace('trigger:', ''), (arg) => { 
+        this._registerEvent(element, event.replace('trigger:', ''), (arg) => { 
             this._controller[key](arg); 
-        }, false);
+        });
     }
 
     teardown() {
         this._bindings.teardown();
+        
+        while (this._eventListeners.length) {
+            const listener = this._eventListeners[0];
+            listener.event.removeEventListener(listener.event, listener.callback);
+            this._eventListeners.splice(0, 1);
+        }
+        delete this._eventListeners;
 
         if (this._instance && typeof this._instance.onTeardown === 'function') {
             this._instance.teardown();
