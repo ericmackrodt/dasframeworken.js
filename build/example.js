@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 18);
+/******/ 	return __webpack_require__(__webpack_require__.s = 21);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -82,29 +82,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 "use strict";
 
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var FakeService = exports.FakeService = function () {
+var FakeService = (function () {
     function FakeService() {
-        _classCallCheck(this, FakeService);
     }
-
-    _createClass(FakeService, [{
-        key: 'doSomething',
-        value: function doSomething() {
-            console.log('it works!');
-        }
-    }]);
-
+    FakeService.prototype.doSomething = function () {
+        console.log('it works!');
+    };
     return FakeService;
-}();
+}());
+exports.FakeService = FakeService;
+
 
 /***/ }),
 /* 1 */,
@@ -114,7 +101,7 @@ var FakeService = exports.FakeService = function () {
 "use strict";
 
 
-var _anotherComponent = __webpack_require__(6);
+var _anotherComponent = __webpack_require__(9);
 
 module.exports = {
 				selector: 'another-comp',
@@ -135,7 +122,7 @@ module.exports = {
 "use strict";
 
 
-var _homeComponent = __webpack_require__(15);
+var _homeComponent = __webpack_require__(6);
 
 module.exports = {
 				selector: 'a-component',
@@ -162,7 +149,7 @@ module.exports = {
 "use strict";
 
 
-var _rootComponent = __webpack_require__(7);
+var _rootComponent = __webpack_require__(10);
 
 module.exports = {
 				selector: 'root-comp',
@@ -183,7 +170,7 @@ module.exports = {
 "use strict";
 
 
-var _titleComponent = __webpack_require__(8);
+var _titleComponent = __webpack_require__(11);
 
 module.exports = {
 				selector: 'title-comp',
@@ -203,6 +190,88 @@ module.exports = {
 
 /***/ }),
 /* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var fake_service_1 = __webpack_require__(0);
+var ts_1 = __webpack_require__(8);
+var HomeComponent = (function () {
+    function HomeComponent(fakeService) {
+        fakeService.doSomething();
+        fakeService.kept = 'kept instance';
+        this.prop = 'predefined';
+    }
+    Object.defineProperty(HomeComponent, "metadata", {
+        get: function () {
+            return {
+                dependencies: [fake_service_1.FakeService]
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    HomeComponent.prototype.clicked = function () {
+        this.prop = this.prop + ' Clicked!';
+    };
+    __decorate([
+        ts_1.observable(), 
+        __metadata('design:type', String)
+    ], HomeComponent.prototype, "prop", void 0);
+    return HomeComponent;
+}());
+exports.HomeComponent = HomeComponent;
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function observable() {
+    return function (target, propertyKey) {
+        var _private;
+        return {
+            get: function () {
+                return _private;
+            },
+            set: function (val) {
+                if (_private !== val) {
+                    _private = val;
+                    this._notifyChange(propertyKey);
+                }
+            },
+            enumerable: true
+        };
+    };
+}
+exports.observable = observable;
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+__export(__webpack_require__(7));
+
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -239,7 +308,7 @@ var AnotherComponent = exports.AnotherComponent = function () {
 }();
 
 /***/ }),
-/* 7 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -271,7 +340,7 @@ var RootComponent = exports.RootComponent = function () {
 }();
 
 /***/ }),
-/* 8 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -321,132 +390,43 @@ var TitleComponent = exports.TitleComponent = function () {
 }();
 
 /***/ }),
-/* 9 */,
-/* 10 */,
-/* 11 */,
 /* 12 */,
 /* 13 */,
 /* 14 */,
-/* 15 */
+/* 15 */,
+/* 16 */,
+/* 17 */,
+/* 18 */,
+/* 19 */,
+/* 20 */,
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
+var anotherComponent = __webpack_require__(2);
+var homeComponent = __webpack_require__(3);
+var rootComponent = __webpack_require__(4);
+var titleComponent = __webpack_require__(5);
 var fake_service_1 = __webpack_require__(0);
-var ts_1 = __webpack_require__(17);
-var HomeComponent = (function () {
-    function HomeComponent(fakeService) {
-        fakeService.doSomething();
-        fakeService.kept = 'kept instance';
-        this.prop = 'predefined';
-    }
-    Object.defineProperty(HomeComponent, "metadata", {
-        get: function () {
-            return {
-                dependencies: [fake_service_1.FakeService]
-            };
-        },
-        enumerable: true,
-        configurable: true
-    });
-    HomeComponent.prototype.clicked = function () {
-        this.prop = this.prop + ' Clicked!';
-    };
-    return HomeComponent;
-}());
-__decorate([
-    ts_1.observable(),
-    __metadata("design:type", String)
-], HomeComponent.prototype, "prop", void 0);
-exports.HomeComponent = HomeComponent;
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function observable() {
-    return function (target, propertyKey) {
-        var _private;
-        return {
-            get: function () {
-                return _private;
-            },
-            set: function (val) {
-                if (_private !== val) {
-                    _private = val;
-                    this._notifyChange(propertyKey);
-                }
-            },
-            enumerable: true
-        };
-    };
-}
-exports.observable = observable;
-
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(16));
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _anotherComponent = __webpack_require__(2);
-
-var AnotherComponent = _interopRequireWildcard(_anotherComponent);
-
-var _homeComponent = __webpack_require__(3);
-
-var HomeComponent = _interopRequireWildcard(_homeComponent);
-
-var _rootComponent = __webpack_require__(4);
-
-var RootComponent = _interopRequireWildcard(_rootComponent);
-
-var _titleComponent = __webpack_require__(5);
-
-var TitleComponent = _interopRequireWildcard(_titleComponent);
-
-var _fake = __webpack_require__(0);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
 var app = frameworken.module('app', {
-    routes: [{ path: '/', root: HomeComponent }, { path: '/another', root: AnotherComponent }],
-    types: [_fake.FakeService],
-    components: [HomeComponent, AnotherComponent, RootComponent, TitleComponent],
-    rootComponent: RootComponent
-}); /* global frameworken */
-
-
+    routes: [
+        { path: '/', root: homeComponent },
+        { path: '/another', root: anotherComponent }
+    ],
+    types: [
+        fake_service_1.FakeService
+    ],
+    components: [
+        homeComponent,
+        anotherComponent,
+        rootComponent,
+        titleComponent
+    ],
+    rootComponent: rootComponent
+});
 app.deploy(document.getElementById('main'));
+
 
 /***/ })
 /******/ ]);

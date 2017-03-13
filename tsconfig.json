@@ -5,6 +5,14 @@
         "emitDecoratorMetadata": true,
         "module": "commonjs",
         "noImplicitAny": true,
-        "allowJs": true
-    }
+        "allowJs": true,
+        "outDir": "./build"
+    },
+    "include": [
+        "src/dasframeworken.d.ts",
+        "**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }

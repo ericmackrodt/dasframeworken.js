@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 19);
+/******/ 	return __webpack_require__(__webpack_require__.s = 22);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -91,9 +91,9 @@ exports.Frameworken = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _module = __webpack_require__(13);
+var _module = __webpack_require__(18);
 
-var _di = __webpack_require__(12);
+var _di = __webpack_require__(15);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -128,7 +128,10 @@ var Frameworken = exports.Frameworken = function () {
 /* 6 */,
 /* 7 */,
 /* 8 */,
-/* 9 */
+/* 9 */,
+/* 10 */,
+/* 11 */,
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -141,9 +144,11 @@ exports.ComponentContainer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _template = __webpack_require__(14);
+var _template = __webpack_require__(20);
 
-var _component = __webpack_require__(11);
+var _pubsub = __webpack_require__(16);
+
+var _component = __webpack_require__(14);
 
 var utils = _interopRequireWildcard(_component);
 
@@ -155,6 +160,8 @@ var ComponentContainer = exports.ComponentContainer = function () {
     function ComponentContainer(diContainer, component) {
         _classCallCheck(this, ComponentContainer);
 
+        this._bindings = new _pubsub.Pubsub();
+        this._eventListeners = [];
         this._container = diContainer;
         utils.setupController(component.controller);
         this._component = component;
@@ -164,12 +171,55 @@ var ComponentContainer = exports.ComponentContainer = function () {
         key: 'initialize',
         value: function initialize(element) {
             this._controller = this._container.resolve(this._component.controller);
-            this._templateBuilder = new _template.TemplateBuilder(element, this._controller);
+            this._templateBuilder = new _template.TemplateBuilder(this, element);
             this._component.render(this._templateBuilder);
+        }
+    }, {
+        key: 'setBinding',
+        value: function setBinding(element, elementProperty, controllerProperty) {
+            var _this = this;
+
+            this._bindings.subscribe(controllerProperty, function (key) {
+                debugger;
+                element[elementProperty] = _this._controller[key];
+            });
+            this._controller.onPropertyChanged = function (name) {
+                return _this._bindings.emit(name);
+            };
+            element[elementProperty] = this._controller[controllerProperty];
+        }
+
+        // TODO: fixme
+
+    }, {
+        key: 'setInwardBinding',
+        value: function setInwardBinding(element, controllerProperty) {
+            var _this2 = this;
+
+            element.addEventListener('input', function (change) {
+                setTimeout(function () {
+                    var start = element.selectionStart;
+                    var end = element.selectionEnd;
+                    _this2._controller[controllerProperty] = change.target.value;
+                    element.setSelectionRange(start, end);
+                });
+            }, true);
+        }
+    }, {
+        key: 'setEvent',
+        value: function setEvent(element, event, callback) {
+            var _this3 = this;
+
+            var key = callback.replace('()', '');
+            element.addEventListener(event.replace('trigger:', ''), function (arg) {
+                _this3._controller[key](arg);
+            }, false);
         }
     }, {
         key: 'teardown',
         value: function teardown() {
+            this._bindings.teardown();
+
             if (this._instance && typeof this._instance.onTeardown === 'function') {
                 this._instance.teardown();
             }
@@ -180,7 +230,7 @@ var ComponentContainer = exports.ComponentContainer = function () {
 }();
 
 /***/ }),
-/* 10 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -204,7 +254,6 @@ function componentFactory(components) {
         }
 
         subs.push({ element: obj, elProp: oprop });
-        debugger;
         ctrl.onPropertyChanged = function (name) {
             setTimeout(function () {
                 send(subscriptions[name], ctrl[name]);
@@ -274,7 +323,7 @@ function componentFactory(components) {
 }
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -285,7 +334,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.setupController = setupController;
 function setupController(controllerType) {
-    debugger;
     controllerType.prototype._notifyChange = function (propertyName) {
         var _this = this;
 
@@ -300,7 +348,7 @@ function setupController(controllerType) {
 }
 
 /***/ }),
-/* 12 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -367,7 +415,155 @@ var DIContainer = exports.DIContainer = function () {
 }();
 
 /***/ }),
-/* 13 */
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.Pubsub = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _subscriber = __webpack_require__(17);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Pubsub = exports.Pubsub = function () {
+    function Pubsub() {
+        _classCallCheck(this, Pubsub);
+
+        this._subscriptions = {};
+    }
+
+    _createClass(Pubsub, [{
+        key: 'subscribe',
+        value: function subscribe(name, callback) {
+            var subscription = this._subscriptions[name];
+            if (!subscription) {
+                this._subscriptions[name] = subscription = new _subscriber.Subscriber();
+            }
+            subscription.subscribe(callback);
+        }
+    }, {
+        key: 'emit',
+        value: function emit(name, data) {
+            var subscription = this._subscriptions[name];
+            if (subscription) {
+                subscription.emit(data);
+            }
+        }
+    }, {
+        key: 'get',
+        value: function get(name) {
+            return this._subscriptions[name];
+        }
+    }, {
+        key: 'unsubscribe',
+        value: function unsubscribe(name) {
+            var subscription = this._subscriptions[name];
+            if (subscription) {
+                subscription.teardown();
+            }
+            delete this._subscriptions[name];
+        }
+    }, {
+        key: 'teardown',
+        value: function teardown() {
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = this._subscriptions[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var key = _step.value;
+
+                    this.unsubscribe(name);
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            delete this._subscriptions;
+        }
+    }]);
+
+    return Pubsub;
+}();
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Subscriber = exports.Subscriber = function () {
+    function Subscriber() {
+        _classCallCheck(this, Subscriber);
+
+        this._subscriptions = [];
+    }
+
+    _createClass(Subscriber, [{
+        key: "subscribe",
+        value: function subscribe(fn) {
+            if (this._subscriptions) {
+                this._subscriptions.push(fn);
+            }
+        }
+    }, {
+        key: "emit",
+        value: function emit(data) {
+            this._subscriptions.forEach(function (sub) {
+                setTimeout(function () {
+                    return sub(data);
+                }, 1);
+            });
+        }
+    }, {
+        key: "remove",
+        value: function remove(fn) {
+            var index = this._subscriptions.indexOf(fn);
+            this._subscriptions.splice(index, 1);
+        }
+    }, {
+        key: "teardown",
+        value: function teardown() {
+            for (var i = this._subscriptions.length - 1; i--;) {
+                this._subscriptions.splice(i, 1);
+            }
+            delete this._subscriptions;
+        }
+    }]);
+
+    return Subscriber;
+}();
+
+/***/ }),
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -382,11 +578,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _component = __webpack_require__(10);
+var _component = __webpack_require__(13);
 
-var _component2 = __webpack_require__(9);
+var _component2 = __webpack_require__(12);
 
-var _router = __webpack_require__(21);
+var _router = __webpack_require__(19);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -495,143 +691,7 @@ var Module = exports.Module = function () {
 }();
 
 /***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var TemplateBuilder = exports.TemplateBuilder = function () {
-    function TemplateBuilder(baseElement, controller, component) {
-        _classCallCheck(this, TemplateBuilder);
-
-        this._subscriptions = [];
-        this._baseElement = baseElement;
-        this._controller = controller;
-    }
-
-    _createClass(TemplateBuilder, [{
-        key: '_send',
-        value: function _send(subs, val) {
-            subs.forEach(function (f) {
-                return f.element[f.elProp] = val;
-            });
-        }
-    }, {
-        key: '_bound',
-        value: function _bound(element, elementProp, ctrl, controlProp) {
-            var _this = this;
-
-            var subs = this._subscriptions[controlProp];
-            if (!subs) {
-                subs = this._subscriptions[controlProp] = [];
-            }
-
-            subs.push({ element: element, elProp: elementProp });
-            debugger;
-
-            ctrl.onPropertyChanged = function (name) {
-                setTimeout(function () {
-                    _this._send(_this._subscriptions[name], ctrl[name]);
-                });
-            };
-
-            element[elementProp] = ctrl[controlProp];
-        }
-    }, {
-        key: '_inwardBinding',
-        value: function _inwardBinding(element, ctrl, prop) {
-            element.addEventListener('input', function (change) {
-                var _this2 = this;
-
-                setTimeout(function () {
-                    var start = _this2.selectionStart;
-                    var end = _this2.selectionEnd;
-                    ctrl[prop] = change.target.value;
-                    _this2.setSelectionRange(start, end);
-                });
-            }, true);
-        }
-    }, {
-        key: 'createRoot',
-        value: function createRoot(name, controller) {
-            parent = this._baseElement;
-            var element = document.createElement(name);
-            parent.appendChild(element);
-            return element;
-        }
-    }, {
-        key: 'createElement',
-        value: function createElement(name, parent) {
-            parent = parent || this._baseElement;
-            var element = document.createElement(name);
-            parent.appendChild(element);
-            return element;
-        }
-    }, {
-        key: 'setAttribute',
-        value: function setAttribute(name, value, parent) {
-            var _this3 = this;
-
-            if (name.startsWith('trigger:')) {
-                //localName
-                var key = value.replace('()', '');
-                parent.addEventListener(name.replace('trigger:', ''), function (arg) {
-                    _this3._controller[key](arg);
-                }, false);
-            } else if (name === 'binding') {
-                this._bound(parent, 'value', this._controller, value);
-                this._inwardBinding(parent, this._controller, value);
-            } else {
-                parent.setAttribute(name, value);
-            }
-        }
-    }, {
-        key: 'setText',
-        value: function setText(text, parent) {
-            var node = document.createTextNode(text);
-            parent.appendChild(node);
-        }
-    }, {
-        key: 'boundText',
-        value: function boundText(key, parent) {
-            var node = document.createTextNode('');
-            parent.appendChild(node);
-            this._bound(node, 'textContent', this._controller, key);
-        }
-    }]);
-
-    return TemplateBuilder;
-}();
-
-/***/ }),
-/* 15 */,
-/* 16 */,
-/* 17 */,
-/* 18 */,
 /* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _frameworken = __webpack_require__(1);
-
-(function (window) {
-    window.frameworken = new _frameworken.Frameworken();
-})(window);
-
-/***/ }),
-/* 20 */,
-/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -675,6 +735,104 @@ var Router = exports.Router = function () {
 
     return Router;
 }();
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var TemplateBuilder = exports.TemplateBuilder = function () {
+    function TemplateBuilder(componentContainer, baseElement, controller, component) {
+        _classCallCheck(this, TemplateBuilder);
+
+        this._subscriptions = [];
+        this._componentContainer = componentContainer;
+        this._baseElement = baseElement;
+        this._controller = controller;
+    }
+
+    _createClass(TemplateBuilder, [{
+        key: 'createRoot',
+        value: function createRoot(name, controller) {
+            parent = this._baseElement;
+            var element = document.createElement(name);
+            parent.appendChild(element);
+            return element;
+        }
+    }, {
+        key: 'createElement',
+        value: function createElement(name, parent) {
+            parent = parent || this._baseElement;
+            var element = document.createElement(name);
+            parent.appendChild(element);
+            return element;
+        }
+    }, {
+        key: 'setAttribute',
+        value: function setAttribute(name, value, parent) {
+            if (name.startsWith('trigger:')) {
+                //localName
+                this._componentContainer.setEvent(parent, name, value);
+            } else if (name === 'binding') {
+                this._componentContainer.setBinding(parent, 'value', value);
+                this._componentContainer.setInwardBinding(parent, value);
+            } else {
+                parent.setAttribute(name, value);
+            }
+        }
+    }, {
+        key: 'setText',
+        value: function setText(text, parent) {
+            var node = document.createTextNode(text);
+            parent.appendChild(node);
+        }
+    }, {
+        key: 'boundText',
+        value: function boundText(key, parent) {
+            var node = document.createTextNode('');
+            parent.appendChild(node);
+            this._componentContainer.setBinding(node, 'textContent', key);
+        }
+    }]);
+
+    return TemplateBuilder;
+}();
+
+/***/ }),
+/* 21 */,
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _frameworken = __webpack_require__(1);
+
+(function () {
+    window.frameworken = new _frameworken.Frameworken();
+})();
+
+// (function (root, factory) {
+//     if (typeof exports === 'object' && exports) {
+//         module.exports = factory();
+//     } else if (typeof define === 'function' && define.amd) {
+//         define('dasframeworken', [], factory);
+//     } else {
+//         root['frameworken'] = factory();   
+//     }
+// } (this, function () {
+//     return new Frameworken();
+// }));
 
 /***/ })
 /******/ ]);

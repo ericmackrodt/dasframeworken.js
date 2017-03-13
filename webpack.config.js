@@ -26,7 +26,7 @@ if (env === 'build') {
 const config = {
   entry: { 
     dasframeworken: __dirname + '/src/dasframeworken.js',
-    example: __dirname + '/example/example.js'
+    example: __dirname + '/example/example.ts'
   },
   devtool: 'source-map',
   output: {
@@ -45,7 +45,7 @@ const config = {
       },
       {
         test: /(\.tsx|\.ts)$/,
-        loader: 'ts-loader',
+        loader: 'awesome-typescript-loader',
         exclude: /(node_modules|bower_components)/
       },
       {
@@ -66,6 +66,9 @@ const config = {
   resolve: {
     modules: [path.resolve('./src')],
     extensions: ['.json', '.js', '.ts']
+    // alias: {
+    //   'dasframeworken': path.resolve(__dirname, 'src/dasframeworken.js')
+    // }
   },
   plugins: plugins
 };
