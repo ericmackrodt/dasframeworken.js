@@ -18,7 +18,10 @@ const app = frameworken.module('app', {
         rootComponent,
         titleComponent
     ],
-    rootComponent: rootComponent
+    rootComponent: rootComponent,
+    preLoad: () => {
+        return true;
+    }
 });
 
 app.deploy(document.getElementById('main'));

@@ -1,6 +1,7 @@
 import { componentFactory } from './component.factory';
 import { ComponentContainer } from './component.container';
 import { Router } from './router';
+import * as utils from './utils';
 
 export class Module {
     get rootComponent() {
@@ -16,6 +17,7 @@ export class Module {
         options = options || {};
         this._name = name;
         this._rootComponent = options.rootComponent;
+        this._preLoad = options.preLoad;
 
         if (options.types) this._registerTypes(options.types);
         if (options.components) this._registerComponents(options.components);
@@ -75,20 +77,18 @@ export class Module {
         return container;
     }
 
-    _initializeRouting(element) {
-        window.addEventListener('hashchange', () => this._router(element));
-        window.addEventListener('load', () => this._router(element));
-    }
-
     getComponent(name) {
         return this._components[name];
     }
 
     deploy(element) {
-        if (this._rootComponent) {
-            this._rootComponentContainer = this._buildComponent(this._rootComponent, element);
-        } else if (this._routes) {
-            this._initializeRouting(element);
-        }
+        const preLoad = this._preLoad && this._preLoad();
+        utils.returnPromise(preLoad).then(() => {
+            if (this._rootComponent) {
+                this._rootComponentContainer = this._buildComponent(this._rootComponent, element);
+            } else if (this._routes) {
+                this._initializeRouting(element);
+            }
+        });
     } 
 }

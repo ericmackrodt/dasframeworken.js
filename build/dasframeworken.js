@@ -631,6 +631,12 @@ var _component2 = __webpack_require__(12);
 
 var _router = __webpack_require__(19);
 
+var _utils = __webpack_require__(23);
+
+var utils = _interopRequireWildcard(_utils);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Module = exports.Module = function () {
@@ -653,6 +659,7 @@ var Module = exports.Module = function () {
         options = options || {};
         this._name = name;
         this._rootComponent = options.rootComponent;
+        this._preLoad = options.preLoad;
 
         if (options.types) this._registerTypes(options.types);
         if (options.components) this._registerComponents(options.components);
@@ -723,18 +730,6 @@ var Module = exports.Module = function () {
             return container;
         }
     }, {
-        key: '_initializeRouting',
-        value: function _initializeRouting(element) {
-            var _this4 = this;
-
-            window.addEventListener('hashchange', function () {
-                return _this4._router(element);
-            });
-            window.addEventListener('load', function () {
-                return _this4._router(element);
-            });
-        }
-    }, {
         key: 'getComponent',
         value: function getComponent(name) {
             return this._components[name];
@@ -742,11 +737,16 @@ var Module = exports.Module = function () {
     }, {
         key: 'deploy',
         value: function deploy(element) {
-            if (this._rootComponent) {
-                this._rootComponentContainer = this._buildComponent(this._rootComponent, element);
-            } else if (this._routes) {
-                this._initializeRouting(element);
-            }
+            var _this4 = this;
+
+            var preLoad = this._preLoad && this._preLoad();
+            utils.returnPromise(preLoad).then(function () {
+                if (_this4._rootComponent) {
+                    _this4._rootComponentContainer = _this4._buildComponent(_this4._rootComponent, element);
+                } else if (_this4._routes) {
+                    _this4._initializeRouting(element);
+                }
+            });
         }
     }]);
 
@@ -903,6 +903,30 @@ module.exports = new _frameworken.Frameworken();
 // } (this, function () {
 //     return new Frameworken();
 // }));
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.returnPromise = returnPromise;
+function returnPromise(obj) {
+    if (typeof obj === 'boolean') {
+        return obj ? Promise.resolve() : Promise.reject();
+    } else if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object' && typeof obj.then === 'function') {
+        return obj;
+    } else {
+        return Promise.resolve();
+    }
+}
 
 /***/ })
 /******/ ]);

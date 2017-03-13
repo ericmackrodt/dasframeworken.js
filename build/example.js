@@ -429,7 +429,10 @@ var app = frameworken.module('app', {
         rootComponent,
         titleComponent
     ],
-    rootComponent: rootComponent
+    rootComponent: rootComponent,
+    preLoad: function () {
+        return true;
+    }
 });
 app.deploy(document.getElementById('main'));
 

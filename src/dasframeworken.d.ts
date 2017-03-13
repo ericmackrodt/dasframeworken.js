@@ -23,7 +23,7 @@ declare namespace Frameworken {
     }
 
     interface IModuleOptions {
-        onPreLoad?: <T>() => Promise<T> | void;
+        preLoad?: <T>() => Promise<T> | boolean | void;
         types?: Object[];
         routes?: IRoute[];
         components: Object[];
@@ -31,6 +31,7 @@ declare namespace Frameworken {
     }
 
     interface IModule {
+        getComponent: (selector: string) => IComponent;
         deploy: (element: HTMLElement) => void;
     }
 
