@@ -1,6 +1,7 @@
 import { FakeService } from './../services/fake.service';
-import { observable } from './../../src/ts';
+import { observable, inject } from './../../src/ts';
 
+@inject
 export class HomeComponent {
     static get metadata() {
         return {
@@ -11,9 +12,8 @@ export class HomeComponent {
     @observable()
     public prop: string;
 
-    constructor(fakeService: any) {
+    constructor(fakeService: FakeService) {
         fakeService.doSomething();
-        fakeService.kept = 'kept instance';
         this.prop = 'predefined';
     }
 

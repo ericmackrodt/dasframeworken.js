@@ -16,3 +16,6 @@ export function observable() {
         };
     };
 }
+
+export function inject(target: any) {
+}

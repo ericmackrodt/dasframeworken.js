@@ -208,7 +208,6 @@ var ts_1 = __webpack_require__(8);
 var HomeComponent = (function () {
     function HomeComponent(fakeService) {
         fakeService.doSomething();
-        fakeService.kept = 'kept instance';
         this.prop = 'predefined';
     }
     Object.defineProperty(HomeComponent, "metadata", {
@@ -227,6 +226,10 @@ var HomeComponent = (function () {
         ts_1.observable(), 
         __metadata('design:type', String)
     ], HomeComponent.prototype, "prop", void 0);
+    HomeComponent = __decorate([
+        ts_1.inject, 
+        __metadata('design:paramtypes', [fake_service_1.FakeService])
+    ], HomeComponent);
     return HomeComponent;
 }());
 exports.HomeComponent = HomeComponent;
@@ -256,6 +259,9 @@ function observable() {
     };
 }
 exports.observable = observable;
+function inject(target) {
+}
+exports.inject = inject;
 
 
 /***/ }),
