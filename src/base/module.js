@@ -7,6 +7,10 @@ export class Module {
         return this._rootComponent;
     }
 
+    get container() {
+        return this._container;
+    }
+
     constructor(container, name, options) {
         this._container = container;
         options = options || {};
@@ -50,7 +54,7 @@ export class Module {
             element.removeChild(element.firstChild);
         }
         if (typeof type === 'object' && typeof type.render === 'function') {
-            const container = new ComponentContainer(this._container, type);
+            const container = new ComponentContainer(this, type);
             container.initialize(element);
         } else {
             element.innerHTML = type.metadata.template;
@@ -66,6 +70,10 @@ export class Module {
     _initializeRouting(element) {
         window.addEventListener('hashchange', () => this._router(element));
         window.addEventListener('load', () => this._router(element));
+    }
+
+    getComponent(name) {
+        return this._components[name];
     }
 
     deploy(element) {

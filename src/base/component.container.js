@@ -3,10 +3,10 @@ import { Pubsub } from './events/pubsub';
 import * as utils from './component.utils';
 
 export class ComponentContainer {    
-    constructor(diContainer, component) {
+    constructor(module, component) {
         this._bindings = new Pubsub();
         this._eventListeners = [];
-        this._container = diContainer;
+        this._module = module;
         utils.setupController(component.controller);
         this._component = component;
         this._chilren = [];
@@ -27,7 +27,7 @@ export class ComponentContainer {
     }
 
     initialize(element) {
-        this._controller = this._container.resolve(this._component.controller);
+        this._controller = this._module.container.resolve(this._component.controller);
         this._templateBuilder = new TemplateBuilder(this, element);
         this._component.render(this._templateBuilder);
     }
@@ -40,7 +40,6 @@ export class ComponentContainer {
         element[elementProperty] = this._controller[controllerProperty];
     }
 
-    // TODO: fixme
     setInwardBinding(element, controllerProperty) {
         this._registerEvent(element, 'input', (change) => {
             setTimeout(() => {
@@ -59,7 +58,26 @@ export class ComponentContainer {
         });
     }
 
+    instantiateChildComponent(name, parent) {
+        const component = this._module.getComponent(name);
+        if (!component) return false;
+
+        const child = new ComponentContainer(this._module, component);
+        this._chilren.push(child);
+        child.initialize(parent);
+
+        return true;
+    }
+
     teardown() {
+        while (this._chilren.length) {
+            const child = this._chilren[0];
+            child.teardown();
+            this._chilren.splice(0, 1);
+        }
+
+        delete this._chilren;
+
         this._bindings.teardown();
         
         while (this._eventListeners.length) {

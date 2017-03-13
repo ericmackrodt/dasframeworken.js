@@ -157,12 +157,12 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var ComponentContainer = exports.ComponentContainer = function () {
-    function ComponentContainer(diContainer, component) {
+    function ComponentContainer(module, component) {
         _classCallCheck(this, ComponentContainer);
 
         this._bindings = new _pubsub.Pubsub();
         this._eventListeners = [];
-        this._container = diContainer;
+        this._module = module;
         utils.setupController(component.controller);
         this._component = component;
         this._chilren = [];
@@ -188,7 +188,7 @@ var ComponentContainer = exports.ComponentContainer = function () {
     }, {
         key: 'initialize',
         value: function initialize(element) {
-            this._controller = this._container.resolve(this._component.controller);
+            this._controller = this._module.container.resolve(this._component.controller);
             this._templateBuilder = new _template.TemplateBuilder(this, element);
             this._component.render(this._templateBuilder);
         }
@@ -207,9 +207,6 @@ var ComponentContainer = exports.ComponentContainer = function () {
             }
             element[elementProperty] = this._controller[controllerProperty];
         }
-
-        // TODO: fixme
-
     }, {
         key: 'setInwardBinding',
         value: function setInwardBinding(element, controllerProperty) {
@@ -235,8 +232,28 @@ var ComponentContainer = exports.ComponentContainer = function () {
             });
         }
     }, {
+        key: 'instantiateChildComponent',
+        value: function instantiateChildComponent(name, parent) {
+            var component = this._module.getComponent(name);
+            if (!component) return false;
+
+            var child = new ComponentContainer(this._module, component);
+            this._chilren.push(child);
+            child.initialize(parent);
+
+            return true;
+        }
+    }, {
         key: 'teardown',
         value: function teardown() {
+            while (this._chilren.length) {
+                var child = this._chilren[0];
+                child.teardown();
+                this._chilren.splice(0, 1);
+            }
+
+            delete this._chilren;
+
             this._bindings.teardown();
 
             while (this._eventListeners.length) {
@@ -618,6 +635,11 @@ var Module = exports.Module = function () {
         get: function get() {
             return this._rootComponent;
         }
+    }, {
+        key: 'container',
+        get: function get() {
+            return this._container;
+        }
     }]);
 
     function Module(container, name, options) {
@@ -678,7 +700,7 @@ var Module = exports.Module = function () {
                 element.removeChild(element.firstChild);
             }
             if ((typeof type === 'undefined' ? 'undefined' : _typeof(type)) === 'object' && typeof type.render === 'function') {
-                var container = new _component2.ComponentContainer(this._container, type);
+                var container = new _component2.ComponentContainer(this, type);
                 container.initialize(element);
             } else {
                 element.innerHTML = type.metadata.template;
@@ -701,6 +723,11 @@ var Module = exports.Module = function () {
             window.addEventListener('load', function () {
                 return _this5._router(element);
             });
+        }
+    }, {
+        key: 'getComponent',
+        value: function getComponent(name) {
+            return this._components[name];
         }
     }, {
         key: 'deploy',
@@ -798,10 +825,12 @@ var TemplateBuilder = exports.TemplateBuilder = function () {
     }, {
         key: 'createElement',
         value: function createElement(name, parent) {
-            parent = parent || this._baseElement;
-            var element = document.createElement(name);
-            parent.appendChild(element);
-            return element;
+            if (!this._componentContainer.instantiateChildComponent(name, parent)) {
+                parent = parent || this._baseElement;
+                var element = document.createElement(name);
+                parent.appendChild(element);
+                return element;
+            }
         }
     }, {
         key: 'setAttribute',

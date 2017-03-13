@@ -123,7 +123,6 @@ module.exports = function (html) {
     }
 
     const imps = imports.map((imported) => {
-        console.log(imported);
         const key = Object.keys(imported)[0];
         return ['import { ', key, ' } from \'', imported[key], '\';\r\n'].join('');
         // const req = 'var controller = require(\'' + controller[key] + '\');\r\n'; 

@@ -6,11 +6,11 @@ export class TitleComponent {
     }
 
     get potato() {
-        return this._something;
+        return this._potato;
     }
     set potato(val) {
-        if (val !== this._something) {
-            this._something = val;
+        if (val !== this._potato) {
+            this._potato = val;
             this._notifyChange('potato');
         }
 
@@ -20,6 +20,6 @@ export class TitleComponent {
     }
 
     clicked() {
-        this.potato = this.potato + ' Clicked!';
+        this.potato = this.potato + ' Another click!';
     }
 }

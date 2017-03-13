@@ -180,9 +180,9 @@ module.exports = {
 								var h10 = builder.createElement('h1', component0);
 								builder.setText('This is a title component', h10);
 								var div0 = builder.createElement('div', component0);
-								builder.setText('{{potato}}', div0);
+								builder.boundText('potato', div0);
 								var button0 = builder.createElement('button', component0);
-								builder.setAttribute('on:click', 'clicked()', button0);
+								builder.setAttribute('trigger:click', 'clicked()', button0);
 								builder.setText('POtato button', button0);
 				}
 
@@ -358,11 +358,11 @@ var TitleComponent = exports.TitleComponent = function () {
     _createClass(TitleComponent, [{
         key: 'potato',
         get: function get() {
-            return this._something;
+            return this._potato;
         },
         set: function set(val) {
-            if (val !== this._something) {
-                this._something = val;
+            if (val !== this._potato) {
+                this._potato = val;
                 this._notifyChange('potato');
             }
         }
@@ -382,7 +382,7 @@ var TitleComponent = exports.TitleComponent = function () {
     _createClass(TitleComponent, [{
         key: 'clicked',
         value: function clicked() {
-            this.potato = this.potato + ' Clicked!';
+            this.potato = this.potato + ' Another click!';
         }
     }]);
 

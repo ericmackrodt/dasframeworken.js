@@ -1,5 +1,3 @@
-
-
 export class TemplateBuilder {
     constructor(componentContainer, baseElement, controller, component) {
         this._subscriptions = [];
@@ -16,10 +14,12 @@ export class TemplateBuilder {
     }
 
     createElement(name, parent) {
-        parent = parent || this._baseElement;
-        const element = document.createElement(name);
-        parent.appendChild(element);
-        return element;
+        if (!this._componentContainer.instantiateChildComponent(name, parent)) {
+            parent = parent || this._baseElement;
+            const element = document.createElement(name);
+            parent.appendChild(element);
+            return element;
+        }
     }
 
     setAttribute(name, value, parent) {
