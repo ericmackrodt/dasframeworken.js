@@ -1,8 +1,6 @@
 import { Frameworken } from './base/frameworken';
 
-(function () {
-    window.frameworken = new Frameworken();
-}) ();
+module.exports = new Frameworken();
 
 // (function (root, factory) {
 //     if (typeof exports === 'object' && exports) {

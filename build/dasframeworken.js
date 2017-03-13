@@ -2,11 +2,11 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define("", [], factory);
+		define("frameworken", [], factory);
 	else if(typeof exports === 'object')
-		exports[""] = factory();
+		exports["frameworken"] = factory();
 	else
-		root[""] = factory();
+		root["frameworken"] = factory();
 })(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -886,9 +886,7 @@ var TemplateBuilder = exports.TemplateBuilder = function () {
 
 var _frameworken = __webpack_require__(1);
 
-(function () {
-    window.frameworken = new _frameworken.Frameworken();
-})();
+module.exports = new _frameworken.Frameworken();
 
 // (function (root, factory) {
 //     if (typeof exports === 'object' && exports) {
