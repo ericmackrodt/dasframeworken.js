@@ -417,7 +417,7 @@ var titleComponent = __webpack_require__(5);
 var fake_service_1 = __webpack_require__(0);
 var app = frameworken.module('app', {
     routes: [
-        { path: '/', root: homeComponent },
+        { path: '/', root: homeComponent, resolve: function () { return true; } },
         { path: '/another', root: anotherComponent }
     ],
     types: [

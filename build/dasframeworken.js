@@ -763,8 +763,15 @@ var Module = exports.Module = function () {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.Router = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _utils = __webpack_require__(23);
+
+var utils = _interopRequireWildcard(_utils);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -776,26 +783,41 @@ var Router = exports.Router = function () {
 
         this._routes = routes;
         this._currentRoute = null;
-        this._onChange = function () {
-            var url = location.hash.slice(1) || '/';
+        this._onChange = function (eventArgs) {
+            var oldUrl = eventArgs.oldURL;
+            var newUrl = eventArgs.newURL;
+            var url = _this._getHash(newUrl) || location.hash.slice(1) || '/';
             var route = _this._routes.find(function (r) {
                 return r.path === url;
             });
             if (!route) return;
 
-            if (typeof _this.onRouteChanging === 'function') {
-                _this.onRouteChanging(_this._currentRoute, route);
-            }
-            _this._currentRoute = route;
-            if (typeof _this.onRouteChanged === 'function') {
-                _this.onRouteChanged(_this._currentRoute);
-            }
+            var resolve = route.resolve && route.resolve();
+
+            utils.returnPromise(resolve).then(function () {
+                if (typeof _this.onRouteChanging === 'function') {
+                    _this.onRouteChanging(_this._currentRoute, route);
+                }
+                _this._currentRoute = route;
+                if (typeof _this.onRouteChanged === 'function') {
+                    _this.onRouteChanged(_this._currentRoute);
+                }
+            }).catch(function () {
+                history.replaceState({}, route.path, '#' + _this._getHash(oldUrl));
+            });
         };
         window.addEventListener('hashchange', this._onChange);
         window.addEventListener('load', this._onChange);
     }
 
     _createClass(Router, [{
+        key: '_getHash',
+        value: function _getHash(url) {
+            if (!url) return url;
+            var indexHash = url.indexOf('#') + 1;
+            return url.substring(indexHash, url.length);
+        }
+    }, {
         key: 'destroy',
         value: function destroy() {
             window.removeEventListener('hashchange', this._onChange);

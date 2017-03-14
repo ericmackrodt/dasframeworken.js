@@ -6,7 +6,7 @@ import { FakeService } from './services/fake.service';
 
 const app = frameworken.module('app', {
     routes: [
-        { path: '/', root: homeComponent },
+        { path: '/', root: homeComponent, resolve: () => { return true; } },
         { path: '/another', root: anotherComponent }
     ],
     types: [

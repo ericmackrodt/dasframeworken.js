@@ -19,7 +19,7 @@ declare namespace Frameworken {
     interface IRoute {
         path: string;
         root: Object;
-        resolve?: <T>(route: IRoute) => Promise<T> | void;
+        resolve?: <T>(route: IRoute) => Promise<T> | boolean | void;
     }
 
     interface IModuleOptions {
