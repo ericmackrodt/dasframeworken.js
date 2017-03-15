@@ -1,6 +1,7 @@
 import { TemplateBuilder } from './template.builder';
 import { Pubsub } from './events/pubsub';
 import * as utils from './component.utils';
+import { directivesRegistry } from './directives/registry';
 
 export class ComponentContainer {    
     constructor(module, component) {
@@ -70,6 +71,13 @@ export class ComponentContainer {
         this._chilren.push(child);
         child.initialize(parent);
 
+        return true;
+    }
+
+    instantiateDirective(name, value, parent) {
+        const directive = directivesRegistry.find(name);
+        if (!directive) return false;
+        directivesRegistry.instantiateDirective(directive, this._controller, value, parent);
         return true;
     }
 

@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 21);
+/******/ 	return __webpack_require__(__webpack_require__.s = 25);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -95,13 +95,14 @@ exports.FakeService = FakeService;
 
 /***/ }),
 /* 1 */,
-/* 2 */
+/* 2 */,
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _anotherComponent = __webpack_require__(9);
+var _anotherComponent = __webpack_require__(10);
 
 module.exports = {
 				selector: 'another-comp',
@@ -116,13 +117,13 @@ module.exports = {
 };
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _homeComponent = __webpack_require__(6);
+var _homeComponent = __webpack_require__(7);
 
 module.exports = {
 				selector: 'a-component',
@@ -138,18 +139,25 @@ module.exports = {
 								builder.setAttribute('trigger:click', 'clicked()', button0);
 								builder.setText('click here dude!', button0);
 								builder.setText('This is just a text', component0);
+								var br0 = builder.createElement('br', component0);
+								var span0 = builder.createElement('span', component0);
+								builder.setAttribute('@if', 'iffable === true', span0);
+								builder.setText('This is iffable', span0);
+								var button1 = builder.createElement('button', component0);
+								builder.setAttribute('trigger:click', 'showHide()', button1);
+								builder.setText('Show/hide', button1);
 				}
 
 };
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _rootComponent = __webpack_require__(10);
+var _rootComponent = __webpack_require__(11);
 
 module.exports = {
 				selector: 'root-comp',
@@ -164,13 +172,13 @@ module.exports = {
 };
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _titleComponent = __webpack_require__(11);
+var _titleComponent = __webpack_require__(12);
 
 module.exports = {
 				selector: 'title-comp',
@@ -189,7 +197,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -204,7 +212,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var fake_service_1 = __webpack_require__(0);
-var ts_1 = __webpack_require__(8);
+var ts_1 = __webpack_require__(9);
 var HomeComponent = (function () {
     function HomeComponent(fakeService) {
         fakeService.doSomething();
@@ -222,10 +230,17 @@ var HomeComponent = (function () {
     HomeComponent.prototype.clicked = function () {
         this.prop = this.prop + ' Clicked!';
     };
+    HomeComponent.prototype.showHide = function () {
+        this.iffable = !this.iffable;
+    };
     __decorate([
         ts_1.observable(), 
         __metadata('design:type', String)
     ], HomeComponent.prototype, "prop", void 0);
+    __decorate([
+        ts_1.observable(), 
+        __metadata('design:type', Boolean)
+    ], HomeComponent.prototype, "iffable", void 0);
     HomeComponent = __decorate([
         ts_1.inject, 
         __metadata('design:paramtypes', [fake_service_1.FakeService])
@@ -236,7 +251,7 @@ exports.HomeComponent = HomeComponent;
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -265,7 +280,7 @@ exports.inject = inject;
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -273,11 +288,11 @@ exports.inject = inject;
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-__export(__webpack_require__(7));
+__export(__webpack_require__(8));
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -314,7 +329,7 @@ var AnotherComponent = exports.AnotherComponent = function () {
 }();
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -346,7 +361,7 @@ var RootComponent = exports.RootComponent = function () {
 }();
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -396,7 +411,6 @@ var TitleComponent = exports.TitleComponent = function () {
 }();
 
 /***/ }),
-/* 12 */,
 /* 13 */,
 /* 14 */,
 /* 15 */,
@@ -405,15 +419,19 @@ var TitleComponent = exports.TitleComponent = function () {
 /* 18 */,
 /* 19 */,
 /* 20 */,
-/* 21 */
+/* 21 */,
+/* 22 */,
+/* 23 */,
+/* 24 */,
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var anotherComponent = __webpack_require__(2);
-var homeComponent = __webpack_require__(3);
-var rootComponent = __webpack_require__(4);
-var titleComponent = __webpack_require__(5);
+var anotherComponent = __webpack_require__(3);
+var homeComponent = __webpack_require__(4);
+var rootComponent = __webpack_require__(5);
+var titleComponent = __webpack_require__(6);
 var fake_service_1 = __webpack_require__(0);
 var app = frameworken.module('app', {
     routes: [

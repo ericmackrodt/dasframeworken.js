@@ -5,7 +5,7 @@ export class Frameworken {
     constructor() {
         this._modules = {};
         this._di = new DIContainer();
-    }    
+    }
 
     module(name, options) {
         let module = this._modules[name];

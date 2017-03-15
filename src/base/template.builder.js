@@ -23,6 +23,8 @@ export class TemplateBuilder {
     }
 
     setAttribute(name, value, parent) {
+        if (this._componentContainer.instantiateDirective(name, value, parent)) return;
+
         if (name.startsWith('trigger:')) { //localName
             this._componentContainer.setEvent(parent, name, value);
         } else if (name === 'binding') {

@@ -7,3 +7,8 @@ export function returnPromise(obj) {
         return Promise.resolve();
     }
 }
+
+export function instantiateType(type, params) {
+    params = params || [];
+    return new (type.bind.apply(type, [type].concat(params)))();
+}

@@ -12,6 +12,9 @@ export class HomeComponent {
     @observable()
     public prop: string;
 
+    @observable()
+    public iffable: boolean;
+
     constructor(fakeService: FakeService) {
         fakeService.doSomething();
         this.prop = 'predefined';
@@ -19,5 +22,9 @@ export class HomeComponent {
 
     clicked() {
         this.prop = this.prop + ' Clicked!';
+    }
+
+    showHide() {
+        this.iffable = !this.iffable;
     }
 }
