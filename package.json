@@ -4,7 +4,7 @@
   "description": "A stupid simple javascript framework",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register tests",
+    "test": "mocha --compilers js:babel-core/register tests --watch",
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev"
   },

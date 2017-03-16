@@ -71,28 +71,42 @@ export class ExpressionParser {
         return match;
     }
 
+    _getValue(m) {
+        let str;
+        if  (this._boolean.indexOf(m) > -1) {
+            return m === 'true';
+        } else if (m in this._controller) {
+            return ExpressionBuilder._getPropertyEval(this._controller, m);
+        } else if (!isNaN(m)) {
+            return parseInt(m);
+        } else if ((str = /^['"](.*)['"]$/g.exec(m))) {
+            return str[1];
+        } else {
+            return m;
+        }
+    }
+
+    _evaluateNot(index, nots, value) {
+        let evaluate;
+        if (++index < nots.length) {
+            evaluate = this._evaluateNot(index, nots, value);
+        }
+
+        return ExpressionBuilder._getOperation('!', evaluate || this._getValue(value));
+    }
+
     _processMatch(match) {
         match = this._parseMatch(match);
-        const getValue = (m) => {
-            if  (this._boolean.indexOf(m) > -1) {
-                return m === 'true';
-            } else if (m in this._controller) {
-                return ExpressionBuilder._getPropertyEval(this._controller, m);
-            } else if (!isNaN(m)) {
-                return parseInt(m);
-            } else {
-                return m;
-            }
-        };
         let evaluation;
         if (match.length === 3 && this._operators.indexOf(match[1]) > -1) {
-            const left = getValue(match[0]);
-            const right = getValue(match[2]);
+            const left = this._getValue(match[0]);
+            const right = this._getValue(match[2]);
             evaluation = ExpressionBuilder._getOperation(match[1], left, right);
         }
 
         if (match.length === 2 && /^[!]+$/g.test(match[0])) {
-            evaluation = ExpressionBuilder._getOperation(match[0], getValue(match[1]));
+            const nots = match[0].split('');
+            evaluation = this._evaluateNot(0, nots, match[1]);
         }
 
         if (match.length === 1 && this._andOr.indexOf(match[0]) > -1 && !this._operation) {
@@ -117,6 +131,9 @@ export class ExpressionParser {
     _buildEvaluator() {
         let match;
         const builder = new ExpressionBuilder();
+        const s = this._expression.match(this._regex);
+        console.log(s);
+
         while ((match = this._regex.exec(this._expression))) {
             this._processMatch(match);
         }
