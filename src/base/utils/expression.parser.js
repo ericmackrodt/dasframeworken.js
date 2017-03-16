@@ -1,18 +1,60 @@
-export class ExpressionBuilder {
+// OLD = /([&|]{2})|([\(\)])|([!]+)?([\w\.]+)\s*([^\w\s|&]{1,3})?\s*([^\sˆ&|\)]+)?/g;
 
-    get expression() {
-        return this._expression;
+const EQUALITY_REGEX = /^\s*([!\w\.]+)\s*([^\w\s|&]{1,3})?\s*([^\sˆ&|\\=)]+)?\s*$/;
+const EXPRESSION_REGEX = /([&|]{2})|([\(\)])|([!\w\.]+)\s*([^\w\s|&]{1,3})?\s*([^\sˆ&|\)]+)?/g;
+const STRING_REGEX = /^['"](.*)['"]$/;
+const NOT_REGEX = /^\s*([!]+)\s*(\w+)\s*$/;
+const LOGICAL_OPERATORS = ['&&', '||'];
+const RELATIONAL_OPERATORS = ['==', '!=', '===', '!==', '!', '>=', '<=', '>', '<'];
+const BOOLEANS = ['true', 'false']; 
+
+export class ExpressionParser {
+    constructor(expression, controller) {
+        this._expression = expression;
+        this._controller = controller;
     }
 
-    constructor() {
-        this._expression = [];
+    _getRegexMatchArray(regex, input) {
+        let match = regex.exec(input);
+        if (!match) return;
+        match = match.filter(m => m !== undefined);
+        match.shift();
+        return match;
     }
 
-    static _getPropertyEval(obj, prop) {
+    _evaluateNot(nots, value) {
+        let evaluate;
+        nots.shift();
+        if (nots.length) {
+            evaluate = this._evaluateNot(nots, value);
+        }
+
+        return this._getOperation('!', evaluate || this._getValue(value));
+    }
+
+    _getValue(m) {
+        let match;
+        if ((match = this._getRegexMatchArray(NOT_REGEX, m))) {
+            const nots = match[0].split('');
+            return this._evaluateNot(nots, match[1]);
+        } else if (BOOLEANS.indexOf(m) > -1) {
+            return m === 'true';
+        } else if (m in this._controller) {
+            return this._getPropertyEval(this._controller, m);
+        } else if (!isNaN(m)) {
+            return parseInt(m);
+        } else if ((match = STRING_REGEX.exec(m))) {
+            return match[1];
+        } else {
+            return m;
+        }
+    }
+
+    _getPropertyEval(obj, prop) {
         return () => obj[prop];
     }
 
-    static _asFunction(val) {
+    _asFunction(val) {
         if (typeof val === 'function') {
             return val();
         } else {
@@ -20,128 +62,94 @@ export class ExpressionBuilder {
         }
     }
 
-    static _getOperation(operation, left, right) {
+    _getOperation(operation, left, right) {
         switch (operation) {
             case '==':
-                return () => ExpressionBuilder._asFunction(left) == ExpressionBuilder._asFunction(right);
+                return () => this._asFunction(left) == this._asFunction(right);
             case '!=':
-                return () => ExpressionBuilder._asFunction(left) != ExpressionBuilder._asFunction(right);
+                return () => this._asFunction(left) != this._asFunction(right);
             case '===':
-                return () => ExpressionBuilder._asFunction(left) === ExpressionBuilder._asFunction(right);
+                return () => this._asFunction(left) === this._asFunction(right);
             case '!==':
-                return () => ExpressionBuilder._asFunction(left) !== ExpressionBuilder._asFunction(right);
+                return () => this._asFunction(left) !== this._asFunction(right);
             case '<=':
             case '=<':
-                return () => ExpressionBuilder._asFunction(left) <= ExpressionBuilder._asFunction(right);
+                return () => this._asFunction(left) <= this._asFunction(right);
             case '>=':
             case '=<':
-                return () => ExpressionBuilder._asFunction(left) >= ExpressionBuilder._asFunction(right);
+                return () => this._asFunction(left) >= this._asFunction(right);
             case '<':
-                return () => ExpressionBuilder._asFunction(left) < ExpressionBuilder._asFunction(right);
+                return () => this._asFunction(left) < this._asFunction(right);
             case '>':
-                return () => ExpressionBuilder._asFunction(left) > ExpressionBuilder._asFunction(right);
+                return () => this._asFunction(left) > this._asFunction(right);
             case '!':
-                return () => !ExpressionBuilder._asFunction(left);
+                return () => !this._asFunction(left);
             case '&&':
-                return () => ExpressionBuilder._asFunction(left) && ExpressionBuilder._asFunction(right);
+                return () => this._asFunction(left) && this._asFunction(right);
             case '||':
-                return () => ExpressionBuilder._asFunction(left) || ExpressionBuilder._asFunction(right);
+                return () => this._asFunction(left) || this._asFunction(right);
         }
     }
 
-    equals(left, right) {
-        const exp = () => left === right;
-        return this;
-    }
-}
-
-export class ExpressionParser {
-    constructor(expression, controller) {
-        this._operators = ['==', '!=', '===', '!==', '!', '>=', '<=', '>', '<'];
-        this._andOr = ['&&', '||'];
-        this._boolean = ['true', 'false'];
-        this._regex = /([&|]{2})|([\(\)])|([!]+)?([\w\.]+)\s*([^\w\s|&]{1,3})?\s*([^\sˆ&|\)]+)?/g;
-        this._expression = expression;
-        this._controller = controller;
-    }
-
-    _parseMatch(match) {
-        match = match.filter(m => m !== undefined);
-        match.shift();
-        return match;
-    }
-
-    _getValue(m) {
-        let str;
-        if  (this._boolean.indexOf(m) > -1) {
-            return m === 'true';
-        } else if (m in this._controller) {
-            return ExpressionBuilder._getPropertyEval(this._controller, m);
-        } else if (!isNaN(m)) {
-            return parseInt(m);
-        } else if ((str = /^['"](.*)['"]$/g.exec(m))) {
-            return str[1];
-        } else {
-            return m;
+    _processExpression(expression) {
+        let match;
+        if (!(expression instanceof Array)) {
+            expression = [expression];
         }
-    }
-
-    _evaluateNot(index, nots, value) {
-        let evaluate;
-        if (++index < nots.length) {
-            evaluate = this._evaluateNot(index, nots, value);
-        }
-
-        return ExpressionBuilder._getOperation('!', evaluate || this._getValue(value));
-    }
-
-    _processMatch(match) {
-        match = this._parseMatch(match);
-        let evaluation;
-        if (match.length === 3 && this._operators.indexOf(match[1]) > -1) {
+        if (expression.length === 1 && (match = this._getRegexMatchArray(EQUALITY_REGEX, expression[0]))) {
             const left = this._getValue(match[0]);
             const right = this._getValue(match[2]);
-            evaluation = ExpressionBuilder._getOperation(match[1], left, right);
+            const operation = match[1];
+            if (typeof left === 'function' && !right && !operation) {
+                expression[0] = left;
+            } else {
+                expression[0] = this._getOperation(match[1], left, right);
+            }
         }
 
-        if (match.length === 2 && /^[!]+$/g.test(match[0])) {
-            const nots = match[0].split('');
-            evaluation = this._evaluateNot(0, nots, match[1]);
+        while (expression.length > 1 || typeof expression[0] !== 'function') {
+            let index = -1;
+            let leftIndex = 0;
+            let rightIndex = 0;
+            let left;
+            let right;
+            if ((index = expression.indexOf('&&')) > -1) {
+                leftIndex = index - 1;
+                rightIndex = index + 1;
+                left = this._processExpression(expression[leftIndex]);
+                right = this._processExpression(expression[rightIndex]);
+                expression[leftIndex] = this._getOperation('&&', left, right);
+                expression.splice(index, 2);
+
+                continue;
+            } else if ((index = expression.indexOf('||')) > -1) {
+                leftIndex = index - 1;
+                rightIndex = index + 1;
+                left = this._processExpression(expression[leftIndex]);
+                right = this._processExpression(expression[rightIndex]);
+                expression[leftIndex] = this._getOperation('||', left, right);
+                expression.splice(index, 2);
+
+                continue;
+            }
+
+            break;
         }
 
-        if (match.length === 1 && this._andOr.indexOf(match[0]) > -1 && !this._operation) {
-            this._operation = match[0];
-        }
-
-        if (!this._previous) {
-            this._previous = evaluation;
-        }
-
-        if (!this._right && !!this._operation) {
-            this._right = evaluation;
-        }
-
-        if (!!this._operation && !!this._previous && this._right) {
-            this._previous = ExpressionBuilder._getOperation(this._operation, this._previous, this._right);
-            this._right = null;
-            this._operation = null;
-        }
-    } 
+        return expression[0];
+    }
 
     _buildEvaluator() {
-        let match;
-        const builder = new ExpressionBuilder();
-        const s = this._expression.match(this._regex);
-        console.log(s);
-
-        while ((match = this._regex.exec(this._expression))) {
-            this._processMatch(match);
-        }
-
-        return this._previous();
+        const expression = this._expression.match(EXPRESSION_REGEX);
+        EXPRESSION_REGEX.lastIndex = 0;
+        return this._processExpression(expression);
     }
 
     evaluate() {
-        return this._buildEvaluator();
+        if (!this._evaluator) {
+            this._evaluator = this._buildEvaluator();
+        }
+
+        return this._evaluator();
     }
 }
