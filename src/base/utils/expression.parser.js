@@ -113,18 +113,37 @@ export class ExpressionParser {
             let rightIndex = 0;
             let left;
             let right;
-            if ((index = expression.indexOf('&&')) > -1) {
-                leftIndex = index - 1;
-                rightIndex = index + 1;
+
+            let subExpression = expression;
+            const indexLeftParenthesis = expression.lastIndexOf('(');
+            if (indexLeftParenthesis > -1) {
+                subExpression = subExpression.slice(indexLeftParenthesis + 1, subExpression.length);
+                const indexRightParenthesis = subExpression.indexOf(')');
+                subExpression = subExpression.slice(0, indexRightParenthesis);
+                const expressionLength = subExpression.length;
+                expression[indexLeftParenthesis] = this._processExpression(subExpression);
+                expression.splice(indexLeftParenthesis + 1, expressionLength + 1);
+
+                continue;
+            }
+
+
+            if ((index = expression.indexOf('&&')) > -1 && 
+                (expression[leftIndex = index - 1] !== ')') &&
+                (expression[rightIndex = index + 1] !== '(')) {
+                // leftIndex = index - 1;
+                // rightIndex = index + 1;
                 left = this._processExpression(expression[leftIndex]);
                 right = this._processExpression(expression[rightIndex]);
                 expression[leftIndex] = this._getOperation('&&', left, right);
                 expression.splice(index, 2);
 
                 continue;
-            } else if ((index = expression.indexOf('||')) > -1) {
-                leftIndex = index - 1;
-                rightIndex = index + 1;
+            } else if ((index = expression.indexOf('||')) > -1 &&
+                (expression[leftIndex = index - 1] !== ')') &&
+                (expression[rightIndex = index + 1] !== '(')) {
+                // leftIndex = index - 1;
+                // rightIndex = index + 1;
                 left = this._processExpression(expression[leftIndex]);
                 right = this._processExpression(expression[rightIndex]);
                 expression[leftIndex] = this._getOperation('||', left, right);
@@ -136,7 +155,9 @@ export class ExpressionParser {
             break;
         }
 
-        return expression[0];
+        if (expression.length === 1) {
+            return expression[0];
+        }
     }
 
     _buildEvaluator() {
