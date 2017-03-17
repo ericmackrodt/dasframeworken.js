@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 25);
+/******/ 	return __webpack_require__(__webpack_require__.s = 27);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -82,6 +82,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
 var FakeService = (function () {
     function FakeService() {
     }
@@ -100,10 +101,7 @@ exports.FakeService = FakeService;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-
 var _anotherComponent = __webpack_require__(10);
-
 module.exports = {
 				selector: 'another-comp',
 				controller: _anotherComponent.AnotherComponent,
@@ -112,19 +110,14 @@ module.exports = {
 								var h10 = builder.createElement('h1', component0);
 								builder.setText('Another comp', h10);
 								var title_comp0 = builder.createElement('title-comp', component0);
-				}
-
-};
+				} };
 
 /***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-
 var _homeComponent = __webpack_require__(7);
-
 module.exports = {
 				selector: 'a-component',
 				controller: _homeComponent.HomeComponent,
@@ -146,19 +139,14 @@ module.exports = {
 								var button1 = builder.createElement('button', component0);
 								builder.setAttribute('trigger:click', 'showHide()', button1);
 								builder.setText('Show/hide', button1);
-				}
-
-};
+				} };
 
 /***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-
 var _rootComponent = __webpack_require__(11);
-
 module.exports = {
 				selector: 'root-comp',
 				controller: _rootComponent.RootComponent,
@@ -167,19 +155,14 @@ module.exports = {
 								var h10 = builder.createElement('h1', component0);
 								builder.setText('Application Root', h10);
 								var router_outlet0 = builder.createElement('router-outlet', component0);
-				}
-
-};
+				} };
 
 /***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-
 var _titleComponent = __webpack_require__(12);
-
 module.exports = {
 				selector: 'title-comp',
 				controller: _titleComponent.TitleComponent,
@@ -192,9 +175,7 @@ module.exports = {
 								var button0 = builder.createElement('button', component0);
 								builder.setAttribute('trigger:click', 'clicked()', button0);
 								builder.setText('POtato button', button0);
-				}
-
-};
+				} };
 
 /***/ }),
 /* 7 */
@@ -211,6 +192,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var fake_service_1 = __webpack_require__(0);
 var ts_1 = __webpack_require__(9);
 var HomeComponent = (function () {
@@ -233,20 +215,20 @@ var HomeComponent = (function () {
     HomeComponent.prototype.showHide = function () {
         this.iffable = !this.iffable;
     };
-    __decorate([
-        ts_1.observable(), 
-        __metadata('design:type', String)
-    ], HomeComponent.prototype, "prop", void 0);
-    __decorate([
-        ts_1.observable(), 
-        __metadata('design:type', Boolean)
-    ], HomeComponent.prototype, "iffable", void 0);
-    HomeComponent = __decorate([
-        ts_1.inject, 
-        __metadata('design:paramtypes', [fake_service_1.FakeService])
-    ], HomeComponent);
     return HomeComponent;
 }());
+__decorate([
+    ts_1.observable(),
+    __metadata("design:type", String)
+], HomeComponent.prototype, "prop", void 0);
+__decorate([
+    ts_1.observable(),
+    __metadata("design:type", Boolean)
+], HomeComponent.prototype, "iffable", void 0);
+HomeComponent = __decorate([
+    ts_1.inject,
+    __metadata("design:paramtypes", [fake_service_1.FakeService])
+], HomeComponent);
 exports.HomeComponent = HomeComponent;
 
 
@@ -256,6 +238,7 @@ exports.HomeComponent = HomeComponent;
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
 function observable() {
     return function (target, propertyKey) {
         var _private;
@@ -288,6 +271,7 @@ exports.inject = inject;
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
+Object.defineProperty(exports, "__esModule", { value: true });
 __export(__webpack_require__(8));
 
 
@@ -296,119 +280,63 @@ __export(__webpack_require__(8));
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.AnotherComponent = undefined;var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();var _fake = __webpack_require__(0);function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}var
 
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.AnotherComponent = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _fake = __webpack_require__(0);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var AnotherComponent = exports.AnotherComponent = function () {
-    _createClass(AnotherComponent, null, [{
-        key: 'metadata',
-        get: function get() {
+AnotherComponent = exports.AnotherComponent = function () {_createClass(AnotherComponent, null, [{ key: 'metadata', get: function get()
+        {
             return {
-                dependencies: [_fake.FakeService]
-            };
-        }
-    }]);
+                dependencies: [_fake.FakeService] };
 
-    function AnotherComponent(fake) {
-        _classCallCheck(this, AnotherComponent);
+        } }]);
 
+    function AnotherComponent(fake) {_classCallCheck(this, AnotherComponent);
         console.log(fake.kept);
-    }
-
-    return AnotherComponent;
-}();
+    }return AnotherComponent;}();
 
 /***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var RootComponent = exports.RootComponent = function () {
-    _createClass(RootComponent, null, [{
-        key: "metadata",
-        get: function get() {
+Object.defineProperty(exports, "__esModule", { value: true });var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}var RootComponent = exports.RootComponent = function () {_createClass(RootComponent, null, [{ key: "metadata", get: function get()
+        {
             return {
-                dependencies: []
-            };
-        }
-    }]);
+                dependencies: [] };
 
-    function RootComponent() {
-        _classCallCheck(this, RootComponent);
-    }
+        } }]);
 
-    return RootComponent;
-}();
+    function RootComponent() {_classCallCheck(this, RootComponent);
+    }return RootComponent;}();
 
 /***/ }),
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}var TitleComponent = exports.TitleComponent = function () {_createClass(TitleComponent, [{ key: 'potato', get: function get()
 
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var TitleComponent = exports.TitleComponent = function () {
-    _createClass(TitleComponent, [{
-        key: 'potato',
-        get: function get() {
+
+        {
             return this._potato;
-        },
-        set: function set(val) {
+        }, set: function set(
+        val) {
             if (val !== this._potato) {
                 this._potato = val;
                 this._notifyChange('potato');
             }
-        }
-    }], [{
-        key: 'metadata',
-        get: function get() {
-            return {
-                dependencies: []
-            };
-        }
-    }]);
 
-    function TitleComponent() {
-        _classCallCheck(this, TitleComponent);
-    }
+        } }], [{ key: 'metadata', get: function get() {return { dependencies: [] };} }]);
 
-    _createClass(TitleComponent, [{
-        key: 'clicked',
-        value: function clicked() {
+    function TitleComponent() {_classCallCheck(this, TitleComponent);
+    }_createClass(TitleComponent, [{ key: 'clicked', value: function clicked()
+
+        {
             this.potato = this.potato + ' Another click!';
-        }
-    }]);
-
-    return TitleComponent;
-}();
+        } }]);return TitleComponent;}();
 
 /***/ }),
 /* 13 */,
@@ -423,11 +351,14 @@ var TitleComponent = exports.TitleComponent = function () {
 /* 22 */,
 /* 23 */,
 /* 24 */,
-/* 25 */
+/* 25 */,
+/* 26 */,
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
 var anotherComponent = __webpack_require__(3);
 var homeComponent = __webpack_require__(4);
 var rootComponent = __webpack_require__(5);

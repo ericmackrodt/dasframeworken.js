@@ -58,11 +58,8 @@ const config = {
     ]
   },
   resolve: {
-    modules: [path.resolve('./src')],
+    modules: [path.resolve('./src'), 'node_modules'],
     extensions: ['.json', '.js', '.ts']
-    // alias: {
-    //   'dasframeworken': path.resolve(__dirname, 'src/dasframeworken.js')
-    // }
   },
   plugins: plugins
 };

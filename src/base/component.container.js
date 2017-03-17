@@ -4,6 +4,10 @@ import * as utils from './component.utils';
 import { directivesRegistry } from './directives/registry';
 
 export class ComponentContainer {    
+    get controller() {
+        return this._controller;
+    }
+
     constructor(module, component) {
         this._bindings = new Pubsub();
         this._eventListeners = [];
@@ -77,7 +81,7 @@ export class ComponentContainer {
     instantiateDirective(name, value, parent) {
         const directive = directivesRegistry.find(name);
         if (!directive) return false;
-        directivesRegistry.instantiateDirective(directive, this._controller, value, parent);
+        directivesRegistry.instantiateDirective(directive, this._controller, this._bindings, value, parent);
         return true;
     }
 

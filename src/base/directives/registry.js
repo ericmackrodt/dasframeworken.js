@@ -22,8 +22,8 @@ export const directivesRegistry = (function directivesRegistry() {
             return registry.find(d => getName(d.metadata.selector) === name);
         }
 
-        instantiateDirective(directive, controller, value, element) {
-            const instance = utils.instantiateType(directive, [element, controller]);
+        instantiateDirective(directive, controller, evtAggregator, value, element) {
+            const instance = utils.instantiateType(directive, [element, controller, evtAggregator]);
             return instance.setup(value);
         }
     }
