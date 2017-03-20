@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 27);
+/******/ 	return __webpack_require__(__webpack_require__.s = 26);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -97,11 +97,12 @@ exports.FakeService = FakeService;
 /***/ }),
 /* 1 */,
 /* 2 */,
-/* 3 */
+/* 3 */,
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var _anotherComponent = __webpack_require__(10);
+var _anotherComponent = __webpack_require__(19);
 module.exports = {
 				selector: 'another-comp',
 				controller: _anotherComponent.AnotherComponent,
@@ -113,11 +114,11 @@ module.exports = {
 				} };
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var _homeComponent = __webpack_require__(7);
+var _homeComponent = __webpack_require__(8);
 module.exports = {
 				selector: 'a-component',
 				controller: _homeComponent.HomeComponent,
@@ -142,11 +143,11 @@ module.exports = {
 				} };
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var _rootComponent = __webpack_require__(11);
+var _rootComponent = __webpack_require__(20);
 module.exports = {
 				selector: 'root-comp',
 				controller: _rootComponent.RootComponent,
@@ -158,11 +159,11 @@ module.exports = {
 				} };
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var _titleComponent = __webpack_require__(12);
+var _titleComponent = __webpack_require__(21);
 module.exports = {
 				selector: 'title-comp',
 				controller: _titleComponent.TitleComponent,
@@ -178,7 +179,7 @@ module.exports = {
 				} };
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -194,7 +195,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var fake_service_1 = __webpack_require__(0);
-var ts_1 = __webpack_require__(9);
+var ts_1 = __webpack_require__(18);
 var HomeComponent = (function () {
     function HomeComponent(fakeService) {
         fakeService.doSomething();
@@ -233,7 +234,15 @@ exports.HomeComponent = HomeComponent;
 
 
 /***/ }),
-/* 8 */
+/* 9 */,
+/* 10 */,
+/* 11 */,
+/* 12 */,
+/* 13 */,
+/* 14 */,
+/* 15 */,
+/* 16 */,
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -263,7 +272,7 @@ exports.inject = inject;
 
 
 /***/ }),
-/* 9 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -272,11 +281,11 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(8));
+__export(__webpack_require__(17));
 
 
 /***/ }),
-/* 10 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -294,7 +303,7 @@ AnotherComponent = exports.AnotherComponent = function () {_createClass(AnotherC
     }return AnotherComponent;}();
 
 /***/ }),
-/* 11 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -309,7 +318,7 @@ Object.defineProperty(exports, "__esModule", { value: true });var _createClass =
     }return RootComponent;}();
 
 /***/ }),
-/* 12 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -339,30 +348,20 @@ Object.defineProperty(exports, "__esModule", { value: true });var _createClass =
         } }]);return TitleComponent;}();
 
 /***/ }),
-/* 13 */,
-/* 14 */,
-/* 15 */,
-/* 16 */,
-/* 17 */,
-/* 18 */,
-/* 19 */,
-/* 20 */,
-/* 21 */,
 /* 22 */,
 /* 23 */,
 /* 24 */,
 /* 25 */,
-/* 26 */,
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var anotherComponent = __webpack_require__(3);
-var homeComponent = __webpack_require__(4);
-var rootComponent = __webpack_require__(5);
-var titleComponent = __webpack_require__(6);
+var anotherComponent = __webpack_require__(4);
+var homeComponent = __webpack_require__(5);
+var rootComponent = __webpack_require__(6);
+var titleComponent = __webpack_require__(7);
 var fake_service_1 = __webpack_require__(0);
 var app = frameworken.module('app', {
     routes: [

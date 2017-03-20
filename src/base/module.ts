@@ -1,30 +1,39 @@
-import { componentFactory } from './component.factory';
+// import { componentFactory } from './component.factory';
 import { ComponentContainer } from './component.container';
 import { Router } from './router';
 import * as utils from './utils';
+import * as container from './di.container';
+import { Type } from './types/interfaces';
+
+const registerTypes = (types: Type<any>[]) => types.forEach((type) => container.registerType(type));
 
 export class Module {
+    private _rootComponent: Frameworken.IComponent;
+    private _preLoad: <T>() => Promise<T> | boolean | void;
+    private _router: Router;
+    private _routeComponentContainer: ComponentContainer;
+    private _components: { [key:string]: Frameworken.IComponent };
+    private _rootComponentContainer: ComponentContainer;
+
     get rootComponent() {
         return this._rootComponent;
     }
 
-    get container() {
-        return this._container;
-    }
-
-    constructor(container, name, options) {
-        this._container = container;
+    constructor(
+        private _name: string, 
+        options: Partial<Frameworken.IModuleOptions>
+    ) {
         options = options || {};
         this._name = name;
         this._rootComponent = options.rootComponent;
         this._preLoad = options.preLoad;
 
-        if (options.types) this._registerTypes(options.types);
+        if (options.types) registerTypes(options.types);
         if (options.components) this._registerComponents(options.components);
         if (options.routes) this._registerRoutes(options.routes);
     }
 
-    _registerRoutes(routes) {
+    _registerRoutes(routes: Frameworken.IRoute[]) {
         this._router = new Router(routes);
         this._router.onRouteChanging = (oldRoute, newRoute) => {
             if (this._routeComponentContainer) {
@@ -32,20 +41,14 @@ export class Module {
             }
         };
         this._router.onRouteChanged = (route) => {
-            const outlet = document.getElementsByTagName('router-outlet')[0];
+            const outlet: Element = document.getElementsByTagName('router-outlet')[0];
             if (route.root && outlet) {
                 this._routeComponentContainer = this._buildComponent(route.root, outlet);
             }
         };
     }
 
-    _registerTypes(types) {
-        types.forEach((type) => {
-            this._container.registerType(type);
-        });
-    }
-
-    _registerComponents(components) {
+    _registerComponents(components: any[]) {
         this._components = {};
         components.forEach((c) => { 
             if (typeof c === 'function' && typeof c.metadata.template) {    
@@ -56,39 +59,28 @@ export class Module {
         });
     }
 
-    _buildComponent(type, element) {
+    _buildComponent(type: Frameworken.IComponent, element: Element) {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }
 
         const container = new ComponentContainer(this, type);
         container.initialize(element);
-
-        // if (typeof type === 'object' && typeof type.render === 'function') {
-            
-        // } else {
-        //     element.innerHTML = type.metadata.template;
-        //     const controller = this._container.resolve(type);
-        //     componentFactory(this._components).processElement(element, controller, (component) => {
-        //         return this._container.resolve(component);
-        //     });
-        // }
-
         return container;
     }
 
-    getComponent(name) {
+    getComponent(name: string) {
         return this._components[name];
     }
 
-    deploy(element) {
+    deploy(element: HTMLElement) {
         const preLoad = this._preLoad && this._preLoad();
         utils.returnPromise(preLoad).then(() => {
             if (this._rootComponent) {
                 this._rootComponentContainer = this._buildComponent(this._rootComponent, element);
-            } else if (this._routes) {
-                this._initializeRouting(element);
-            }
+            }// else if (this._routes) {
+            //     this._initializeRouting(element);
+            // }
         });
     } 
 }

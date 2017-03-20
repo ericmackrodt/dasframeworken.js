@@ -1,1 +1,3 @@
-import './src/dasframeworken';
+import { dasframeworken } from './src/dasframeworken';
+
+module.exports = () => { return { dasframeworken }; };

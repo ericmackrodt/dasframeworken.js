@@ -1,3 +1,5 @@
+import { IController } from './../types/interfaces';
+
 export class RepeatDirective {
     static get metadata() {
         return {
@@ -5,11 +7,11 @@ export class RepeatDirective {
         };
     }
 
-    constructor(element, controller) {
+    constructor(element: Element, controller: IController) {
 
     }
 
-    setup(value) {
+    setup(value: string) {
 
     }
 

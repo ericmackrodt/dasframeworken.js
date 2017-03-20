@@ -1,24 +1,35 @@
 import { TemplateBuilder } from './template.builder';
 import { Pubsub } from './events/pubsub';
 import * as utils from './component.utils';
-import { directivesRegistry } from './directives/registry';
+import * as directivesRegistry from './directives/registry';
+import * as container from './di.container';
+import { IController, IEventListener, IDirective } from './types/interfaces';
 
-export class ComponentContainer {    
+export class ComponentContainer {
+    private _controller: IController;
+    private _bindings: Pubsub;
+    private _eventListeners: IEventListener[];
+    private _children: ComponentContainer[];
+    private _templateBuilder: TemplateBuilder;
+    private _directives: IDirective[];
+
     get controller() {
         return this._controller;
     }
 
-    constructor(module, component) {
+    constructor(
+        private _module: Frameworken.IModule, 
+        private _component: Frameworken.IComponent
+    ) {
         this._bindings = new Pubsub();
         this._eventListeners = [];
-        this._module = module;
-        utils.setupController(component.controller);
-        this._component = component;
-        this._chilren = [];
+        utils.setupController(_component.controller);
+        this._children = [];
+        this._directives = [];
     }
 
-    _registerEvent(element, event, callback) {
-        let listener = this._eventListeners.find(e => e.element === element && e.event === event);
+    _registerEvent(element: Element, event: string, callback: (arg: any) => void) {
+        let listener = this._eventListeners.find((e: IEventListener) => e.element === element && e.event === event);
         if (!listener) {
             listener = {
                 element: element,
@@ -31,25 +42,26 @@ export class ComponentContainer {
         }
     }
 
-    initialize(element) {
-        this._controller = this._module.container.resolve(this._component.controller);
+    initialize(element: Element) {
+        debugger;
+        this._controller = container.resolve(this._component.controller);
         this._templateBuilder = new TemplateBuilder(this, element);
         this._component.render(this._templateBuilder);
     }
 
-    setBinding(element, elementProperty, controllerProperty) {
-        this._bindings.subscribe(controllerProperty, (key) => { 
+    setBinding(element: { [key: string]: any }, elementProperty: string, controllerProperty: string) {
+        this._bindings.subscribe(controllerProperty, (key: string) => { 
             if (element[elementProperty] !== this._controller[key]) {
                 element[elementProperty] = this._controller[key]; 
             }
         });
         if (typeof this._controller.onPropertyChanged !== 'function') {
-            this._controller.onPropertyChanged = (name) => this._bindings.emit(name, name);
+            this._controller.onPropertyChanged = (name: string) => this._bindings.emit(name, name);
         }
         element[elementProperty] = this._controller[controllerProperty];
     }
 
-    setInwardBinding(element, controllerProperty) {
+    setInwardBinding(element: HTMLInputElement, controllerProperty: string) {
         this._registerEvent(element, 'input', (change) => {
             const start = element.selectionStart;
             const end = element.selectionEnd;
@@ -60,39 +72,38 @@ export class ComponentContainer {
         });
     }
     
-    setEvent(element, event, callback) {
+    setEvent(element: Element, event: string, callback: string) {
         const key = callback.replace('()', '');
-        this._registerEvent(element, event.replace('trigger:', ''), (arg) => { 
-            this._controller[key](arg); 
-        });
+        this._registerEvent(element, event.replace('trigger:', ''), (arg) => this._controller[key](arg));
     }
 
-    instantiateChildComponent(name, parent) {
+    instantiateChildComponent(name: string, parent: Element) {
         const component = this._module.getComponent(name);
         if (!component) return false;
 
         const child = new ComponentContainer(this._module, component);
-        this._chilren.push(child);
+        this._children.push(child);
         child.initialize(parent);
 
         return true;
     }
 
-    instantiateDirective(name, value, parent) {
+    instantiateDirective(name: string, value: any, parent: Element) {
         const directive = directivesRegistry.find(name);
         if (!directive) return false;
-        directivesRegistry.instantiateDirective(directive, this._controller, this._bindings, value, parent);
+        const instance = directivesRegistry.instantiate(directive, this._controller, this._bindings, value, parent);
+        this._directives.push(instance);
         return true;
     }
 
     teardown() {
-        while (this._chilren.length) {
-            const child = this._chilren[0];
+        while (this._children.length) {
+            const child = this._children[0];
             child.teardown();
-            this._chilren.splice(0, 1);
+            this._children.splice(0, 1);
         }
 
-        delete this._chilren;
+        delete this._children;
 
         this._bindings.teardown();
         
@@ -102,9 +113,5 @@ export class ComponentContainer {
             this._eventListeners.splice(0, 1);
         }
         delete this._eventListeners;
-
-        if (this._instance && typeof this._instance.onTeardown === 'function') {
-            this._instance.teardown();
-        }
     }
 }

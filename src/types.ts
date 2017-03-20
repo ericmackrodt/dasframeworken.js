@@ -11,23 +11,23 @@ declare module '*.html' {
 
 declare namespace Frameworken {
     interface IComponent {
-        controller: Function;
+        controller: any;
         render: Function;
         selector: string;
     }
 
     interface IRoute {
         path: string;
-        root: Object;
+        root: IComponent;
         resolve?: <T>(route: IRoute) => Promise<T> | boolean | void;
     }
 
     interface IModuleOptions {
         preLoad?: <T>() => Promise<T> | boolean | void;
-        types?: Object[];
+        types?: any[];
         routes?: IRoute[];
         components: Object[];
-        rootComponent: Object;
+        rootComponent: IComponent;
     }
 
     interface IModule {

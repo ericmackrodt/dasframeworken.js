@@ -1,19 +1,21 @@
+import { ComponentContainer } from './component.container';
+import { IController } from './types/interfaces';
+
 export class TemplateBuilder {
-    constructor(componentContainer, baseElement, controller, component) {
-        this._subscriptions = [];
-        this._componentContainer = componentContainer;
-        this._baseElement = baseElement;
-        this._controller = controller;
+    constructor(
+        private _componentContainer: ComponentContainer, 
+        private _baseElement: Element
+    ) {
     }
 
-    createRoot(name, controller) {
-        parent = this._baseElement;
+    createRoot(name: string, controller: IController) {
+        const parent = this._baseElement;
         const element = document.createElement(name);
         parent.appendChild(element);
         return element;
     }
 
-    createElement(name, parent) {
+    createElement(name: string, parent?: Element) {
         if (!this._componentContainer.instantiateChildComponent(name, parent)) {
             parent = parent || this._baseElement;
             const element = document.createElement(name);
@@ -22,25 +24,25 @@ export class TemplateBuilder {
         }
     }
 
-    setAttribute(name, value, parent) {
+    setAttribute(name: string, value: any, parent: Element) {
         if (this._componentContainer.instantiateDirective(name, value, parent)) return;
 
-        if (name.startsWith('trigger:')) { //localName
+        if (name.indexOf('trigger:') === 0) { //localName
             this._componentContainer.setEvent(parent, name, value);
         } else if (name === 'binding') {
             this._componentContainer.setBinding(parent, 'value', value);
-            this._componentContainer.setInwardBinding(parent, value);
+            this._componentContainer.setInwardBinding(parent as HTMLInputElement, value);
         } else {
             parent.setAttribute(name, value);
         }
     }
 
-    setText(text, parent) {
+    setText(text: string, parent: Element) {
         const node = document.createTextNode(text);
         parent.appendChild(node);
     }
 
-    boundText(key, parent) {
+    boundText(key: string, parent: Element) {
         const node = document.createTextNode('');
         parent.appendChild(node);
         this._componentContainer.setBinding(node, 'textContent', key);

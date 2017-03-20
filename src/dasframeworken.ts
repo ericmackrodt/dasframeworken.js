@@ -1,6 +1,6 @@
-import { Frameworken } from './base/frameworken';
+import * as frameworken from './base/frameworken';
 
-module.exports = new Frameworken();
+module.exports = frameworken;
 
 // (function (root, factory) {
 //     if (typeof exports === 'object' && exports) {
