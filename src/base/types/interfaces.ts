@@ -26,3 +26,12 @@ export interface IDirective {
     setup: (value: string) => void;
     teardown: () => void;
 }
+
+export interface IRegisteredType {
+    type: Type<any>, 
+    instance: any
+}
+
+export interface ITypeRegistry {
+    [key: string]: IRegisteredType
+}

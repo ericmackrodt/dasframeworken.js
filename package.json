@@ -4,7 +4,7 @@
   "description": "A stupid simple javascript framework",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register tests --watch",
+    "test": "mocha --compilers ts:ts-node/register tests/**/*.ts --watch",
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev"
   },
@@ -19,6 +19,9 @@
   },
   "homepage": "https://github.com/ericmackrodt/dasframeworken.js#readme",
   "devDependencies": {
+    "@types/chai": "^3.4.35",
+    "@types/mocha": "^2.2.40",
+    "@types/node": "^7.0.8",
     "awesome-typescript-loader": "^3.1.2",
     "babel-cli": "^6.24.0",
     "babel-loader": "^6.4.1",
@@ -29,6 +32,7 @@
     "htmlparser2": "^3.9.2",
     "magic-string": "^0.19.0",
     "mocha": "^3.2.0",
+    "ts-node": "^3.0.0",
     "typescript": "^2.2.1",
     "webpack": "^2.2.1"
   },

@@ -1,3 +1,5 @@
+import { call } from './../base/utils';
+
 export function observable() {
     return function (target: any, propertyKey: string): any {
         let _private: any;
@@ -9,7 +11,7 @@ export function observable() {
             set: function(val: any) {
                 if (_private !== val) {
                     _private = val;
-                    this._notifyChange(propertyKey);
+                    call(this._notifyChange, this, propertyKey);
                 }
             },
             enumerable: true

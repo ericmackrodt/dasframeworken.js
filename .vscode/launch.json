@@ -11,16 +11,20 @@
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
                 "--compilers",
-                "js:babel-core/register",
+                " ts:ts-node/register",
                 "-u",
                 "tdd",
                 "--timeout",
                 "999999",
                 "--colors",
-                "${workspaceRoot}/tests"
+                "${workspaceRoot}/tests/**/*.ts",
+                "--debug-brk"
             ],
             "sourceMaps": true,
-            "internalConsoleOptions": "openOnSessionStart"
+            "internalConsoleOptions": "openOnSessionStart",
+            "runtimeArgs": [
+                "--nolazy"
+            ]
         },
         {
             "type": "node",

@@ -13,7 +13,8 @@
         "module": "commonjs",
         "noImplicitAny": true,
         "allowJs": true,
-        "outDir": "./build"
+        "outDir": "./build",
+        "sourceMap": true
     },
     "include": [
         "src/dasframeworken.d.ts",
