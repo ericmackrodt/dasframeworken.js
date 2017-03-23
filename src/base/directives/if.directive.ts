@@ -22,12 +22,12 @@ export class IfDirective implements IDirective {
 
     private _processEvaluation(result: boolean) {
         if (!this._placeholder) {
-            this._placeholder = document.createComment('iffable: wut');
+            this._placeholder = document.createComment('@if');
         }
         if (result === true) {
-            replaceElement(this._element, this._placeholder);
-        } else {
             replaceElement(this._placeholder, this._element);
+        } else {
+            replaceElement(this._element, this._placeholder);
         }
     }
 

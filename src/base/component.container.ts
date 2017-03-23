@@ -1,4 +1,4 @@
-import { TemplateBuilder } from './template.builder';
+import templateBuilder from './template.builder';
 import { Pubsub } from './events/pubsub';
 import * as utils from './component.utils';
 import * as directivesRegistry from './directives/registry';
@@ -10,7 +10,6 @@ export class ComponentContainer {
     private _bindings: Pubsub;
     private _eventListeners: IEventListener[];
     private _children: ComponentContainer[];
-    private _templateBuilder: TemplateBuilder;
     private _directives: IDirective[];
 
     get controller() {
@@ -44,10 +43,9 @@ export class ComponentContainer {
     }
 
     initialize(element: Element) {
-        debugger;
         this._controller = this._container.resolve(this._component.controller);
-        this._templateBuilder = new TemplateBuilder(this, element);
-        this._component.render(this._templateBuilder);
+        const builder = templateBuilder(this, element);
+        this._component.render(builder);
     }
 
     setBinding(element: { [key: string]: any }, elementProperty: string, controllerProperty: string) {

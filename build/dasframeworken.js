@@ -272,10 +272,9 @@ var ComponentContainer = (function () {
         }
     };
     ComponentContainer.prototype.initialize = function (element) {
-        debugger;
         this._controller = this._container.resolve(this._component.controller);
-        this._templateBuilder = new template_builder_1.TemplateBuilder(this, element);
-        this._component.render(this._templateBuilder);
+        var builder = template_builder_1.default(this, element);
+        this._component.render(builder);
     };
     ComponentContainer.prototype.setBinding = function (element, elementProperty, controllerProperty) {
         var _this = this;
@@ -349,7 +348,7 @@ exports.ComponentContainer = ComponentContainer;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-function setupController(controllerType) {
+exports.setupController = function (controllerType) {
     controllerType.prototype._notifyChange = function (propertyName) {
         var _this = this;
         if (typeof this.onPropertyChanged === 'function') {
@@ -359,8 +358,7 @@ function setupController(controllerType) {
         }
         return this;
     };
-}
-exports.setupController = setupController;
+};
 
 
 /***/ }),
@@ -380,13 +378,13 @@ var IfDirective = (function () {
     }
     IfDirective.prototype._processEvaluation = function (result) {
         if (!this._placeholder) {
-            this._placeholder = document.createComment('iffable: wut');
+            this._placeholder = document.createComment('@if');
         }
         if (result === true) {
-            replaceElement(this._element, this._placeholder);
+            replaceElement(this._placeholder, this._element);
         }
         else {
-            replaceElement(this._placeholder, this._element);
+            replaceElement(this._element, this._placeholder);
         }
     };
     IfDirective.prototype._onFieldChanged = function (key) {
@@ -434,7 +432,7 @@ var PREFIX = '@';
 var getName = function (name) { return PREFIX + name; };
 exports.find = function (name) { return registry.find(function (d) { return getName(d.metadata.selector) === name; }); };
 exports.instantiate = function (directive, controller, pubsub, value, element) {
-    var instance = utils.instantiateType(directive, [element, controller, pubsub]);
+    var instance = utils.instantiateType.apply(utils, [directive].concat([element, controller, pubsub]));
     instance.setup(value);
     return instance;
 };
@@ -587,8 +585,9 @@ var Router = (function () {
                     _this.onRouteChanged(_this._currentRoute);
                 }
             })
-                .catch(function () {
+                .catch(function (ex) {
                 debugger;
+                console.error(ex);
                 history.replaceState({}, route.path, '#' + _this._getHash(oldUrl));
             });
         };
@@ -617,51 +616,93 @@ exports.Router = Router;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var TemplateBuilder = (function () {
-    function TemplateBuilder(_componentContainer, _baseElement) {
-        this._componentContainer = _componentContainer;
-        this._baseElement = _baseElement;
-    }
-    TemplateBuilder.prototype.createRoot = function (name, controller) {
-        var parent = this._baseElement;
+// export class TemplateBuilder {
+//     constructor(
+//         private _componentContainer: ComponentContainer, 
+//         private _baseElement: Element
+//     ) {
+//     }
+//     createRoot(name: string, controller: IController) {
+//         const parent = this._baseElement;
+//         const element = document.createElement(name);
+//         parent.appendChild(element);
+//         return element;
+//     }
+//     createElement(name: string, parent?: Element) {
+//         if (!this._componentContainer.instantiateChildComponent(name, parent)) {
+//             parent = parent || this._baseElement;
+//             const element = document.createElement(name);
+//             parent.appendChild(element);
+//             return element;
+//         }
+//     }
+//     setAttribute(name: string, value: any, parent: Element) {
+//         if (this._componentContainer.instantiateDirective(name, value, parent)) return;
+//         if (name.indexOf('trigger:') === 0) { //localName
+//             this._componentContainer.setEvent(parent, name, value);
+//         } else if (name === 'binding') {
+//             this._componentContainer.setBinding(parent, 'value', value);
+//             this._componentContainer.setInwardBinding(parent as HTMLInputElement, value);
+//         } else {
+//             parent.setAttribute(name, value);
+//         }
+//     }
+//     setText(text: string, parent: Element) {
+//         const node = document.createTextNode(text);
+//         parent.appendChild(node);
+//     }
+//     boundText(key: string, parent: Element) {
+//         const node = document.createTextNode('');
+//         parent.appendChild(node);
+//         this._componentContainer.setBinding(node, 'textContent', key);
+//     }
+// }
+exports.default = function (componentContainer, baseElement) {
+    var createRoot = function (name, controller) {
+        var parent = baseElement;
         var element = document.createElement(name);
         parent.appendChild(element);
         return element;
     };
-    TemplateBuilder.prototype.createElement = function (name, parent) {
-        if (!this._componentContainer.instantiateChildComponent(name, parent)) {
-            parent = parent || this._baseElement;
+    var createElement = function (name, parent) {
+        if (!componentContainer.instantiateChildComponent(name, parent)) {
+            parent = parent || baseElement;
             var element = document.createElement(name);
             parent.appendChild(element);
             return element;
         }
     };
-    TemplateBuilder.prototype.setAttribute = function (name, value, parent) {
-        if (this._componentContainer.instantiateDirective(name, value, parent))
+    var setAttribute = function (name, value, parent) {
+        if (componentContainer.instantiateDirective(name, value, parent))
             return;
         if (name.indexOf('trigger:') === 0) {
-            this._componentContainer.setEvent(parent, name, value);
+            componentContainer.setEvent(parent, name, value);
         }
         else if (name === 'binding') {
-            this._componentContainer.setBinding(parent, 'value', value);
-            this._componentContainer.setInwardBinding(parent, value);
+            componentContainer.setBinding(parent, 'value', value);
+            componentContainer.setInwardBinding(parent, value);
         }
         else {
             parent.setAttribute(name, value);
         }
     };
-    TemplateBuilder.prototype.setText = function (text, parent) {
+    var setText = function (text, parent) {
         var node = document.createTextNode(text);
         parent.appendChild(node);
     };
-    TemplateBuilder.prototype.boundText = function (key, parent) {
+    var boundText = function (key, parent) {
         var node = document.createTextNode('');
         parent.appendChild(node);
-        this._componentContainer.setBinding(node, 'textContent', key);
+        componentContainer.setBinding(node, 'textContent', key);
     };
-    return TemplateBuilder;
-}());
-exports.TemplateBuilder = TemplateBuilder;
+    return {
+        createRoot: createRoot,
+        createElement: createElement,
+        setAttribute: setAttribute,
+        setText: setText,
+        boundText: boundText
+    };
+};
 
 
 /***/ }),
