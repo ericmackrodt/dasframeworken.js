@@ -95,7 +95,7 @@ describe('di.container', () => {
         });
 
         it('should fail to resolve a dependency that is not registered', () => {
-            expect(sut.resolve(MultiDependencyType)).to.throw('Error: Type (TestType2) not registered');
+            expect(() => sut.resolve(MultiDependencyType)).to.throw('Type (TestType2) not registered');
         });
     });
 
@@ -105,35 +105,50 @@ describe('di.container', () => {
         });
 
         it('should be able to get instance by type', () => {
-            throw 'fail';
+            const instance = sut.getInstance(TestType1);
+            expect(instance).to.be.instanceof(TestType1);
         });
 
         it('should be able to get instance by string', () => {
-            throw 'fail';
+            const instance = sut.getInstance('TestType1');
+            expect(instance).to.be.instanceof(TestType1);
         });
 
         it('should be able to resolve the dependency of a type via dependencies property', () => {
-            throw 'fail';
+            sut.registerType(SingleDependencyType);
+            const instance = sut.getInstance('SingleDependencyType');
+            expect(instance.test).to.be.instanceof(TestType1);
         });
 
         it('should be able to resolve the dependency of a type via metadata property', () => {
-            throw 'fail';
+            sut.registerType(SingleMetadataType);
+            const instance = sut.getInstance('SingleMetadataType');
+            expect(instance.test).to.be.instanceof(TestType1);
         });
 
         it('should be able to resolve multiple dependencies of a type via dependencies property', () => {
-            throw 'fail';
+            sut.registerType(TestType2);
+            sut.registerType(MultiDependencyType);
+            const instance = sut.getInstance('MultiDependencyType');
+            expect(instance.test1).to.be.instanceof(TestType1);
+            expect(instance.test2).to.be.instanceof(TestType2);
         });
 
         it('should be able to resolve multiple dependencies of a type via metadata property', () => {
-            throw 'fail';
+            sut.registerType(TestType2);
+            sut.registerType(MultiMetadataType);
+            const instance = sut.getInstance('MultiMetadataType');
+            expect(instance.test1).to.be.instanceof(TestType1);
+            expect(instance.test2).to.be.instanceof(TestType2);
         });
 
         it('should throw error if type is not registered', () => {
-            throw 'fail';
+            expect(() => sut.getInstance('TestType2')).to.throw('Type (TestType2) not registered');
         });
 
         it('should fail to resolve a dependency that is not registered', () => {
-            throw 'fail';
+            sut.registerType(MultiDependencyType);
+            expect(() => sut.getInstance('MultiDependencyType')).to.throw('Type (TestType2) not registered');
         });
     });
 });
