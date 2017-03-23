@@ -2,7 +2,7 @@ import { TemplateBuilder } from './template.builder';
 import { Pubsub } from './events/pubsub';
 import * as utils from './component.utils';
 import * as directivesRegistry from './directives/registry';
-import * as container from './di.container';
+import Container from './di.container';
 import { IController, IEventListener, IDirective } from './types/interfaces';
 
 export class ComponentContainer {
@@ -18,6 +18,7 @@ export class ComponentContainer {
     }
 
     constructor(
+        private _container: Container,
         private _module: Frameworken.IModule, 
         private _component: Frameworken.IComponent
     ) {
@@ -44,7 +45,7 @@ export class ComponentContainer {
 
     initialize(element: Element) {
         debugger;
-        this._controller = container.resolve(this._component.controller);
+        this._controller = this._container.resolve(this._component.controller);
         this._templateBuilder = new TemplateBuilder(this, element);
         this._component.render(this._templateBuilder);
     }
@@ -81,7 +82,7 @@ export class ComponentContainer {
         const component = this._module.getComponent(name);
         if (!component) return false;
 
-        const child = new ComponentContainer(this._module, component);
+        const child = new ComponentContainer(this._container, this._module, component);
         this._children.push(child);
         child.initialize(parent);
 

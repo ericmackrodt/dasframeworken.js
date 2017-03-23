@@ -2,10 +2,10 @@
 import { ComponentContainer } from './component.container';
 import { Router } from './router';
 import * as utils from './utils';
-import * as container from './di.container';
+import Container from './di.container';
 import { Type } from './types/interfaces';
 
-const registerTypes = (types: Type<any>[]) => types.forEach((type) => container.registerType(type));
+const registerTypes = (container: Container, types: Type<any>[]) => types.forEach((type) => container.registerType(type));
 
 export class Module {
     private _rootComponent: Frameworken.IComponent;
@@ -20,6 +20,7 @@ export class Module {
     }
 
     constructor(
+        private _container: Container,
         private _name: string, 
         options: Partial<Frameworken.IModuleOptions>
     ) {
@@ -28,7 +29,7 @@ export class Module {
         this._rootComponent = options.rootComponent;
         this._preLoad = options.preLoad;
 
-        if (options.types) registerTypes(options.types);
+        if (options.types) registerTypes(this._container, options.types);
         if (options.components) this._registerComponents(options.components);
         if (options.routes) this._registerRoutes(options.routes);
     }
@@ -64,7 +65,7 @@ export class Module {
             element.removeChild(element.firstChild);
         }
 
-        const container = new ComponentContainer(this, type);
+        const container = new ComponentContainer(this._container, this, type);
         container.initialize(element);
         return container;
     }

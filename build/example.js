@@ -83,6 +83,64 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Returns a promise based on the object passed as parameter.
+ * It returns a failed or successful promise if it's a boolean.
+ * If it's a promise, it returns itself.
+ * If it's some other object, it returns a succesfull promise with that obj.
+ * @param obj Object to promise
+ */
+exports.returnPromise = function (obj) {
+    if (typeof obj === 'boolean') {
+        return obj ? Promise.resolve() : Promise.reject({});
+    }
+    else if (typeof obj === 'object' && typeof obj.then === 'function') {
+        return obj;
+    }
+    else {
+        return Promise.resolve(obj);
+    }
+};
+/**
+ * Instantiates a Type.
+ * @param type Type to be instantiated.
+ * @param params Parameters to be passed to the constructor.
+ */
+exports.instantiateType = function (type) {
+    var params = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        params[_i - 1] = arguments[_i];
+    }
+    params = params || [];
+    return new (type.bind.apply(type, [type].concat(params)))();
+};
+/**
+ * Calls a function given the context if it's valid.
+ * @param fn Function to be called.
+ * @param ctx "This" context in which the function will be called.
+ * @param args The arguments for the function.
+ */
+exports.call = function (fn, ctx) {
+    var args = [];
+    for (var _i = 2; _i < arguments.length; _i++) {
+        args[_i - 2] = arguments[_i];
+    }
+    return exports.isFunction(fn) && fn.call.apply(fn, [ctx].concat(args));
+};
+/**
+ * Checks object is a function.
+ * @param fn Function to verify
+ */
+exports.isFunction = function (fn) { return typeof fn === 'function'; };
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
 var FakeService = (function () {
     function FakeService() {
     }
@@ -95,7 +153,6 @@ exports.FakeService = FakeService;
 
 
 /***/ }),
-/* 1 */,
 /* 2 */,
 /* 3 */,
 /* 4 */
@@ -194,7 +251,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var fake_service_1 = __webpack_require__(0);
+var fake_service_1 = __webpack_require__(1);
 var ts_1 = __webpack_require__(18);
 var HomeComponent = (function () {
     function HomeComponent(fakeService) {
@@ -248,6 +305,7 @@ exports.HomeComponent = HomeComponent;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var utils_1 = __webpack_require__(0);
 function observable() {
     return function (target, propertyKey) {
         var _private;
@@ -258,7 +316,7 @@ function observable() {
             set: function (val) {
                 if (_private !== val) {
                     _private = val;
-                    this._notifyChange(propertyKey);
+                    utils_1.call(this._notifyChange, this, propertyKey);
                 }
             },
             enumerable: true
@@ -289,7 +347,7 @@ __export(__webpack_require__(17));
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.AnotherComponent = undefined;var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();var _fake = __webpack_require__(0);function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}var
+Object.defineProperty(exports, "__esModule", { value: true });exports.AnotherComponent = undefined;var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();var _fake = __webpack_require__(1);function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}var
 
 AnotherComponent = exports.AnotherComponent = function () {_createClass(AnotherComponent, null, [{ key: 'metadata', get: function get()
         {
@@ -362,7 +420,7 @@ var anotherComponent = __webpack_require__(4);
 var homeComponent = __webpack_require__(5);
 var rootComponent = __webpack_require__(6);
 var titleComponent = __webpack_require__(7);
-var fake_service_1 = __webpack_require__(0);
+var fake_service_1 = __webpack_require__(1);
 var app = frameworken.module('app', {
     routes: [
         { path: '/', root: homeComponent, resolve: function () { return true; } },

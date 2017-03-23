@@ -77,13 +77,19 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ })
 /************************************************************************/
 /******/ ([
-/* 0 */,
-/* 1 */
+/* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Returns a promise based on the object passed as parameter.
+ * It returns a failed or successful promise if it's a boolean.
+ * If it's a promise, it returns itself.
+ * If it's some other object, it returns a succesfull promise with that obj.
+ * @param obj Object to promise
+ */
 exports.returnPromise = function (obj) {
     if (typeof obj === 'boolean') {
         return obj ? Promise.resolve() : Promise.reject({});
@@ -92,9 +98,14 @@ exports.returnPromise = function (obj) {
         return obj;
     }
     else {
-        return Promise.resolve();
+        return Promise.resolve(obj);
     }
 };
+/**
+ * Instantiates a Type.
+ * @param type Type to be instantiated.
+ * @param params Parameters to be passed to the constructor.
+ */
 exports.instantiateType = function (type) {
     var params = [];
     for (var _i = 1; _i < arguments.length; _i++) {
@@ -103,41 +114,94 @@ exports.instantiateType = function (type) {
     params = params || [];
     return new (type.bind.apply(type, [type].concat(params)))();
 };
+/**
+ * Calls a function given the context if it's valid.
+ * @param fn Function to be called.
+ * @param ctx "This" context in which the function will be called.
+ * @param args The arguments for the function.
+ */
+exports.call = function (fn, ctx) {
+    var args = [];
+    for (var _i = 2; _i < arguments.length; _i++) {
+        args[_i - 2] = arguments[_i];
+    }
+    return exports.isFunction(fn) && fn.call.apply(fn, [ctx].concat(args));
+};
+/**
+ * Checks object is a function.
+ * @param fn Function to verify
+ */
+exports.isFunction = function (fn) { return typeof fn === 'function'; };
 
 
 /***/ }),
+/* 1 */,
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
-var typesRegistry = {};
-var getName = function (type) { return type.name; };
-exports.getInstance = function (type) {
-    var name = getName(type);
-    var registered = typesRegistry[name];
-    if (!registered.instance) {
-        registered.instance = _this.resolve(registered.type);
+var utils = __webpack_require__(0);
+var getName = function (type) { return isString(type) ? type : type.name; };
+var isString = function (obj) { return typeof obj === 'string'; };
+var throwException = function (text) { throw new Error(text); };
+/**
+ * Represents the container
+ */
+var default_1 = (function () {
+    function default_1() {
+        this._typeRegistry = {};
     }
-    return registered.instance;
-};
-exports.resolve = function (type) {
-    var dependencies = type.metadata && type.metadata.dependencies || type.dependencies;
-    if (!dependencies) {
-        return new (type.bind.apply(type, [type].concat([type])));
-    }
-    var instances = dependencies.map(function (d) { return exports.getInstance(d); });
-    return new (type.bind.apply(type, [type].concat(instances)));
-};
-exports.registerType = function (type) {
-    var name = getName(type);
-    var registered = typesRegistry[name];
-    if (!registered) {
-        typesRegistry[name] = { type: type, instance: undefined };
-    }
-};
+    Object.defineProperty(default_1.prototype, "typeRegistry", {
+        get: function () {
+            return this._typeRegistry;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Instantiates a type that is registered in the container with its dependencies.
+     * @param type Type that will be instantiated, it can be the type itself or the name.
+     */
+    default_1.prototype.getInstance = function (type) {
+        var name = getName(type);
+        var registered = this._typeRegistry[name];
+        if (!registered)
+            throwException("Type (" + name + ") not registered");
+        if (!registered.instance) {
+            registered.instance = this.resolve(registered.type);
+        }
+        return registered.instance;
+    };
+    /**
+     * Instantiates any type and tries to resolve dependencies that are registered in the container.
+     * @param type The type to be resolved
+     */
+    default_1.prototype.resolve = function (type) {
+        var _this = this;
+        var dependencies = type.metadata && type.metadata.dependencies || type.dependencies;
+        if (!dependencies) {
+            return utils.instantiateType(type);
+        }
+        var instances = dependencies.map(function (d) { return _this.getInstance(d); });
+        return utils.instantiateType.apply(utils, [type].concat(instances));
+    };
+    /**
+     * Registers a type in the container.
+     * @param type Type to be registered
+     */
+    default_1.prototype.registerType = function (type) {
+        var name = getName(type);
+        var registered = this._typeRegistry[name];
+        if (!registered) {
+            this._typeRegistry[name] = { type: type, instance: undefined };
+        }
+    };
+    return default_1;
+}());
+exports.default = default_1;
+;
 
 
 /***/ }),
@@ -148,11 +212,13 @@ exports.registerType = function (type) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var module_1 = __webpack_require__(14);
+var di_container_1 = __webpack_require__(2);
 var modules = {};
+var container = new di_container_1.default();
 exports.module = function (name, options) {
     var module = modules[name];
     if (!module) {
-        module = new module_1.Module(name, options);
+        module = new module_1.Module(container, name, options);
         modules[name] = module;
     }
     return module;
@@ -175,9 +241,9 @@ var template_builder_1 = __webpack_require__(16);
 var pubsub_1 = __webpack_require__(22);
 var utils = __webpack_require__(10);
 var directivesRegistry = __webpack_require__(12);
-var container = __webpack_require__(2);
 var ComponentContainer = (function () {
-    function ComponentContainer(_module, _component) {
+    function ComponentContainer(_container, _module, _component) {
+        this._container = _container;
         this._module = _module;
         this._component = _component;
         this._bindings = new pubsub_1.Pubsub();
@@ -207,7 +273,7 @@ var ComponentContainer = (function () {
     };
     ComponentContainer.prototype.initialize = function (element) {
         debugger;
-        this._controller = container.resolve(this._component.controller);
+        this._controller = this._container.resolve(this._component.controller);
         this._templateBuilder = new template_builder_1.TemplateBuilder(this, element);
         this._component.render(this._templateBuilder);
     };
@@ -243,7 +309,7 @@ var ComponentContainer = (function () {
         var component = this._module.getComponent(name);
         if (!component)
             return false;
-        var child = new ComponentContainer(this._module, component);
+        var child = new ComponentContainer(this._container, this._module, component);
         this._children.push(child);
         child.initialize(parent);
         return true;
@@ -359,7 +425,7 @@ exports.IfDirective = IfDirective;
 Object.defineProperty(exports, "__esModule", { value: true });
 var if_directive_1 = __webpack_require__(11);
 var repeat_directive_1 = __webpack_require__(13);
-var utils = __webpack_require__(1);
+var utils = __webpack_require__(0);
 var registry = [
     if_directive_1.IfDirective,
     repeat_directive_1.RepeatDirective
@@ -412,18 +478,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // import { componentFactory } from './component.factory';
 var component_container_1 = __webpack_require__(9);
 var router_1 = __webpack_require__(15);
-var utils = __webpack_require__(1);
-var container = __webpack_require__(2);
-var registerTypes = function (types) { return types.forEach(function (type) { return container.registerType(type); }); };
+var utils = __webpack_require__(0);
+var registerTypes = function (container, types) { return types.forEach(function (type) { return container.registerType(type); }); };
 var Module = (function () {
-    function Module(_name, options) {
+    function Module(_container, _name, options) {
+        this._container = _container;
         this._name = _name;
         options = options || {};
         this._name = name;
         this._rootComponent = options.rootComponent;
         this._preLoad = options.preLoad;
         if (options.types)
-            registerTypes(options.types);
+            registerTypes(this._container, options.types);
         if (options.components)
             this._registerComponents(options.components);
         if (options.routes)
@@ -467,7 +533,7 @@ var Module = (function () {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }
-        var container = new component_container_1.ComponentContainer(this, type);
+        var container = new component_container_1.ComponentContainer(this._container, this, type);
         container.initialize(element);
         return container;
     };
@@ -497,7 +563,7 @@ exports.Module = Module;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var utils = __webpack_require__(1);
+var utils = __webpack_require__(0);
 var Router = (function () {
     function Router(routes) {
         var _this = this;
