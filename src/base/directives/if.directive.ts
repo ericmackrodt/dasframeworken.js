@@ -1,5 +1,5 @@
 import { IController, IDirective } from './../types/interfaces';
-import { Goat } from 'goatjs';
+import ExpressionParser from 'goatjs';
 import { Pubsub } from "../events/pubsub";
 
 const replaceElement = (oldEl: Element | Comment, newEl: Element | Comment) => oldEl.parentNode.replaceChild(newEl, oldEl);
@@ -11,7 +11,7 @@ export class IfDirective implements IDirective {
     }
 
     private _placeholder: Comment;
-    private _expression: Goat;
+    private _expression: ExpressionParser;
 
     constructor(
         private _element: Element, 
@@ -38,7 +38,7 @@ export class IfDirective implements IDirective {
 
     public setup(value: string) {
         if (!this._expression) {
-            this._expression = new Goat(value, this._controller);            
+            this._expression = new ExpressionParser(value, this._controller);            
         }
 
         const result = this._expression.evaluate();

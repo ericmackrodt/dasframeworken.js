@@ -154,8 +154,7 @@ exports.FakeService = FakeService;
 
 /***/ }),
 /* 2 */,
-/* 3 */,
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -171,11 +170,11 @@ module.exports = {
 				} };
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var _homeComponent = __webpack_require__(8);
+var _homeComponent = __webpack_require__(7);
 module.exports = {
 				selector: 'a-component',
 				controller: _homeComponent.HomeComponent,
@@ -200,7 +199,7 @@ module.exports = {
 				} };
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -216,7 +215,7 @@ module.exports = {
 				} };
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -236,7 +235,7 @@ module.exports = {
 				} };
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -291,6 +290,7 @@ exports.HomeComponent = HomeComponent;
 
 
 /***/ }),
+/* 8 */,
 /* 9 */,
 /* 10 */,
 /* 11 */,
@@ -416,10 +416,10 @@ Object.defineProperty(exports, "__esModule", { value: true });var _createClass =
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var anotherComponent = __webpack_require__(4);
-var homeComponent = __webpack_require__(5);
-var rootComponent = __webpack_require__(6);
-var titleComponent = __webpack_require__(7);
+var anotherComponent = __webpack_require__(3);
+var homeComponent = __webpack_require__(4);
+var rootComponent = __webpack_require__(5);
+var titleComponent = __webpack_require__(6);
 var fake_service_1 = __webpack_require__(1);
 var app = frameworken.module('app', {
     routes: [

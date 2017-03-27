@@ -142,77 +142,8 @@ exports.isFunction = function (fn) { return typeof fn === 'function'; };
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var utils = __webpack_require__(0);
-var getName = function (type) { return isString(type) ? type : type.name; };
-var isString = function (obj) { return typeof obj === 'string'; };
-var throwException = function (text) { throw new Error(text); };
-/**
- * Represents the container
- */
-var default_1 = (function () {
-    function default_1() {
-        this._typeRegistry = {};
-    }
-    Object.defineProperty(default_1.prototype, "typeRegistry", {
-        get: function () {
-            return this._typeRegistry;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * Instantiates a type that is registered in the container with its dependencies.
-     * @param type Type that will be instantiated, it can be the type itself or the name.
-     */
-    default_1.prototype.getInstance = function (type) {
-        var name = getName(type);
-        var registered = this._typeRegistry[name];
-        if (!registered)
-            throwException("Type (" + name + ") not registered");
-        if (!registered.instance) {
-            registered.instance = this.resolve(registered.type);
-        }
-        return registered.instance;
-    };
-    /**
-     * Instantiates any type and tries to resolve dependencies that are registered in the container.
-     * @param type The type to be resolved
-     */
-    default_1.prototype.resolve = function (type) {
-        var _this = this;
-        var dependencies = type.metadata && type.metadata.dependencies || type.dependencies;
-        if (!dependencies) {
-            return utils.instantiateType(type);
-        }
-        var instances = dependencies.map(function (d) { return _this.getInstance(d); });
-        return utils.instantiateType.apply(utils, [type].concat(instances));
-    };
-    /**
-     * Registers a type in the container.
-     * @param type Type to be registered
-     */
-    default_1.prototype.registerType = function (type) {
-        var name = getName(type);
-        var registered = this._typeRegistry[name];
-        if (!registered) {
-            this._typeRegistry[name] = { type: type, instance: undefined };
-        }
-    };
-    return default_1;
-}());
-exports.default = default_1;
-;
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
 var module_1 = __webpack_require__(14);
-var di_container_1 = __webpack_require__(2);
+var di_container_1 = __webpack_require__(10);
 var modules = {};
 var container = new di_container_1.default();
 exports.module = function (name, options) {
@@ -226,12 +157,12 @@ exports.module = function (name, options) {
 
 
 /***/ }),
+/* 3 */,
 /* 4 */,
 /* 5 */,
 /* 6 */,
 /* 7 */,
-/* 8 */,
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -239,7 +170,7 @@ exports.module = function (name, options) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var template_builder_1 = __webpack_require__(16);
 var pubsub_1 = __webpack_require__(22);
-var utils = __webpack_require__(10);
+var utils = __webpack_require__(9);
 var directivesRegistry = __webpack_require__(12);
 var ComponentContainer = (function () {
     function ComponentContainer(_container, _module, _component) {
@@ -342,7 +273,7 @@ exports.ComponentContainer = ComponentContainer;
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -359,6 +290,75 @@ exports.setupController = function (controllerType) {
         return this;
     };
 };
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var utils = __webpack_require__(0);
+var getName = function (type) { return isString(type) ? type : type.name; };
+var isString = function (obj) { return typeof obj === 'string'; };
+var throwException = function (text) { throw new Error(text); };
+/**
+ * Represents the container
+ */
+var default_1 = (function () {
+    function default_1() {
+        this._typeRegistry = {};
+    }
+    Object.defineProperty(default_1.prototype, "typeRegistry", {
+        get: function () {
+            return this._typeRegistry;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Instantiates a type that is registered in the container with its dependencies.
+     * @param type Type that will be instantiated, it can be the type itself or the name.
+     */
+    default_1.prototype.getInstance = function (type) {
+        var name = getName(type);
+        var registered = this._typeRegistry[name];
+        if (!registered)
+            throwException("Type (" + name + ") not registered");
+        if (!registered.instance) {
+            registered.instance = this.resolve(registered.type);
+        }
+        return registered.instance;
+    };
+    /**
+     * Instantiates any type and tries to resolve dependencies that are registered in the container.
+     * @param type The type to be resolved
+     */
+    default_1.prototype.resolve = function (type) {
+        var _this = this;
+        var dependencies = type.metadata && type.metadata.dependencies || type.dependencies;
+        if (!dependencies) {
+            return utils.instantiateType(type);
+        }
+        var instances = dependencies.map(function (d) { return _this.getInstance(d); });
+        return utils.instantiateType.apply(utils, [type].concat(instances));
+    };
+    /**
+     * Registers a type in the container.
+     * @param type Type to be registered
+     */
+    default_1.prototype.registerType = function (type) {
+        var name = getName(type);
+        var registered = this._typeRegistry[name];
+        if (!registered) {
+            this._typeRegistry[name] = { type: type, instance: undefined };
+        }
+    };
+    return default_1;
+}());
+exports.default = default_1;
+;
 
 
 /***/ }),
@@ -394,7 +394,7 @@ var IfDirective = (function () {
     IfDirective.prototype.setup = function (value) {
         var _this = this;
         if (!this._expression) {
-            this._expression = new goatjs_1.Goat(value, this._controller);
+            this._expression = new goatjs_1.default(value, this._controller);
         }
         var result = this._expression.evaluate();
         this._expression.fields.forEach(function (field) {
@@ -474,7 +474,7 @@ exports.RepeatDirective = RepeatDirective;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 // import { componentFactory } from './component.factory';
-var component_container_1 = __webpack_require__(9);
+var component_container_1 = __webpack_require__(8);
 var router_1 = __webpack_require__(15);
 var utils = __webpack_require__(0);
 var registerTypes = function (container, types) { return types.forEach(function (type) { return container.registerType(type); }); };
@@ -873,7 +873,7 @@ Object.defineProperty(exports, "__esModule", { value: true });var _createClass =
             /******/__webpack_require__.p = "";
             /******/
             /******/ // Load entry module and return exports
-            /******/return __webpack_require__(__webpack_require__.s = 1);
+            /******/return __webpack_require__(__webpack_require__.s = 0);
             /******/}(
         /************************************************************************/
         /******/[
@@ -881,203 +881,184 @@ Object.defineProperty(exports, "__esModule", { value: true });var _createClass =
         /***/function (module, exports, __webpack_require__) {
 
             "use strict";
-            Object.defineProperty(exports, "__esModule", { value: true });var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}} // OLD = /([&|]{2})|([\(\)])|([!]+)?([\w\.]+)\s*([^\w\s|&]{1,3})?\s*([^\sˆ&|\)]+)?/g;
 
+            Object.defineProperty(exports, "__esModule", { value: true });
             var EQUALITY_REGEX = /^\s*([!\w\.]+)\s*([^\w\s|&]{1,3})?\s*([^\sˆ&|\\=)]+)?\s*$/;
             var EXPRESSION_REGEX = /([&|]{2})|([\(\)])|([!\w\.]+)\s*([^\w\s|&]{1,3})?\s*([^\sˆ&|\)]+)?/g;
             var STRING_REGEX = /^['"](.*)['"]$/;
             var NOT_REGEX = /^\s*([!]+)\s*(\w+)\s*$/;
             var LOGICAL_OPERATORS = ['&&', '||'];
             var RELATIONAL_OPERATORS = ['==', '!=', '===', '!==', '!', '>=', '<=', '>', '<'];
-            var BOOLEANS = ['true', 'false'];var
-
-            Goat = exports.Goat = function () {_createClass(Goat, [{ key: 'fields', get: function get()
-
+            var fieldsCache = {};
+            var isBoolean = function isBoolean(value) {return ['true', 'false'].indexOf(value) > -1;};
+            var generateRandomKey = function generateRandomKey() {return Math.floor((1 + Math.random()) * 0x100000000000000).toString(16).substring(1);};
+            var matchExpression = function matchExpression(expression) {
+                return expression.match(/([&|]{2})|([\(\)])|([!\w\.]+)\s*([^\w\s|&]{1,3})?\s*([^\sˆ&|\)]+)?/g);
+            };
+            var asFunction = function asFunction(val) {return typeof val === 'function' ? val() : val;};
+            var getRegexMatchArray = function getRegexMatchArray(regex, input) {
+                var match = regex.exec(input) || [];
+                if (match.length === 0)
+                return;
+                match = match.filter(function (m) {return m !== undefined;});
+                match.shift();
+                return match;
+            };
+            var getOperation = function getOperation(operation, left, right) {return {
+                    '==': function _() {return asFunction(left) == asFunction(right);},
+                    '!=': function _() {return asFunction(left) != asFunction(right);},
+                    '===': function _() {return asFunction(left) === asFunction(right);},
+                    '!==': function _() {return asFunction(left) !== asFunction(right);},
+                    '<=': function _() {return asFunction(left) <= asFunction(right);},
+                    '=<': function _() {return asFunction(left) <= asFunction(right);},
+                    '>=': function _() {return asFunction(left) >= asFunction(right);},
+                    '=>': function _() {return asFunction(left) >= asFunction(right);},
+                    '<': function _() {return asFunction(left) < asFunction(right);},
+                    '>': function _() {return asFunction(left) > asFunction(right);},
+                    '&&': function _() {return asFunction(left) && asFunction(right);},
+                    '||': function _() {return asFunction(left) || asFunction(right);} }[
+                operation];};
+            var evaluateNot = function evaluateNot(nots, value, controller, parserToken) {
+                var evaluate;
+                nots.shift();
+                if (nots.length) {
+                    evaluate = evaluateNot(nots, value, controller, parserToken);
+                }
+                return function () {return !asFunction(evaluate || getValue(value, controller, parserToken));};
+            };
+            var getPropertyEval = function getPropertyEval(obj, prop) {return function () {return obj[prop];};};
+            var setField = function setField(field, parserToken) {
+                var cache = fieldsCache[parserToken];
+                if (!cache) {
+                    cache = fieldsCache[parserToken] = [];
+                }
+                cache.push(field);
+            };
+            var getValue = function getValue(m, controller, parserToken) {
+                var match;
+                if (match = getRegexMatchArray(NOT_REGEX, m)) {
+                    var nots = match[0].split('');
+                    return evaluateNot(nots, match[1], controller, parserToken);
+                } else
+                if (isBoolean(m)) {
+                    return m === 'true';
+                } else
+                if (m in controller) {
+                    setField(m, parserToken);
+                    return getPropertyEval(controller, m);
+                } else
+                if (!isNaN(m)) {
+                    return parseInt(m);
+                } else
+                if (match = STRING_REGEX.exec(m)) {
+                    return match[1];
+                } else
+                {
+                    return m;
+                }
+            };
+            var processExpression = function processExpression(expression, controller, parserToken) {
+                var match;
+                if (!(expression instanceof Array)) {
+                    expression = [expression];
+                }
+                if (expression.length === 1 && (match = getRegexMatchArray(EQUALITY_REGEX, expression[0]))) {
+                    var left = getValue(match[0], controller, parserToken);
+                    var right = getValue(match[2], controller, parserToken);
+                    var operation = match[1];
+                    if (typeof left === 'function' && !right && !operation) {
+                        expression[0] = left;
+                    } else
                     {
+                        expression[0] = getOperation(match[1], left, right);
+                    }
+                }
+                while (expression.length > 1 || typeof expression[0] !== 'function') {
+                    var index = -1;
+                    var leftIndex = 0;
+                    var rightIndex = 0;
+                    var left = void 0;
+                    var right = void 0;
+                    var subExpression = expression;
+                    var indexLeftParenthesis = expression.lastIndexOf('(');
+                    if (indexLeftParenthesis > -1) {
+                        subExpression = subExpression.slice(indexLeftParenthesis + 1, subExpression.length);
+                        var indexRightParenthesis = subExpression.indexOf(')');
+                        subExpression = subExpression.slice(0, indexRightParenthesis);
+                        var expressionLength = subExpression.length;
+                        expression[indexLeftParenthesis] = processExpression(subExpression, controller, parserToken);
+                        expression.splice(indexLeftParenthesis + 1, expressionLength + 1);
+                        continue;
+                    }
+                    if ((index = expression.indexOf('&&')) > -1 &&
+                    expression[leftIndex = index - 1] !== ')' &&
+                    expression[rightIndex = index + 1] !== '(') {
+                        left = processExpression(expression[leftIndex], controller, parserToken);
+                        right = processExpression(expression[rightIndex], controller, parserToken);
+                        expression[leftIndex] = getOperation('&&', left, right);
+                        expression.splice(index, 2);
+                        continue;
+                    } else
+                    if ((index = expression.indexOf('||')) > -1 &&
+                    expression[leftIndex = index - 1] !== ')' &&
+                    expression[rightIndex = index + 1] !== '(') {
+                        left = processExpression(expression[leftIndex], controller, parserToken);
+                        right = processExpression(expression[rightIndex], controller, parserToken);
+                        expression[leftIndex] = getOperation('||', left, right);
+                        expression.splice(index, 2);
+                        continue;
+                    }
+                    break;
+                }
+                if (expression.length === 1) {
+                    return expression[0];
+                }
+                ;
+            };
+            var buildEvaluator = function buildEvaluator(expression, controller, parserToken) {
+                var match = matchExpression(expression) || [];
+                return processExpression(match, controller, parserToken);
+            };
+            /**
+                * Expression parser class
+                */
+            var default_1 = function () {
+                /**
+                                          * Creates new instance of the ExpressionParser.
+                                          * @param _expression Expression to be parsed
+                                          * @param _controller Object with fields that will be evaluated
+                                          */
+                function default_1(_expression, _controller) {
+                    this._expression = _expression;
+                    this._controller = _controller;
+                    this._parserToken = generateRandomKey();
+                }
+                Object.defineProperty(default_1.prototype, "fields", {
+                    /**
+                                                                        * Object fields that were used in the expression.
+                                                                        */
+                    get: function get() {
                         return this._fields;
-                    } }]);
+                    },
+                    enumerable: true,
+                    configurable: true });
 
-                function Goat(expression, controller) {_classCallCheck(this, Goat);
-                    this._expression = expression;
-                    this._controller = controller;
-                }_createClass(Goat, [{ key: '_getRegexMatchArray', value: function _getRegexMatchArray(
+                /**
+                                            * Evaluates current instance of the Expression Parser and returns
+                                            * a boolean value based on the expression that was passed in the constructor.
+                                            */
+                default_1.prototype.evaluate = function () {
+                    if (!this._evaluator) {
+                        this._evaluator = buildEvaluator(this._expression, this._controller, this._parserToken);
+                        this._fields = fieldsCache[this._parserToken];
+                        delete fieldsCache[this._parserToken];
+                    }
+                    return this._evaluator();
+                };
+                return default_1;
+            }();
+            exports.default = default_1;
 
-                    regex, input) {
-                        var match = regex.exec(input);
-                        if (!match) return;
-                        match = match.filter(function (m) {return m !== undefined;});
-                        match.shift();
-                        return match;
-                    } }, { key: '_evaluateNot', value: function _evaluateNot(
-
-                    nots, value) {
-                        var evaluate = void 0;
-                        nots.shift();
-                        if (nots.length) {
-                            evaluate = this._evaluateNot(nots, value);
-                        }
-
-                        return this._getOperation('!', evaluate || this._getValue(value));
-                    } }, { key: '_setField', value: function _setField(
-
-                    field) {
-                        if (!this._fields) {
-                            this._fields = [];
-                        }
-                        if (typeof field === 'string') {
-                            this.fields.push(field);
-                        }
-                    } }, { key: '_getValue', value: function _getValue(
-
-                    m) {
-                        var match = void 0;
-                        if (match = this._getRegexMatchArray(NOT_REGEX, m)) {
-                            var nots = match[0].split('');
-                            return this._evaluateNot(nots, match[1]);
-                        } else if (BOOLEANS.indexOf(m) > -1) {
-                            return m === 'true';
-                        } else if (m in this._controller) {
-                            this._setField(m);
-                            return this._getPropertyEval(this._controller, m);
-                        } else if (!isNaN(m)) {
-                            return parseInt(m);
-                        } else if (match = STRING_REGEX.exec(m)) {
-                            return match[1];
-                        } else {
-                            return m;
-                        }
-                    } }, { key: '_getPropertyEval', value: function _getPropertyEval(
-
-                    obj, prop) {
-                        return function () {return obj[prop];};
-                    } }, { key: '_asFunction', value: function _asFunction(
-
-                    val) {
-                        if (typeof val === 'function') {
-                            return val();
-                        } else {
-                            return val;
-                        }
-                    } }, { key: '_getOperation', value: function _getOperation(
-
-                    operation, left, right) {var _this = this;
-                        switch (operation) {
-                            case '==':
-                                return function () {return _this._asFunction(left) == _this._asFunction(right);};
-                            case '!=':
-                                return function () {return _this._asFunction(left) != _this._asFunction(right);};
-                            case '===':
-                                return function () {return _this._asFunction(left) === _this._asFunction(right);};
-                            case '!==':
-                                return function () {return _this._asFunction(left) !== _this._asFunction(right);};
-                            case '<=':
-                            case '=<':
-                                return function () {return _this._asFunction(left) <= _this._asFunction(right);};
-                            case '>=':
-                            case '=<':
-                                return function () {return _this._asFunction(left) >= _this._asFunction(right);};
-                            case '<':
-                                return function () {return _this._asFunction(left) < _this._asFunction(right);};
-                            case '>':
-                                return function () {return _this._asFunction(left) > _this._asFunction(right);};
-                            case '!':
-                                return function () {return !_this._asFunction(left);};
-                            case '&&':
-                                return function () {return _this._asFunction(left) && _this._asFunction(right);};
-                            case '||':
-                                return function () {return _this._asFunction(left) || _this._asFunction(right);};}
-
-                    } }, { key: '_processExpression', value: function _processExpression(
-
-                    expression) {
-                        var match = void 0;
-                        if (!(expression instanceof Array)) {
-                            expression = [expression];
-                        }
-                        if (expression.length === 1 && (match = this._getRegexMatchArray(EQUALITY_REGEX, expression[0]))) {
-                            var left = this._getValue(match[0]);
-                            var right = this._getValue(match[2]);
-                            var operation = match[1];
-                            if (typeof left === 'function' && !right && !operation) {
-                                expression[0] = left;
-                            } else {
-                                expression[0] = this._getOperation(match[1], left, right);
-                            }
-                        }
-
-                        while (expression.length > 1 || typeof expression[0] !== 'function') {
-                            var index = -1;
-                            var leftIndex = 0;
-                            var rightIndex = 0;
-                            var _left = void 0;
-                            var _right = void 0;
-
-                            var subExpression = expression;
-                            var indexLeftParenthesis = expression.lastIndexOf('(');
-                            if (indexLeftParenthesis > -1) {
-                                subExpression = subExpression.slice(indexLeftParenthesis + 1, subExpression.length);
-                                var indexRightParenthesis = subExpression.indexOf(')');
-                                subExpression = subExpression.slice(0, indexRightParenthesis);
-                                var expressionLength = subExpression.length;
-                                expression[indexLeftParenthesis] = this._processExpression(subExpression);
-                                expression.splice(indexLeftParenthesis + 1, expressionLength + 1);
-
-                                continue;
-                            }
-
-
-                            if ((index = expression.indexOf('&&')) > -1 &&
-                            expression[leftIndex = index - 1] !== ')' &&
-                            expression[rightIndex = index + 1] !== '(') {
-                                // leftIndex = index - 1;
-                                // rightIndex = index + 1;
-                                _left = this._processExpression(expression[leftIndex]);
-                                _right = this._processExpression(expression[rightIndex]);
-                                expression[leftIndex] = this._getOperation('&&', _left, _right);
-                                expression.splice(index, 2);
-
-                                continue;
-                            } else if ((index = expression.indexOf('||')) > -1 &&
-                            expression[leftIndex = index - 1] !== ')' &&
-                            expression[rightIndex = index + 1] !== '(') {
-                                // leftIndex = index - 1;
-                                // rightIndex = index + 1;
-                                _left = this._processExpression(expression[leftIndex]);
-                                _right = this._processExpression(expression[rightIndex]);
-                                expression[leftIndex] = this._getOperation('||', _left, _right);
-                                expression.splice(index, 2);
-
-                                continue;
-                            }
-
-                            break;
-                        }
-
-                        if (expression.length === 1) {
-                            return expression[0];
-                        }
-                    } }, { key: '_buildEvaluator', value: function _buildEvaluator()
-
-                    {
-                        var expression = this._expression.match(EXPRESSION_REGEX);
-                        EXPRESSION_REGEX.lastIndex = 0;
-                        return this._processExpression(expression);
-                    } }, { key: 'evaluate', value: function evaluate()
-
-                    {
-                        if (!this._evaluator) {
-                            this._evaluator = this._buildEvaluator();
-                        }
-
-                        return this._evaluator();
-                    } }]);return Goat;}();
-
-            /***/},
-        /* 1 */
-        /***/function (module, exports, __webpack_require__) {
-
-            "use strict";
-            Object.defineProperty(exports, "__esModule", { value: true });var _goat = __webpack_require__(0);Object.defineProperty(exports, 'Goat', { enumerable: true, get: function get() {return _goat.Goat;} });
 
             /***/}]));
 
@@ -1121,7 +1102,7 @@ module.exports = function(module) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var frameworken = __webpack_require__(3);
+var frameworken = __webpack_require__(2);
 module.exports = frameworken;
 // (function (root, factory) {
 //     if (typeof exports === 'object' && exports) {
