@@ -71,9 +71,8 @@ export class ComponentContainer {
         });
     }
     
-    setEvent(element: Element, event: string, callback: string) {
-        const key = callback.replace('()', '');
-        this._registerEvent(element, event.replace('trigger:', ''), (arg) => this._controller[key](arg));
+    setEvent(element: Element, event: string, callback: (controller: IController, $event: Event) => any) {
+        this._registerEvent(element, event, (arg) => callback(this._controller, arg));
     }
 
     instantiateChildComponent(name: string, parent: Element) {

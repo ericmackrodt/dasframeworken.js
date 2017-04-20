@@ -1,53 +1,5 @@
 import { ComponentContainer } from './component.container';
-import { IController } from './types/interfaces';
-
-// export class TemplateBuilder {
-//     constructor(
-//         private _componentContainer: ComponentContainer, 
-//         private _baseElement: Element
-//     ) {
-//     }
-
-//     createRoot(name: string, controller: IController) {
-//         const parent = this._baseElement;
-//         const element = document.createElement(name);
-//         parent.appendChild(element);
-//         return element;
-//     }
-
-//     createElement(name: string, parent?: Element) {
-//         if (!this._componentContainer.instantiateChildComponent(name, parent)) {
-//             parent = parent || this._baseElement;
-//             const element = document.createElement(name);
-//             parent.appendChild(element);
-//             return element;
-//         }
-//     }
-
-//     setAttribute(name: string, value: any, parent: Element) {
-//         if (this._componentContainer.instantiateDirective(name, value, parent)) return;
-
-//         if (name.indexOf('trigger:') === 0) { //localName
-//             this._componentContainer.setEvent(parent, name, value);
-//         } else if (name === 'binding') {
-//             this._componentContainer.setBinding(parent, 'value', value);
-//             this._componentContainer.setInwardBinding(parent as HTMLInputElement, value);
-//         } else {
-//             parent.setAttribute(name, value);
-//         }
-//     }
-
-//     setText(text: string, parent: Element) {
-//         const node = document.createTextNode(text);
-//         parent.appendChild(node);
-//     }
-
-//     boundText(key: string, parent: Element) {
-//         const node = document.createTextNode('');
-//         parent.appendChild(node);
-//         this._componentContainer.setBinding(node, 'textContent', key);
-//     }
-// }
+import { IController, IDirective, Type } from './types/interfaces';
 
 export default (componentContainer: ComponentContainer, baseElement: Element) => {
     
@@ -68,16 +20,16 @@ export default (componentContainer: ComponentContainer, baseElement: Element) =>
     };
 
     const setAttribute = (name: string, value: any, parent: Element) => {
-        if (componentContainer.instantiateDirective(name, value, parent)) return;
+        parent.setAttribute(name, value);
+    };
 
-        if (name.indexOf('trigger:') === 0) { //localName
-            componentContainer.setEvent(parent, name, value);
-        } else if (name === 'binding') {
-            componentContainer.setBinding(parent, 'value', value);
-            componentContainer.setInwardBinding(parent as HTMLInputElement, value);
-        } else {
-            parent.setAttribute(name, value);
-        }
+    const setBinding = (value: any, parent: Element) => {
+        componentContainer.setBinding(parent, 'value', value);
+        componentContainer.setInwardBinding(parent as HTMLInputElement, value);
+    };
+
+    const setEvent = (event: string, fn: (controller: IController, $event: Event) => any, parent: Element) => {
+        componentContainer.setEvent(parent, event, fn);
     };
 
     const setText = (text: string, parent: Element) => {
@@ -91,11 +43,18 @@ export default (componentContainer: ComponentContainer, baseElement: Element) =>
         componentContainer.setBinding(node, 'textContent', key);
     };
 
+    const setDirective = (directive: string, value: any, parent: Element) => {
+        componentContainer.instantiateDirective(directive, value, parent)
+    }
+
     return {
         createRoot,
         createElement,
+        setBinding,
+        setEvent,
         setAttribute,
         setText,
-        boundText
+        boundText,
+        setDirective
     }
 };

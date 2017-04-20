@@ -1,7 +1,7 @@
-import * as anotherComponent from './components/another.component.html';
-import * as homeComponent from './components/home.component.html';
-import * as rootComponent from './components/root.component.html';
-import * as titleComponent from './components/title.component.html';
+import anotherComponent from './components/another.component.html';
+import homeComponent from './components/home.component.html';
+import rootComponent from './components/root.component.html';
+import titleComponent from './components/title.component.html';
 import { FakeService } from './services/fake.service';
 
 const app = frameworken.module('app', {

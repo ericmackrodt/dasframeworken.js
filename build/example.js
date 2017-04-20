@@ -158,81 +158,89 @@ exports.FakeService = FakeService;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var _anotherComponent = __webpack_require__(19);
-module.exports = {
-				selector: 'another-comp',
-				controller: _anotherComponent.AnotherComponent,
-				render: function render(builder) {
-								var component0 = builder.createRoot('another-comp', _anotherComponent.AnotherComponent);
-								var h10 = builder.createElement('h1', component0);
-								builder.setText('Another comp', h10);
-								var title_comp0 = builder.createElement('title-comp', component0);
-				} };
+Object.defineProperty(exports, "__esModule", { value: true });
+var _anotherComponent = __webpack_require__(19);exports.default =
+
+{
+        selector: 'another-comp',
+        controller: _anotherComponent.AnotherComponent,
+        render: function render(builder) {
+                var component0 = builder.createRoot('another-comp', _anotherComponent.AnotherComponent);
+                var h10 = builder.createElement('h1', component0);
+                builder.setText('Another comp', h10);
+                var title_comp0 = builder.createElement('title-comp', component0);
+        } };
 
 /***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var _homeComponent = __webpack_require__(7);
-module.exports = {
-				selector: 'a-component',
-				controller: _homeComponent.HomeComponent,
-				render: function render(builder) {
-								var component0 = builder.createRoot('a-component', _homeComponent.HomeComponent);
-								var p0 = builder.createElement('p', component0);
-								builder.boundText('prop', p0);
-								builder.setText(' is cool ey oh', p0);
-								var input0 = builder.createElement('input', component0);
-								builder.setAttribute('binding', 'prop', input0);
-								var button0 = builder.createElement('button', component0);
-								builder.setAttribute('trigger:click', 'clicked()', button0);
-								builder.setText('click here dude!', button0);
-								builder.setText('This is just a text', component0);
-								var br0 = builder.createElement('br', component0);
-								var span0 = builder.createElement('span', component0);
-								builder.setAttribute('@if', 'iffable === true', span0);
-								builder.setText('This is iffable', span0);
-								var button1 = builder.createElement('button', component0);
-								builder.setAttribute('trigger:click', 'showHide()', button1);
-								builder.setText('Show/hide', button1);
-				} };
+Object.defineProperty(exports, "__esModule", { value: true });
+var _homeComponent = __webpack_require__(7);exports.default =
+
+{
+								selector: 'a-component',
+								controller: _homeComponent.HomeComponent,
+								render: function render(builder) {
+																var component2 = builder.createRoot('a-component', _homeComponent.HomeComponent);
+																var p0 = builder.createElement('p', component2);
+																builder.boundText('prop', p0);
+																builder.setText(' is cool ey oh', p0);
+																var input0 = builder.createElement('input', component2);
+																builder.setBinding('prop', input0);
+																var button1 = builder.createElement('button', component2);
+																builder.setEvent('click', function (controller, $event) {return controller.clicked();}, button1);
+																builder.setText('click here dude!', button1);
+																builder.setText('This is just a text', component2);
+																var br0 = builder.createElement('br', component2);
+																var span0 = builder.createElement('span', component2);
+																builder.setDirective('@if', 'iffable === true', span0);
+																builder.setText('This is iffable', span0);
+																var button2 = builder.createElement('button', component2);
+																builder.setEvent('click', function (controller, $event) {return controller.showHide();}, button2);
+																builder.setText('Show/hide', button2);
+								} };
 
 /***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var _rootComponent = __webpack_require__(20);
-module.exports = {
-				selector: 'root-comp',
-				controller: _rootComponent.RootComponent,
-				render: function render(builder) {
-								var component0 = builder.createRoot('root-comp', _rootComponent.RootComponent);
-								var h10 = builder.createElement('h1', component0);
-								builder.setText('Application Root', h10);
-								var router_outlet0 = builder.createElement('router-outlet', component0);
-				} };
+Object.defineProperty(exports, "__esModule", { value: true });
+var _rootComponent = __webpack_require__(20);exports.default =
+
+{
+        selector: 'root-comp',
+        controller: _rootComponent.RootComponent,
+        render: function render(builder) {
+                var component3 = builder.createRoot('root-comp', _rootComponent.RootComponent);
+                var h12 = builder.createElement('h1', component3);
+                builder.setText('Application Root', h12);
+                var router_outlet0 = builder.createElement('router-outlet', component3);
+        } };
 
 /***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-var _titleComponent = __webpack_require__(21);
-module.exports = {
-				selector: 'title-comp',
-				controller: _titleComponent.TitleComponent,
-				render: function render(builder) {
-								var component0 = builder.createRoot('title-comp', _titleComponent.TitleComponent);
-								var h10 = builder.createElement('h1', component0);
-								builder.setText('This is a title component', h10);
-								var div0 = builder.createElement('div', component0);
-								builder.boundText('potato', div0);
-								var button0 = builder.createElement('button', component0);
-								builder.setAttribute('trigger:click', 'clicked()', button0);
-								builder.setText('POtato button', button0);
-				} };
+Object.defineProperty(exports, "__esModule", { value: true });
+var _titleComponent = __webpack_require__(21);exports.default =
+
+{
+								selector: 'title-comp',
+								controller: _titleComponent.TitleComponent,
+								render: function render(builder) {
+																var component1 = builder.createRoot('title-comp', _titleComponent.TitleComponent);
+																var h11 = builder.createElement('h1', component1);
+																builder.setText('This is a title component', h11);
+																var div0 = builder.createElement('div', component1);
+																builder.boundText('potato', div0);
+																var button0 = builder.createElement('button', component1);
+																builder.setEvent('click', function (controller, $event) {return controller.clicked();}, button0);
+																builder.setText('POtato button', button0);
+								} };
 
 /***/ }),
 /* 7 */
@@ -416,26 +424,26 @@ Object.defineProperty(exports, "__esModule", { value: true });var _createClass =
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var anotherComponent = __webpack_require__(3);
-var homeComponent = __webpack_require__(4);
-var rootComponent = __webpack_require__(5);
-var titleComponent = __webpack_require__(6);
+var another_component_html_1 = __webpack_require__(3);
+var home_component_html_1 = __webpack_require__(4);
+var root_component_html_1 = __webpack_require__(5);
+var title_component_html_1 = __webpack_require__(6);
 var fake_service_1 = __webpack_require__(1);
 var app = frameworken.module('app', {
     routes: [
-        { path: '/', root: homeComponent, resolve: function () { return true; } },
-        { path: '/another', root: anotherComponent }
+        { path: '/', root: home_component_html_1.default, resolve: function () { return true; } },
+        { path: '/another', root: another_component_html_1.default }
     ],
     types: [
         fake_service_1.FakeService
     ],
     components: [
-        homeComponent,
-        anotherComponent,
-        rootComponent,
-        titleComponent
+        home_component_html_1.default,
+        another_component_html_1.default,
+        root_component_html_1.default,
+        title_component_html_1.default
     ],
-    rootComponent: rootComponent,
+    rootComponent: root_component_html_1.default,
     preLoad: function () {
         return true;
     }

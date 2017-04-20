@@ -6,7 +6,7 @@ declare module 'dasframeworken' {
 
 declare module '*.html' {
     var value: Frameworken.IComponent;
-    export = value;
+    export default value;
 }
 
 declare namespace Frameworken {
