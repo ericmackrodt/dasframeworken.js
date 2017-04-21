@@ -2,7 +2,7 @@
     selector="a-component"
     controller="{ 'HomeComponent': './home.component.ts' }" />
 <p>@{prop} is cool ey oh</p>
-<input binding="prop"></input>
+<input bind:value="prop" trigger:input="inputUpdated($event)"></input>
 <button trigger:click="clicked()">click here dude!</button>
 This is just a text <br />
 <span @if="iffable === true">This is iffable</span>

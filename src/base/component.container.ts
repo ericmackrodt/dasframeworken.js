@@ -1,4 +1,3 @@
-import templateBuilder from './template.builder';
 import { Pubsub } from './events/pubsub';
 import * as utils from './component.utils';
 import * as directivesRegistry from './directives/registry';
@@ -28,7 +27,7 @@ export class ComponentContainer {
         this._directives = [];
     }
 
-    _registerEvent(element: Element, event: string, callback: (arg: any) => void) {
+    registerEvent(element: Element, event: string, callback: (arg: any) => void) {
         let listener = this._eventListeners.find((e: IEventListener) => e.element === element && e.event === event);
         if (!listener) {
             listener = {
@@ -44,24 +43,23 @@ export class ComponentContainer {
 
     initialize(element: Element) {
         this._controller = this._container.resolve(this._component.controller);
-        const builder = templateBuilder(this, element);
-        this._component.render(builder);
-    }
+        // const builder = templateBuilder(this, element);
+        const rendered = this._component.render(this._controller, this);
+        element.appendChild(rendered);
 
-    setBinding(element: { [key: string]: any }, elementProperty: string, controllerProperty: string) {
-        this._bindings.subscribe(controllerProperty, (key: string) => { 
-            if (element[elementProperty] !== this._controller[key]) {
-                element[elementProperty] = this._controller[key]; 
-            }
-        });
         if (typeof this._controller.onPropertyChanged !== 'function') {
             this._controller.onPropertyChanged = (name: string) => this._bindings.emit(name, name);
         }
-        element[elementProperty] = this._controller[controllerProperty];
+        return rendered;
+    }
+
+    registerBinding(property: string, binding: (property: string) => void) {
+        this._bindings.subscribe(property, binding);
+        binding(property);
     }
 
     setInwardBinding(element: HTMLInputElement, controllerProperty: string) {
-        this._registerEvent(element, 'input', (change) => {
+        this.registerEvent(element, 'input', (change) => {
             const start = element.selectionStart;
             const end = element.selectionEnd;
             setTimeout(() => {
@@ -72,18 +70,16 @@ export class ComponentContainer {
     }
     
     setEvent(element: Element, event: string, callback: (controller: IController, $event: Event) => any) {
-        this._registerEvent(element, event, (arg) => callback(this._controller, arg));
+        this.registerEvent(element, event, (arg) => callback(this._controller, arg));
     }
 
     instantiateChildComponent(name: string, parent: Element) {
         const component = this._module.getComponent(name);
-        if (!component) return false;
+        if (!component) return;
 
         const child = new ComponentContainer(this._container, this._module, component);
         this._children.push(child);
-        child.initialize(parent);
-
-        return true;
+        return child.initialize(parent);
     }
 
     instantiateDirective(name: string, value: any, parent: Element) {

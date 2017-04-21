@@ -81,31 +81,31 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {return typeof obj;} : function (obj) {return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * Returns a promise based on the object passed as parameter.
- * It returns a failed or successful promise if it's a boolean.
- * If it's a promise, it returns itself.
- * If it's some other object, it returns a succesfull promise with that obj.
- * @param obj Object to promise
- */
+                                                                * Returns a promise based on the object passed as parameter.
+                                                                * It returns a failed or successful promise if it's a boolean.
+                                                                * If it's a promise, it returns itself.
+                                                                * If it's some other object, it returns a succesfull promise with that obj.
+                                                                * @param obj Object to promise
+                                                                */
 exports.returnPromise = function (obj) {
     if (typeof obj === 'boolean') {
         return obj ? Promise.resolve() : Promise.reject({});
-    }
-    else if (typeof obj === 'object' && typeof obj.then === 'function') {
+    } else
+    if ((typeof obj === "undefined" ? "undefined" : _typeof(obj)) === 'object' && typeof obj.then === 'function') {
         return obj;
-    }
-    else {
+    } else
+    {
         return Promise.resolve(obj);
     }
 };
 /**
- * Instantiates a Type.
- * @param type Type to be instantiated.
- * @param params Parameters to be passed to the constructor.
- */
+    * Instantiates a Type.
+    * @param type Type to be instantiated.
+    * @param params Parameters to be passed to the constructor.
+    */
 exports.instantiateType = function (type) {
     var params = [];
     for (var _i = 1; _i < arguments.length; _i++) {
@@ -115,11 +115,11 @@ exports.instantiateType = function (type) {
     return new (type.bind.apply(type, [type].concat(params)))();
 };
 /**
- * Calls a function given the context if it's valid.
- * @param fn Function to be called.
- * @param ctx "This" context in which the function will be called.
- * @param args The arguments for the function.
- */
+    * Calls a function given the context if it's valid.
+    * @param fn Function to be called.
+    * @param ctx "This" context in which the function will be called.
+    * @param args The arguments for the function.
+    */
 exports.call = function (fn, ctx) {
     var args = [];
     for (var _i = 2; _i < arguments.length; _i++) {
@@ -128,11 +128,10 @@ exports.call = function (fn, ctx) {
     return exports.isFunction(fn) && fn.call.apply(fn, [ctx].concat(args));
 };
 /**
- * Checks object is a function.
- * @param fn Function to verify
- */
-exports.isFunction = function (fn) { return typeof fn === 'function'; };
-
+    * Checks object is a function.
+    * @param fn Function to verify
+    */
+exports.isFunction = function (fn) {return typeof fn === 'function';};
 
 /***/ }),
 /* 1 */
@@ -141,66 +140,78 @@ exports.isFunction = function (fn) { return typeof fn === 'function'; };
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var FakeService = (function () {
+exports.createRoot = function (name) {
+    return document.createElement(name);
+};
+exports.createElement = function (container, name, parent) {
+    var element = container.instantiateChildComponent(name, parent);
+    if (!element) {
+        element = document.createElement(name);
+        parent.appendChild(element);
+    }
+    return element;
+};
+exports.setAttribute = function (name, value, parent) {
+    parent.setAttribute(name, value);
+};
+exports.setBinding = function (container, property, fn) {
+    container.registerBinding(property, fn);
+};
+exports.setEvent = function (container, event, fn, parent) {
+    container.registerEvent(parent, event, fn);
+};
+exports.setText = function (text, parent) {
+    var node = document.createTextNode(text);
+    parent.appendChild(node);
+};
+exports.boundText = function (container, property, parent, fn) {
+    var node = document.createTextNode('');
+    parent.appendChild(node);
+    exports.setBinding(container, property, function () {
+        node.textContent = fn();
+    });
+};
+exports.setDirective = function (directive, value, parent) {
+    // componentContainer.instantiateDirective(directive, value, parent)
+};
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var FakeService = function () {
     function FakeService() {
     }
     FakeService.prototype.doSomething = function () {
         console.log('it works!');
     };
     return FakeService;
-}());
+}();
 exports.FakeService = FakeService;
 
-
 /***/ }),
-/* 2 */,
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-var _anotherComponent = __webpack_require__(19);exports.default =
-
-{
-        selector: 'another-comp',
-        controller: _anotherComponent.AnotherComponent,
-        render: function render(builder) {
-                var component0 = builder.createRoot('another-comp', _anotherComponent.AnotherComponent);
-                var h10 = builder.createElement('h1', component0);
-                builder.setText('Another comp', h10);
-                var title_comp0 = builder.createElement('title-comp', component0);
-        } };
-
-/***/ }),
+/* 3 */,
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var _homeComponent = __webpack_require__(7);exports.default =
+var _template = __webpack_require__(1);var templateFactory = _interopRequireWildcard(_template);
+var _anotherComponent = __webpack_require__(19);function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];}}newObj.default = obj;return newObj;}}exports.default =
 
 {
-								selector: 'a-component',
-								controller: _homeComponent.HomeComponent,
-								render: function render(builder) {
-																var component2 = builder.createRoot('a-component', _homeComponent.HomeComponent);
-																var p0 = builder.createElement('p', component2);
-																builder.boundText('prop', p0);
-																builder.setText(' is cool ey oh', p0);
-																var input0 = builder.createElement('input', component2);
-																builder.setBinding('prop', input0);
-																var button1 = builder.createElement('button', component2);
-																builder.setEvent('click', function (controller, $event) {return controller.clicked();}, button1);
-																builder.setText('click here dude!', button1);
-																builder.setText('This is just a text', component2);
-																var br0 = builder.createElement('br', component2);
-																var span0 = builder.createElement('span', component2);
-																builder.setDirective('@if', 'iffable === true', span0);
-																builder.setText('This is iffable', span0);
-																var button2 = builder.createElement('button', component2);
-																builder.setEvent('click', function (controller, $event) {return controller.showHide();}, button2);
-																builder.setText('Show/hide', button2);
-								} };
+    selector: 'another-comp',
+    controller: _anotherComponent.AnotherComponent,
+    render: function render(controller, container) {
+        var root = templateFactory.createRoot('another-comp', _anotherComponent.AnotherComponent);
+        var h10 = templateFactory.createElement(container, 'h1', root);
+        templateFactory.setText('Another comp', h10);
+        var title_comp0 = templateFactory.createElement(container, 'title-comp', root);
+        return root;
+    } };
 
 /***/ }),
 /* 5 */
@@ -208,17 +219,37 @@ var _homeComponent = __webpack_require__(7);exports.default =
 
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var _rootComponent = __webpack_require__(20);exports.default =
+var _template = __webpack_require__(1);var templateFactory = _interopRequireWildcard(_template);
+var _homeComponent = __webpack_require__(8);function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];}}newObj.default = obj;return newObj;}}exports.default =
 
 {
-        selector: 'root-comp',
-        controller: _rootComponent.RootComponent,
-        render: function render(builder) {
-                var component3 = builder.createRoot('root-comp', _rootComponent.RootComponent);
-                var h12 = builder.createElement('h1', component3);
-                builder.setText('Application Root', h12);
-                var router_outlet0 = builder.createElement('router-outlet', component3);
-        } };
+				selector: 'a-component',
+				controller: _homeComponent.HomeComponent,
+				render: function render(controller, container) {
+								var root = templateFactory.createRoot('a-component', _homeComponent.HomeComponent);
+								var p0 = templateFactory.createElement(container, 'p', root);
+								templateFactory.boundText(container, 'prop', p0, function () {return controller.prop;});
+								templateFactory.setText(' is cool ey oh', p0);
+								var input0 = templateFactory.createElement(container, 'input', root);
+								templateFactory.setBinding(container, 'prop', function () {
+												if (input0.value !== controller.prop) {
+																input0.value = controller.prop;
+												}
+								});
+								templateFactory.setEvent(container, 'input', function ($event) {return controller.inputUpdated($event);}, input0);
+								var button0 = templateFactory.createElement(container, 'button', root);
+								templateFactory.setEvent(container, 'click', function ($event) {return controller.clicked();}, button0);
+								templateFactory.setText('click here dude!', button0);
+								templateFactory.setText('This is just a text', root);
+								var br0 = templateFactory.createElement(container, 'br', root);
+								var span0 = templateFactory.createElement(container, 'span', root);
+								templateFactory.setDirective('@if', 'iffable === true', span0);
+								templateFactory.setText('This is iffable', span0);
+								var button1 = templateFactory.createElement(container, 'button', root);
+								templateFactory.setEvent(container, 'click', function ($event) {return controller.showHide();}, button1);
+								templateFactory.setText('Show/hide', button1);
+								return root;
+				} };
 
 /***/ }),
 /* 6 */
@@ -226,54 +257,86 @@ var _rootComponent = __webpack_require__(20);exports.default =
 
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var _titleComponent = __webpack_require__(21);exports.default =
+var _template = __webpack_require__(1);var templateFactory = _interopRequireWildcard(_template);
+var _rootComponent = __webpack_require__(20);function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];}}newObj.default = obj;return newObj;}}exports.default =
 
 {
-								selector: 'title-comp',
-								controller: _titleComponent.TitleComponent,
-								render: function render(builder) {
-																var component1 = builder.createRoot('title-comp', _titleComponent.TitleComponent);
-																var h11 = builder.createElement('h1', component1);
-																builder.setText('This is a title component', h11);
-																var div0 = builder.createElement('div', component1);
-																builder.boundText('potato', div0);
-																var button0 = builder.createElement('button', component1);
-																builder.setEvent('click', function (controller, $event) {return controller.clicked();}, button0);
-																builder.setText('POtato button', button0);
-								} };
+    selector: 'root-comp',
+    controller: _rootComponent.RootComponent,
+    render: function render(controller, container) {
+        var root = templateFactory.createRoot('root-comp', _rootComponent.RootComponent);
+        var h11 = templateFactory.createElement(container, 'h1', root);
+        templateFactory.setText('Application Root', h11);
+        var router_outlet0 = templateFactory.createElement(container, 'router-outlet', root);
+        return root;
+    } };
 
 /***/ }),
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var _template = __webpack_require__(1);var templateFactory = _interopRequireWildcard(_template);
+var _titleComponent = __webpack_require__(21);function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];}}newObj.default = obj;return newObj;}}exports.default =
 
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+{
+    selector: 'title-comp',
+    controller: _titleComponent.TitleComponent,
+    render: function render(controller, container) {
+        var root = templateFactory.createRoot('title-comp', _titleComponent.TitleComponent);
+        var h12 = templateFactory.createElement(container, 'h1', root);
+        templateFactory.setText('This is a title component', h12);
+        var div0 = templateFactory.createElement(container, 'div', root);
+        templateFactory.boundText(container, 'potato', div0, function () {return controller.potato;});
+        var button2 = templateFactory.createElement(container, 'button', root);
+        templateFactory.setEvent(container, 'click', function ($event) {return controller.clicked();}, button2);
+        templateFactory.setText('POtato button', button2);
+        return root;
+    } };
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {return typeof obj;} : function (obj) {return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;};
+var __decorate = undefined && undefined.__decorate || function (decorators, target, key, desc) {
+    var c = arguments.length,r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,d;
+    if ((typeof Reflect === "undefined" ? "undefined" : _typeof(Reflect)) === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else
+    for (var i = decorators.length - 1; i >= 0; i--) {if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;}
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+var __metadata = undefined && undefined.__metadata || function (k, v) {
+    if ((typeof Reflect === "undefined" ? "undefined" : _typeof(Reflect)) === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var fake_service_1 = __webpack_require__(1);
+var fake_service_1 = __webpack_require__(2);
 var ts_1 = __webpack_require__(18);
-var HomeComponent = (function () {
+var HomeComponent = function () {
     function HomeComponent(fakeService) {
         fakeService.doSomething();
         this.prop = 'predefined';
     }
     Object.defineProperty(HomeComponent, "metadata", {
-        get: function () {
+        get: function get() {
             return {
-                dependencies: [fake_service_1.FakeService]
-            };
+                dependencies: [fake_service_1.FakeService] };
+
         },
         enumerable: true,
-        configurable: true
-    });
+        configurable: true });
+
+    HomeComponent.prototype.inputUpdated = function (event) {
+        var _this = this;
+        var element = event.target;
+        var start = element.selectionStart;
+        var end = element.selectionEnd;
+        setTimeout(function () {
+            _this.prop = element.value;
+            element.setSelectionRange(start, end);
+        });
+    };
     HomeComponent.prototype.clicked = function () {
         this.prop = this.prop + ' Clicked!';
     };
@@ -281,24 +344,23 @@ var HomeComponent = (function () {
         this.iffable = !this.iffable;
     };
     return HomeComponent;
-}());
+}();
 __decorate([
-    ts_1.observable(),
-    __metadata("design:type", String)
-], HomeComponent.prototype, "prop", void 0);
+ts_1.observable(),
+__metadata("design:type", String)],
+HomeComponent.prototype, "prop", void 0);
 __decorate([
-    ts_1.observable(),
-    __metadata("design:type", Boolean)
-], HomeComponent.prototype, "iffable", void 0);
+ts_1.observable(),
+__metadata("design:type", Boolean)],
+HomeComponent.prototype, "iffable", void 0);
 HomeComponent = __decorate([
-    ts_1.inject,
-    __metadata("design:paramtypes", [fake_service_1.FakeService])
-], HomeComponent);
+ts_1.inject,
+__metadata("design:paramtypes", [typeof (_a = typeof fake_service_1.FakeService !== "undefined" && fake_service_1.FakeService) === "function" && _a || Object])],
+HomeComponent);
 exports.HomeComponent = HomeComponent;
-
+var _a;
 
 /***/ }),
-/* 8 */,
 /* 9 */,
 /* 10 */,
 /* 11 */,
@@ -318,24 +380,23 @@ function observable() {
     return function (target, propertyKey) {
         var _private;
         return {
-            get: function () {
+            get: function get() {
                 return _private;
             },
-            set: function (val) {
+            set: function set(val) {
                 if (_private !== val) {
                     _private = val;
                     utils_1.call(this._notifyChange, this, propertyKey);
                 }
             },
-            enumerable: true
-        };
+            enumerable: true };
+
     };
 }
 exports.observable = observable;
 function inject(target) {
 }
 exports.inject = inject;
-
 
 /***/ }),
 /* 18 */
@@ -344,18 +405,17 @@ exports.inject = inject;
 "use strict";
 
 function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+    for (var p in m) {if (!exports.hasOwnProperty(p)) exports[p] = m[p];}
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(__webpack_require__(17));
-
 
 /***/ }),
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.AnotherComponent = undefined;var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();var _fake = __webpack_require__(1);function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}var
+Object.defineProperty(exports, "__esModule", { value: true });exports.AnotherComponent = undefined;var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();var _fake = __webpack_require__(2);function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}var
 
 AnotherComponent = exports.AnotherComponent = function () {_createClass(AnotherComponent, null, [{ key: 'metadata', get: function get()
         {
@@ -424,32 +484,31 @@ Object.defineProperty(exports, "__esModule", { value: true });var _createClass =
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var another_component_html_1 = __webpack_require__(3);
-var home_component_html_1 = __webpack_require__(4);
-var root_component_html_1 = __webpack_require__(5);
-var title_component_html_1 = __webpack_require__(6);
-var fake_service_1 = __webpack_require__(1);
+var another_component_html_1 = __webpack_require__(4);
+var home_component_html_1 = __webpack_require__(5);
+var root_component_html_1 = __webpack_require__(6);
+var title_component_html_1 = __webpack_require__(7);
+var fake_service_1 = __webpack_require__(2);
 var app = frameworken.module('app', {
     routes: [
-        { path: '/', root: home_component_html_1.default, resolve: function () { return true; } },
-        { path: '/another', root: another_component_html_1.default }
-    ],
-    types: [
-        fake_service_1.FakeService
-    ],
-    components: [
-        home_component_html_1.default,
-        another_component_html_1.default,
-        root_component_html_1.default,
-        title_component_html_1.default
-    ],
-    rootComponent: root_component_html_1.default,
-    preLoad: function () {
-        return true;
-    }
-});
-app.deploy(document.getElementById('main'));
+    { path: '/', root: home_component_html_1.default, resolve: function resolve() {return true;} },
+    { path: '/another', root: another_component_html_1.default }],
 
+    types: [
+    fake_service_1.FakeService],
+
+    components: [
+    home_component_html_1.default,
+    another_component_html_1.default,
+    root_component_html_1.default,
+    title_component_html_1.default],
+
+    rootComponent: root_component_html_1.default,
+    preLoad: function preLoad() {
+        return true;
+    } });
+
+app.deploy(document.getElementById('main'));
 
 /***/ })
 /******/ ]);

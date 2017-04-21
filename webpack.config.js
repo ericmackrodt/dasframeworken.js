@@ -46,7 +46,7 @@ const config = {
         test: /(\.html)$/,
         loaders: [
           'babel-loader',
-          __dirname + '/template.builder/template.loader.js'
+          __dirname + '/template.loader/template.loader.js'
         ],
         exclude: '/node_modules'
       }
@@ -59,7 +59,10 @@ const config = {
   },
   resolve: {
     modules: [path.resolve('./src'), 'node_modules'],
-    extensions: ['.json', '.js', '.ts']
+    extensions: ['.json', '.js', '.ts'],
+    alias: {
+      base: path.resolve(__dirname, 'src/base')
+    }
   },
   plugins: plugins
 };

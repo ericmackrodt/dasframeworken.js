@@ -12,7 +12,7 @@ declare module '*.html' {
 declare namespace Frameworken {
     interface IComponent {
         controller: any;
-        render: Function;
+        render: (controller: any, container: any) => Element;
         selector: string;
     }
 

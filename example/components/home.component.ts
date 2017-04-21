@@ -20,6 +20,16 @@ export class HomeComponent {
         this.prop = 'predefined';
     }
 
+    inputUpdated(event: Event) {
+        const element = (event.target as HTMLInputElement);
+        const start = element.selectionStart;
+        const end = element.selectionEnd;
+        setTimeout(() => {
+            this.prop = element.value;
+            element.setSelectionRange(start, end);
+        });
+    }
+
     clicked() {
         this.prop = this.prop + ' Clicked!';
     }

@@ -14,7 +14,8 @@
         "noImplicitAny": true,
         "allowJs": true,
         "outDir": "./build",
-        "sourceMap": true
+        "sourceMap": true,
+        "baseUrl": "./src"
     },
     "include": [
         "src/dasframeworken.d.ts",
@@ -22,5 +23,10 @@
     ],
     "exclude": [
         "node_modules"
-    ]
+    ],
+    "awesomeTypescriptLoaderOptions": {
+        "useBabel": true,
+        "useCache": true,
+        "useTranspileModule": true
+    }
 }

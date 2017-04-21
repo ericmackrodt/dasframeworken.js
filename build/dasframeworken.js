@@ -81,31 +81,31 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {return typeof obj;} : function (obj) {return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * Returns a promise based on the object passed as parameter.
- * It returns a failed or successful promise if it's a boolean.
- * If it's a promise, it returns itself.
- * If it's some other object, it returns a succesfull promise with that obj.
- * @param obj Object to promise
- */
+                                                                * Returns a promise based on the object passed as parameter.
+                                                                * It returns a failed or successful promise if it's a boolean.
+                                                                * If it's a promise, it returns itself.
+                                                                * If it's some other object, it returns a succesfull promise with that obj.
+                                                                * @param obj Object to promise
+                                                                */
 exports.returnPromise = function (obj) {
     if (typeof obj === 'boolean') {
         return obj ? Promise.resolve() : Promise.reject({});
-    }
-    else if (typeof obj === 'object' && typeof obj.then === 'function') {
+    } else
+    if ((typeof obj === "undefined" ? "undefined" : _typeof(obj)) === 'object' && typeof obj.then === 'function') {
         return obj;
-    }
-    else {
+    } else
+    {
         return Promise.resolve(obj);
     }
 };
 /**
- * Instantiates a Type.
- * @param type Type to be instantiated.
- * @param params Parameters to be passed to the constructor.
- */
+    * Instantiates a Type.
+    * @param type Type to be instantiated.
+    * @param params Parameters to be passed to the constructor.
+    */
 exports.instantiateType = function (type) {
     var params = [];
     for (var _i = 1; _i < arguments.length; _i++) {
@@ -115,11 +115,11 @@ exports.instantiateType = function (type) {
     return new (type.bind.apply(type, [type].concat(params)))();
 };
 /**
- * Calls a function given the context if it's valid.
- * @param fn Function to be called.
- * @param ctx "This" context in which the function will be called.
- * @param args The arguments for the function.
- */
+    * Calls a function given the context if it's valid.
+    * @param fn Function to be called.
+    * @param ctx "This" context in which the function will be called.
+    * @param args The arguments for the function.
+    */
 exports.call = function (fn, ctx) {
     var args = [];
     for (var _i = 2; _i < arguments.length; _i++) {
@@ -128,22 +128,22 @@ exports.call = function (fn, ctx) {
     return exports.isFunction(fn) && fn.call.apply(fn, [ctx].concat(args));
 };
 /**
- * Checks object is a function.
- * @param fn Function to verify
- */
-exports.isFunction = function (fn) { return typeof fn === 'function'; };
-
+    * Checks object is a function.
+    * @param fn Function to verify
+    */
+exports.isFunction = function (fn) {return typeof fn === 'function';};
 
 /***/ }),
 /* 1 */,
-/* 2 */
+/* 2 */,
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var module_1 = __webpack_require__(14);
-var di_container_1 = __webpack_require__(10);
+var module_1 = __webpack_require__(15);
+var di_container_1 = __webpack_require__(11);
 var modules = {};
 var container = new di_container_1.default();
 exports.module = function (name, options) {
@@ -155,24 +155,22 @@ exports.module = function (name, options) {
     return module;
 };
 
-
 /***/ }),
-/* 3 */,
 /* 4 */,
 /* 5 */,
 /* 6 */,
 /* 7 */,
-/* 8 */
+/* 8 */,
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var template_builder_1 = __webpack_require__(16);
 var pubsub_1 = __webpack_require__(22);
-var utils = __webpack_require__(9);
-var directivesRegistry = __webpack_require__(12);
-var ComponentContainer = (function () {
+var utils = __webpack_require__(10);
+var directivesRegistry = __webpack_require__(13);
+var ComponentContainer = function () {
     function ComponentContainer(_container, _module, _component) {
         this._container = _container;
         this._module = _module;
@@ -184,69 +182,66 @@ var ComponentContainer = (function () {
         this._directives = [];
     }
     Object.defineProperty(ComponentContainer.prototype, "controller", {
-        get: function () {
+        get: function get() {
             return this._controller;
         },
         enumerable: true,
-        configurable: true
-    });
-    ComponentContainer.prototype._registerEvent = function (element, event, callback) {
-        var listener = this._eventListeners.find(function (e) { return e.element === element && e.event === event; });
+        configurable: true });
+
+    ComponentContainer.prototype.registerEvent = function (element, event, callback) {
+        var listener = this._eventListeners.find(function (e) {return e.element === element && e.event === event;});
         if (!listener) {
             listener = {
                 element: element,
                 event: event,
-                callback: callback
-            };
+                callback: callback };
+
             element.addEventListener(event, callback, true);
             this._eventListeners.push(listener);
         }
     };
     ComponentContainer.prototype.initialize = function (element) {
-        this._controller = this._container.resolve(this._component.controller);
-        var builder = template_builder_1.default(this, element);
-        this._component.render(builder);
-    };
-    ComponentContainer.prototype.setBinding = function (element, elementProperty, controllerProperty) {
         var _this = this;
-        this._bindings.subscribe(controllerProperty, function (key) {
-            if (element[elementProperty] !== _this._controller[key]) {
-                element[elementProperty] = _this._controller[key];
-            }
-        });
+        this._controller = this._container.resolve(this._component.controller);
+        // const builder = templateBuilder(this, element);
+        var rendered = this._component.render(this._controller, this);
+        element.appendChild(rendered);
         if (typeof this._controller.onPropertyChanged !== 'function') {
-            this._controller.onPropertyChanged = function (name) { return _this._bindings.emit(name, name); };
+            this._controller.onPropertyChanged = function (name) {return _this._bindings.emit(name, name);};
         }
-        element[elementProperty] = this._controller[controllerProperty];
+        return rendered;
+    };
+    ComponentContainer.prototype.registerBinding = function (property, binding) {
+        this._bindings.subscribe(property, binding);
+        binding(property);
     };
     ComponentContainer.prototype.setInwardBinding = function (element, controllerProperty) {
         var _this = this;
-        this._registerEvent(element, 'input', function (change) {
+        this.registerEvent(element, 'input', function (change) {
             var start = element.selectionStart;
             var end = element.selectionEnd;
             setTimeout(function () {
                 _this._controller[controllerProperty] = change.target.value;
-                setTimeout(function () { return element.setSelectionRange(start, end); });
+                setTimeout(function () {return element.setSelectionRange(start, end);});
             });
         });
     };
     ComponentContainer.prototype.setEvent = function (element, event, callback) {
         var _this = this;
-        this._registerEvent(element, event, function (arg) { return callback(_this._controller, arg); });
+        this.registerEvent(element, event, function (arg) {return callback(_this._controller, arg);});
     };
     ComponentContainer.prototype.instantiateChildComponent = function (name, parent) {
         var component = this._module.getComponent(name);
         if (!component)
-            return false;
+        return;
         var child = new ComponentContainer(this._container, this._module, component);
         this._children.push(child);
-        child.initialize(parent);
-        return true;
+        return child.initialize(parent);
     };
     ComponentContainer.prototype.instantiateDirective = function (name, value, parent) {
         var directive = directivesRegistry.find(name);
         if (!directive)
-            return false;
+        return false;
         var instance = directivesRegistry.instantiate(directive, this._controller, this._bindings, value, parent);
         this._directives.push(instance);
         return true;
@@ -267,12 +262,11 @@ var ComponentContainer = (function () {
         delete this._eventListeners;
     };
     return ComponentContainer;
-}());
+}();
 exports.ComponentContainer = ComponentContainer;
 
-
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -290,63 +284,62 @@ exports.setupController = function (controllerType) {
     };
 };
 
-
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils = __webpack_require__(0);
-var getName = function (type) { return isString(type) ? type : type.name; };
-var isString = function (obj) { return typeof obj === 'string'; };
-var throwException = function (text) { throw new Error(text); };
+var getName = function getName(type) {return isString(type) ? type : type.name;};
+var isString = function isString(obj) {return typeof obj === 'string';};
+var throwException = function throwException(text) {throw new Error(text);};
 /**
- * Represents the container
- */
-var default_1 = (function () {
+                                                                              * Represents the container
+                                                                              */
+var default_1 = function () {
     function default_1() {
         this._typeRegistry = {};
     }
     Object.defineProperty(default_1.prototype, "typeRegistry", {
-        get: function () {
+        get: function get() {
             return this._typeRegistry;
         },
         enumerable: true,
-        configurable: true
-    });
+        configurable: true });
+
     /**
-     * Instantiates a type that is registered in the container with its dependencies.
-     * @param type Type that will be instantiated, it can be the type itself or the name.
-     */
+                                * Instantiates a type that is registered in the container with its dependencies.
+                                * @param type Type that will be instantiated, it can be the type itself or the name.
+                                */
     default_1.prototype.getInstance = function (type) {
         var name = getName(type);
         var registered = this._typeRegistry[name];
         if (!registered)
-            throwException("Type (" + name + ") not registered");
+        throwException("Type (" + name + ") not registered");
         if (!registered.instance) {
             registered.instance = this.resolve(registered.type);
         }
         return registered.instance;
     };
     /**
-     * Instantiates any type and tries to resolve dependencies that are registered in the container.
-     * @param type The type to be resolved
-     */
+        * Instantiates any type and tries to resolve dependencies that are registered in the container.
+        * @param type The type to be resolved
+        */
     default_1.prototype.resolve = function (type) {
         var _this = this;
         var dependencies = type.metadata && type.metadata.dependencies || type.dependencies;
         if (!dependencies) {
             return utils.instantiateType(type);
         }
-        var instances = dependencies.map(function (d) { return _this.getInstance(d); });
+        var instances = dependencies.map(function (d) {return _this.getInstance(d);});
         return utils.instantiateType.apply(utils, [type].concat(instances));
     };
     /**
-     * Registers a type in the container.
-     * @param type Type to be registered
-     */
+        * Registers a type in the container.
+        * @param type Type to be registered
+        */
     default_1.prototype.registerType = function (type) {
         var name = getName(type);
         var registered = this._typeRegistry[name];
@@ -355,21 +348,20 @@ var default_1 = (function () {
         }
     };
     return default_1;
-}());
+}();
 exports.default = default_1;
 ;
 
-
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var goatjs_1 = __webpack_require__(24);
-var replaceElement = function (oldEl, newEl) { return oldEl.parentNode.replaceChild(newEl, oldEl); };
-var IfDirective = (function () {
+var replaceElement = function replaceElement(oldEl, newEl) {return oldEl.parentNode.replaceChild(newEl, oldEl);};
+var IfDirective = function () {
     function IfDirective(_element, _controller, _evtAggregator) {
         this._element = _element;
         this._controller = _controller;
@@ -381,8 +373,8 @@ var IfDirective = (function () {
         }
         if (result === true) {
             replaceElement(this._placeholder, this._element);
-        }
-        else {
+        } else
+        {
             replaceElement(this._element, this._placeholder);
         }
     };
@@ -406,36 +398,11 @@ var IfDirective = (function () {
     IfDirective.prototype.teardown = function () {
     };
     return IfDirective;
-}());
+}();
 IfDirective.metadata = {
-    selector: 'if'
-};
+    selector: 'if' };
+
 exports.IfDirective = IfDirective;
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var if_directive_1 = __webpack_require__(11);
-var repeat_directive_1 = __webpack_require__(13);
-var utils = __webpack_require__(0);
-var registry = [
-    if_directive_1.IfDirective,
-    repeat_directive_1.RepeatDirective
-];
-var PREFIX = '@';
-var getName = function (name) { return PREFIX + name; };
-exports.find = function (name) { return registry.find(function (d) { return getName(d.metadata.selector) === name; }); };
-exports.instantiate = function (directive, controller, pubsub, value, element) {
-    var instance = utils.instantiateType.apply(utils, [directive].concat([element, controller, pubsub]));
-    instance.setup(value);
-    return instance;
-};
-
 
 /***/ }),
 /* 13 */
@@ -444,26 +411,21 @@ exports.instantiate = function (directive, controller, pubsub, value, element) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var RepeatDirective = (function () {
-    function RepeatDirective(element, controller) {
-    }
-    Object.defineProperty(RepeatDirective, "metadata", {
-        get: function () {
-            return {
-                selector: 'repeat'
-            };
-        },
-        enumerable: true,
-        configurable: true
-    });
-    RepeatDirective.prototype.setup = function (value) {
-    };
-    RepeatDirective.prototype.teardown = function () {
-    };
-    return RepeatDirective;
-}());
-exports.RepeatDirective = RepeatDirective;
+var if_directive_1 = __webpack_require__(12);
+var repeat_directive_1 = __webpack_require__(14);
+var utils = __webpack_require__(0);
+var registry = [
+if_directive_1.IfDirective,
+repeat_directive_1.RepeatDirective];
 
+var PREFIX = '@';
+var getName = function getName(name) {return PREFIX + name;};
+exports.find = function (name) {return registry.find(function (d) {return getName(d.metadata.selector) === name;});};
+exports.instantiate = function (directive, controller, pubsub, value, element) {
+    var instance = utils.instantiateType.apply(utils, [directive].concat([element, controller, pubsub]));
+    instance.setup(value);
+    return instance;
+};
 
 /***/ }),
 /* 14 */
@@ -472,12 +434,39 @@ exports.RepeatDirective = RepeatDirective;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+var RepeatDirective = function () {
+    function RepeatDirective(element, controller) {
+    }
+    Object.defineProperty(RepeatDirective, "metadata", {
+        get: function get() {
+            return {
+                selector: 'repeat' };
+
+        },
+        enumerable: true,
+        configurable: true });
+
+    RepeatDirective.prototype.setup = function (value) {
+    };
+    RepeatDirective.prototype.teardown = function () {
+    };
+    return RepeatDirective;
+}();
+exports.RepeatDirective = RepeatDirective;
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {return typeof obj;} : function (obj) {return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;};
+Object.defineProperty(exports, "__esModule", { value: true });
 // import { componentFactory } from './component.factory';
-var component_container_1 = __webpack_require__(8);
-var router_1 = __webpack_require__(15);
+var component_container_1 = __webpack_require__(9);
+var router_1 = __webpack_require__(16);
 var utils = __webpack_require__(0);
-var registerTypes = function (container, types) { return types.forEach(function (type) { return container.registerType(type); }); };
-var Module = (function () {
+var registerTypes = function registerTypes(container, types) {return types.forEach(function (type) {return container.registerType(type);});};
+var Module = function () {
     function Module(_container, _name, options) {
         this._container = _container;
         this._name = _name;
@@ -486,19 +475,19 @@ var Module = (function () {
         this._rootComponent = options.rootComponent;
         this._preLoad = options.preLoad;
         if (options.types)
-            registerTypes(this._container, options.types);
+        registerTypes(this._container, options.types);
         if (options.components)
-            this._registerComponents(options.components);
+        this._registerComponents(options.components);
         if (options.routes)
-            this._registerRoutes(options.routes);
+        this._registerRoutes(options.routes);
     }
     Object.defineProperty(Module.prototype, "rootComponent", {
-        get: function () {
+        get: function get() {
             return this._rootComponent;
         },
         enumerable: true,
-        configurable: true
-    });
+        configurable: true });
+
     Module.prototype._registerRoutes = function (routes) {
         var _this = this;
         this._router = new router_1.Router(routes);
@@ -518,10 +507,10 @@ var Module = (function () {
         var _this = this;
         this._components = {};
         components.forEach(function (c) {
-            if (typeof c === 'function' && typeof c.metadata.template) {
+            if (typeof c === 'function' && _typeof(c.metadata.template)) {
                 _this._components[c.metadata.selector] = c;
-            }
-            else if (typeof c === 'object' && typeof c.render === 'function') {
+            } else
+            if ((typeof c === "undefined" ? "undefined" : _typeof(c)) === 'object' && typeof c.render === 'function') {
                 _this._components[c.selector] = c;
             }
         });
@@ -549,19 +538,18 @@ var Module = (function () {
         });
     };
     return Module;
-}());
+}();
 exports.Module = Module;
 
-
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var utils = __webpack_require__(0);
-var Router = (function () {
+var Router = function () {
     function Router(routes) {
         var _this = this;
         this._routes = routes;
@@ -570,12 +558,12 @@ var Router = (function () {
             var oldUrl = eventArgs.oldURL;
             var newUrl = eventArgs.newURL;
             var url = _this._getHash(newUrl) || location.hash.slice(1) || '/';
-            var route = _this._routes.find(function (r) { return r.path === url; });
+            var route = _this._routes.find(function (r) {return r.path === url;});
             if (!route)
-                return;
+            return;
             var resolve = route.resolve && route.resolve(route);
-            utils.returnPromise(resolve)
-                .then(function () {
+            utils.returnPromise(resolve).
+            then(function () {
                 if (typeof _this.onRouteChanging === 'function') {
                     _this.onRouteChanging(_this._currentRoute, route);
                 }
@@ -583,8 +571,8 @@ var Router = (function () {
                 if (typeof _this.onRouteChanged === 'function') {
                     _this.onRouteChanged(_this._currentRoute);
                 }
-            })
-                .catch(function (ex) {
+            }).
+            catch(function (ex) {
                 debugger;
                 console.error(ex);
                 history.replaceState({}, route.path, '#' + _this._getHash(oldUrl));
@@ -595,7 +583,7 @@ var Router = (function () {
     }
     Router.prototype._getHash = function (url) {
         if (!url)
-            return url;
+        return url;
         var indexHash = url.indexOf('#') + 1;
         return url.substring(indexHash, url.length);
     };
@@ -604,66 +592,8 @@ var Router = (function () {
         window.removeEventListener('load', this._onChange);
     };
     return Router;
-}());
+}();
 exports.Router = Router;
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = function (componentContainer, baseElement) {
-    var createRoot = function (name, controller) {
-        var parent = baseElement;
-        var element = document.createElement(name);
-        parent.appendChild(element);
-        return element;
-    };
-    var createElement = function (name, parent) {
-        if (!componentContainer.instantiateChildComponent(name, parent)) {
-            parent = parent || baseElement;
-            var element = document.createElement(name);
-            parent.appendChild(element);
-            return element;
-        }
-    };
-    var setAttribute = function (name, value, parent) {
-        parent.setAttribute(name, value);
-    };
-    var setBinding = function (value, parent) {
-        componentContainer.setBinding(parent, 'value', value);
-        componentContainer.setInwardBinding(parent, value);
-    };
-    var setEvent = function (event, fn, parent) {
-        componentContainer.setEvent(parent, event, fn);
-    };
-    var setText = function (text, parent) {
-        var node = document.createTextNode(text);
-        parent.appendChild(node);
-    };
-    var boundText = function (key, parent) {
-        var node = document.createTextNode('');
-        parent.appendChild(node);
-        componentContainer.setBinding(node, 'textContent', key);
-    };
-    var setDirective = function (directive, value, parent) {
-        componentContainer.instantiateDirective(directive, value, parent);
-    };
-    return {
-        createRoot: createRoot,
-        createElement: createElement,
-        setBinding: setBinding,
-        setEvent: setEvent,
-        setAttribute: setAttribute,
-        setText: setText,
-        boundText: boundText,
-        setDirective: setDirective
-    };
-};
-
 
 /***/ }),
 /* 17 */,
@@ -1149,7 +1079,7 @@ module.exports = function(module) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var frameworken = __webpack_require__(2);
+var frameworken = __webpack_require__(3);
 module.exports = frameworken;
 // (function (root, factory) {
 //     if (typeof exports === 'object' && exports) {
@@ -1161,8 +1091,7 @@ module.exports = frameworken;
 //     }
 // } (this, function () {
 //     return new Frameworken();
-// })); 
-
+// }));
 
 /***/ })
 /******/ ]);
