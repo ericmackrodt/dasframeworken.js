@@ -82,10 +82,10 @@ export class ComponentContainer {
         return child.initialize(parent);
     }
 
-    instantiateDirective(name: string, value: any, parent: Element) {
+    instantiateDirective(name: string, value: any, parent: Element, contextFn: (context: any) => Element) {
         const directive = directivesRegistry.find(name);
         if (!directive) return false;
-        const instance = directivesRegistry.instantiate(directive, this._controller, this._bindings, value, parent);
+        const instance = directivesRegistry.instantiate(directive, parent, this._controller, this._bindings, value, contextFn);
         this._directives.push(instance);
         return true;
     }

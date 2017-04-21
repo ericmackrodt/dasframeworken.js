@@ -13,10 +13,13 @@ export class IfDirective implements IDirective {
     private _placeholder: Comment;
     private _expression: ExpressionParser;
 
+    private _lastElement: Element;
+
     constructor(
-        private _element: Element, 
+        private _parent: Element, 
         private _controller: IController, 
-        private _evtAggregator: Pubsub
+        private _evtAggregator: Pubsub,
+        private _context: (context: any) => Element
     ) {
     }
 
@@ -25,9 +28,14 @@ export class IfDirective implements IDirective {
             this._placeholder = document.createComment('@if');
         }
         if (result === true) {
-            replaceElement(this._placeholder, this._element);
+            this._lastElement = this._context({});
+            replaceElement(this._placeholder, this._lastElement);
         } else {
-            replaceElement(this._element, this._placeholder);
+            if (this._lastElement) {
+                replaceElement(this._lastElement, this._placeholder);
+            } else {
+                this._parent.appendChild(this._placeholder);
+            }
         }
     }
 

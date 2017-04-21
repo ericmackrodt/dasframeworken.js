@@ -39,6 +39,7 @@ export const boundText = (container: ComponentContainer, property: string, paren
     });
 };
 
-export const setDirective = (directive: string, value: any, parent: Element) => {
+export const setDirective = (container: ComponentContainer, controller: IController, directive: string, value: string, parent: Element, contextFn: (context: any) => Element) => {
+    container.instantiateDirective(directive, value, parent, contextFn);
     // componentContainer.instantiateDirective(directive, value, parent)
 }

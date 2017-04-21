@@ -238,11 +238,11 @@ var ComponentContainer = function () {
         this._children.push(child);
         return child.initialize(parent);
     };
-    ComponentContainer.prototype.instantiateDirective = function (name, value, parent) {
+    ComponentContainer.prototype.instantiateDirective = function (name, value, parent, contextFn) {
         var directive = directivesRegistry.find(name);
         if (!directive)
         return false;
-        var instance = directivesRegistry.instantiate(directive, this._controller, this._bindings, value, parent);
+        var instance = directivesRegistry.instantiate(directive, parent, this._controller, this._bindings, value, contextFn);
         this._directives.push(instance);
         return true;
     };
@@ -362,20 +362,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var goatjs_1 = __webpack_require__(24);
 var replaceElement = function replaceElement(oldEl, newEl) {return oldEl.parentNode.replaceChild(newEl, oldEl);};
 var IfDirective = function () {
-    function IfDirective(_element, _controller, _evtAggregator) {
-        this._element = _element;
+    function IfDirective(_parent, _controller, _evtAggregator, _context) {
+        this._parent = _parent;
         this._controller = _controller;
         this._evtAggregator = _evtAggregator;
+        this._context = _context;
     }
     IfDirective.prototype._processEvaluation = function (result) {
         if (!this._placeholder) {
             this._placeholder = document.createComment('@if');
         }
         if (result === true) {
-            replaceElement(this._placeholder, this._element);
+            this._lastElement = this._context({});
+            replaceElement(this._placeholder, this._lastElement);
         } else
         {
-            replaceElement(this._element, this._placeholder);
+            if (this._lastElement) {
+                replaceElement(this._lastElement, this._placeholder);
+            } else
+            {
+                this._parent.appendChild(this._placeholder);
+            }
         }
     };
     IfDirective.prototype._onFieldChanged = function (key) {
@@ -421,8 +428,8 @@ repeat_directive_1.RepeatDirective];
 var PREFIX = '@';
 var getName = function getName(name) {return PREFIX + name;};
 exports.find = function (name) {return registry.find(function (d) {return getName(d.metadata.selector) === name;});};
-exports.instantiate = function (directive, controller, pubsub, value, element) {
-    var instance = utils.instantiateType.apply(utils, [directive].concat([element, controller, pubsub]));
+exports.instantiate = function (directive, parent, controller, pubsub, value, context) {
+    var instance = utils.instantiateType.apply(utils, [directive].concat([parent, controller, pubsub, context]));
     instance.setup(value);
     return instance;
 };

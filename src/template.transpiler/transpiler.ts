@@ -22,7 +22,8 @@ const createBindingLine = (elementProperty: string, property: string, element: s
     }
 });\r\n`;
 
-const createDirectiveLine = (directive: string, value: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.setDirective('${directive}', '${value}', ${parent});\r\n`;
+const createDirectiveLine = (directive: string, value: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.setDirective(${COMPONENT_CONTAINER_VARIABLE}, ${CONTROLLER_VARIABLE}, '${directive}', '${value}', ${ROOT_ELEMENT}, ${parent}DirectiveContext);\r\n`;
+
 const setTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setText('${property}', ${parentVarName});\r\n`;
 const boundTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.boundText(${COMPONENT_CONTAINER_VARIABLE}, '${property}', ${parentVarName}, () => ${CONTROLLER_VARIABLE}.${property});\r\n`;
 const importLine = (key: string, imported: IKeyValue<string>) => `import { ${key} } from '${imported[key]}';\r\n`;
@@ -96,7 +97,6 @@ export default (html: string) => {
 
     const processAttribute = (varName: string, key: string, value: string) => {
         const directive = directiveRegistry.find(key);
-        console.log(directive);
         let attr;
         if (directive) {
             attr = createDirectiveLine(key, value, varName);
@@ -114,13 +114,33 @@ export default (html: string) => {
 
     const processTag = (node: any, parent: string) => {
         const varName = buildVarName(node);
+
+        const attributeKeys = Object.keys(node.attribs);
+
+        const internalDirectives = [
+            '@if', '@for'
+        ];
+
+        const directives = attributeKeys.filter((key) => internalDirectives.indexOf(key) > -1);
+        const normalAttributes = attributeKeys.filter((key) => internalDirectives.indexOf(key) < 0);
+        if (directives && directives.length) {
+            magicString.append(`const ${varName}DirectiveContext = (context) => {\r\n`);
+        }        
+
         magicString.append(createElementLine(varName, node.name, parent));
 
-        if (node.attribs) {
-            Object.keys(node.attribs).forEach((key) => processAttribute(varName, key, node.attribs[key]));
+        if (normalAttributes && normalAttributes.length) {
+            normalAttributes.forEach((key) => processAttribute(varName, key, node.attribs[key]));
         }
 
         processChildren(node.children, varName);
+
+        if (directives && directives.length) {
+            magicString.append(`return ${varName};
+            };\r\n`);
+        }
+
+        directives.forEach((key) => magicString.append(createDirectiveLine(key, node.attribs[key], varName)));
     };
 
     const reservedTags = (name: string) => (<IKeyValue<Function>>{

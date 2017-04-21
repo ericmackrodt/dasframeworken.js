@@ -171,7 +171,8 @@ exports.boundText = function (container, property, parent, fn) {
         node.textContent = fn();
     });
 };
-exports.setDirective = function (directive, value, parent) {
+exports.setDirective = function (container, controller, directive, value, parent, contextFn) {
+    container.instantiateDirective(directive, value, parent, contextFn);
     // componentContainer.instantiateDirective(directive, value, parent)
 };
 
@@ -242,9 +243,13 @@ var _homeComponent = __webpack_require__(8);function _interopRequireWildcard(obj
 								templateFactory.setText('click here dude!', button0);
 								templateFactory.setText('This is just a text', root);
 								var br0 = templateFactory.createElement(container, 'br', root);
-								var span0 = templateFactory.createElement(container, 'span', root);
-								templateFactory.setDirective('@if', 'iffable === true', span0);
-								templateFactory.setText('This is iffable', span0);
+								var span0DirectiveContext = function span0DirectiveContext(context) {
+												var span0 = templateFactory.createElement(container, 'span', root);
+												templateFactory.setAttribute('style', 'background: yellow', span0);
+												templateFactory.setText('This is iffable', span0);
+												return span0;
+								};
+								templateFactory.setDirective(container, controller, '@if', 'iffable === true', root, span0DirectiveContext);
 								var button1 = templateFactory.createElement(container, 'button', root);
 								templateFactory.setEvent(container, 'click', function ($event) {return controller.showHide();}, button1);
 								templateFactory.setText('Show/hide', button1);

@@ -30,7 +30,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}/template.builder/index.js"
+            "program": "${workspaceRoot}/template.loader/index.js"
         },
         {
             "type": "node",
