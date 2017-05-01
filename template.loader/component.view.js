@@ -1,12 +1,14 @@
 "use strict";
         import * as templateFactory from 'base/templates/template.factory';
+import { ElementTypeEnum } from '../_types/index';
+import { ElementTypeEnum } from '_types/index';
         import { AnotherComponent } from './another.component.js';
 
         export default {
             selector: 'a-component',
             controller: AnotherComponent,
             render: (controller, container) => {
-	const root = templateFactory.createRoot('a-component', AnotherComponent);
+	const root = templateFactory.createRoot('a-component', AnotherComponent, root);
 	const p0 = templateFactory.createElement(container, 'p', root);
 	templateFactory.setAttribute('class', 'whatever', p0);
 	templateFactory.boundText(container, 'prop', p0, () => controller.prop);
@@ -23,6 +25,7 @@
 	templateFactory.setText('click here', button0);
 	return button0;
 	            };
+	templateFactory.setDirective(container, controller, '@if', 'true !== false', root, button0DirectiveContext);
 return root;
     }
 

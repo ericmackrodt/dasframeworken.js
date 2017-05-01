@@ -1,6 +1,8 @@
-var htmlparser = require("htmlparser2");
 var MagicString = require('magic-string');
 var path = require('path');
+
+import htmlObjectBuilder from './html.object.builder';
+import { IHtmlElement, ElementTypeEnum } from '../_types';
 
 const BASE_FRAMEWORK_URI = 'base';
 const TEMPLATE_FACTORY_VARIABLE = 'templateFactory';
@@ -40,7 +42,7 @@ const usageCounts: ICounts = {
     'div': { count: 0 }
 };
 
-const buildVarName = (node: any) => {
+const buildVarName = (node: IHtmlElement) => {
     let el = usageCounts[node.name];
     if (!el) {
         el = usageCounts[node.name] = { count: 0 };
@@ -59,9 +61,9 @@ export default (html: string) => {
 
     const processChildren = (children: any[], varName: string) => children && children.forEach((child) => processNode(child, varName));
 
-    const processRoot = (node: any, parent: string) => {
+    const processRoot = (node: IHtmlElement, parent: string) => {
         const parentName = parent ? ', ' + parent : '';
-        let json = node.attribs.controller;
+        let json = node.attributes['controller'].value;
         while (json.indexOf('\'') > -1) {
             json = json.replace('\'', '"');
         }
@@ -70,7 +72,7 @@ export default (html: string) => {
         imports.push(controller);
         const key = Object.keys(controller)[0];
 
-        selector = node.attribs.selector;
+        selector = node.attributes['selector'].value;
         magicString.append(createRootLine(ROOT_ELEMENT, selector, key, parent));
         processChildren(node.children, ROOT_ELEMENT);
     };
@@ -112,10 +114,10 @@ export default (html: string) => {
         magicString.append(attr);
     };
 
-    const processTag = (node: any, parent: string) => {
+    const processTag = (node: IHtmlElement, parent: string) => {
         const varName = buildVarName(node);
 
-        const attributeKeys = Object.keys(node.attribs);
+        const attributeKeys = Object.keys(node.attributes);
 
         const internalDirectives = [
             '@if', '@for'
@@ -130,7 +132,7 @@ export default (html: string) => {
         magicString.append(createElementLine(varName, node.name, parent));
 
         if (normalAttributes && normalAttributes.length) {
-            normalAttributes.forEach((key) => processAttribute(varName, key, node.attribs[key]));
+            normalAttributes.forEach((key) => processAttribute(varName, key, node.attributes[key].value));
         }
 
         processChildren(node.children, varName);
@@ -140,15 +142,17 @@ export default (html: string) => {
             };\r\n`);
         }
 
-        directives.forEach((key) => magicString.append(createDirectiveLine(key, node.attribs[key], varName)));
+        directives.forEach((key) => magicString.append(createDirectiveLine(key, node.attributes[key].value, varName)));
     };
 
     const reservedTags = (name: string) => (<IKeyValue<Function>>{
         'component': processRoot
     })[name];
 
-    const processElement = (node: any, parent: string) => {
+    const processElement = (node: IHtmlElement, parent: string) => {
         const reserved = reservedTags(node.name);
+
+        parent = parent || ROOT_ELEMENT;
 
         if (reserved) {
             reserved(node, parent);
@@ -157,8 +161,8 @@ export default (html: string) => {
         }
     };
 
-    const processText = (node: any, parent: string) => {
-        const text = node.data.replace('\r', '').replace('\n', '').trim();
+    const processText = (node: IHtmlElement, parent: string) => {
+        const text = node.value.replace('\r', '').replace('\n', '').trim();
 
         if (!text) return;
 
@@ -182,25 +186,16 @@ export default (html: string) => {
         }
     };
 
-    const nodeType = (type: string) => (<IKeyValue<Function>>{
-        tag: processElement, 
-        text: processText
+    const nodeType = (type: ElementTypeEnum) => (<IKeyValue<Function>>{
+        [ElementTypeEnum.Element]: processElement, 
+        [ElementTypeEnum.Text]: processText
     }) [type];
 
-    const processNode = (node: any, parent?: string) => nodeType(node.type)(node, parent);
+    const processNode = (node: IHtmlElement, parent?: string) => nodeType(node.type)(node, parent);
 
-    const handler = new htmlparser.DefaultHandler(function (error: any, dom: any) {
-        if (error)
-            console.log(error);
-        else
-            console.log('done');
-    });
-    var parser = new htmlparser.Parser(handler);
-    parser.parseComplete(html);
+    const document = htmlObjectBuilder(html);
 
-    for (let node of handler.dom) {
-        processNode(node);
-    }
+    document.forEach(node => processNode(node));
 
     const imps = imports.map((imported) => {
         const key = Object.keys(imported)[0];
@@ -217,12 +212,21 @@ export default (html: string) => {
     var wrap = 
         `"use strict";
         import * as ${TEMPLATE_FACTORY_VARIABLE} from '${BASE_FRAMEWORK_URI}/templates/template.factory';
+import { ElementTypeEnum } from '../_types/index';
+import { ElementTypeEnum } from '_types/index';
         ${imps.join('\r\n')}
         export default {
             selector: '${selector}',
             controller: ${key},
             render: ${magicString.toString()}
         };`;
+
+    debugger;
+    const maps = magicString.generateMap({
+        file: 'component.view.js.map',
+        source: 'component.view.js',
+        includeContent: true
+    });
 
     return wrap;
 };
