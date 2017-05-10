@@ -23,5 +23,6 @@ export interface IHtmlElement extends IBaseHtml {
     children?: IHtmlElement[];
     value?: string;
     type: ElementTypeEnum,
-    closingTag?: IBaseHtml
+    closingTag?: IBaseHtml,
+    tail?: number;
 }

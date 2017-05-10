@@ -6,14 +6,15 @@ export default (html: string) => {
     const documentArray: IHtmlElement[] = [];
     let stack: IHtmlElement[] = [];
 
-    const createElement = ({ name, type, startIndex, endIndex, closingTag, value }: Partial<IHtmlElement>) => {
+    const createElement = ({ name, type, startIndex, endIndex, closingTag, value, tail }: Partial<IHtmlElement>) => {
         const element: IHtmlElement = {
             name: name,
             startIndex: startIndex,
             endIndex: endIndex,
             type: type,
             value: value,
-            closingTag: closingTag
+            closingTag: closingTag,
+            tail: tail
         };
 
         let last = stack[stack.length - 1];
@@ -27,12 +28,13 @@ export default (html: string) => {
         return element;
     }
 
-    parser.onOpenTag = (name, startIndex, endIndex) => {
+    parser.onOpenTag = (name, startIndex, endIndex, tail) => {
         const element = createElement({
             name: name,
             type: ElementTypeEnum.Element,
             startIndex: startIndex,
-            endIndex: endIndex
+            endIndex: endIndex,
+            tail: tail
         });
 
         element.children = [];

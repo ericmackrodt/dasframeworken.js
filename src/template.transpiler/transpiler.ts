@@ -2,7 +2,7 @@ var MagicString = require('magic-string');
 var path = require('path');
 
 import htmlObjectBuilder from './html.object.builder';
-import { IHtmlElement, ElementTypeEnum } from '../_types';
+import { IHtmlElement, ElementTypeEnum, IHtmlAttribute } from '../_types';
 
 const BASE_FRAMEWORK_URI = 'base';
 const TEMPLATE_FACTORY_VARIABLE = 'templateFactory';
@@ -55,7 +55,7 @@ const buildVarName = (node: IHtmlElement) => {
 export default (html: string) => {
     if (this.cacheable) this.cacheable();
 
-    const magicString = new MagicString('', { filename: 'component.view.js' });
+    const magicString = new MagicString(html, { filename: 'component.view.js' });
     const imports: IKeyValue<string>[] = [];
     let selector = '';
 
@@ -73,7 +73,19 @@ export default (html: string) => {
         const key = Object.keys(controller)[0];
 
         selector = node.attributes['selector'].value;
-        magicString.append(createRootLine(ROOT_ELEMENT, selector, key, parent));
+        const root = createRootLine(ROOT_ELEMENT, selector, key, parent);
+
+        const select = node.attributes['selector'];
+        magicString.overwrite(select.startIndex, select.endIndex, '');
+        const ctrl = node.attributes['controller'];
+        magicString.overwrite(ctrl.startIndex, ctrl.endIndex, '');
+
+        magicString.overwrite(node.startIndex, node.endIndex, root);
+
+        if (node.closingTag) {
+            magicString.overwrite(node.closingTag.startIndex, node.closingTag.endIndex, '');
+        }
+
         processChildren(node.children, ROOT_ELEMENT);
     };
 
@@ -97,21 +109,21 @@ export default (html: string) => {
         }
     };
 
-    const processAttribute = (varName: string, key: string, value: string) => {
+    const processAttribute = (varName: string, key: string, attribute: IHtmlAttribute) => {
         const directive = directiveRegistry.find(key);
         let attr;
         if (directive) {
-            attr = createDirectiveLine(key, value, varName);
+            attr = createDirectiveLine(key, attribute.value, varName);
         }
 
         if (!attr) {
             attr = 
-                reservedAttribute(key, value, varName) ||
-                partialAttribute(key, value, varName) ||
-                createAttributeLine(key, value, varName);
+                reservedAttribute(key, attribute.value, varName) ||
+                partialAttribute(key, attribute.value, varName) ||
+                createAttributeLine(key, attribute.value, varName);
         }
 
-        magicString.append(attr);
+        magicString.overwrite(attribute.startIndex, attribute.endIndex, attr);
     };
 
     const processTag = (node: IHtmlElement, parent: string) => {
@@ -125,24 +137,36 @@ export default (html: string) => {
 
         const directives = attributeKeys.filter((key) => internalDirectives.indexOf(key) > -1);
         const normalAttributes = attributeKeys.filter((key) => internalDirectives.indexOf(key) < 0);
-        if (directives && directives.length) {
-            magicString.append(`const ${varName}DirectiveContext = (context) => {\r\n`);
-        }        
 
-        magicString.append(createElementLine(varName, node.name, parent));
+        const element = createElementLine(varName, node.name, parent);
+
+        if (node.closingTag) {
+            magicString.overwrite(node.closingTag.startIndex, node.closingTag.endIndex, '');
+        }
+
+        magicString.overwrite(node.startIndex, node.endIndex, element);
+
+        if (node.tail) {
+            magicString.remove(node.tail, node.tail + 1);
+        }
 
         if (normalAttributes && normalAttributes.length) {
-            normalAttributes.forEach((key) => processAttribute(varName, key, node.attributes[key].value));
+            normalAttributes.forEach((key) => processAttribute(varName, key, node.attributes[key]));
         }
 
         processChildren(node.children, varName);
+        directives.forEach((key) => { 
+            const directive = node.attributes[key];
+            const directiveLine = createDirectiveLine(key, directive.value, varName);
+            magicString.overwrite(directive.startIndex, directive.endIndex, directiveLine);
+            magicString.move(directive.startIndex, directive.endIndex, node.closingTag.endIndex);
+        });
 
         if (directives && directives.length) {
-            magicString.append(`return ${varName};
+            magicString.insertLeft(node.startIndex, `const ${varName}DirectiveContext = (context) => {\r\n`);
+            magicString.insertLeft(node.closingTag.endIndex, `return ${varName};
             };\r\n`);
         }
-
-        directives.forEach((key) => magicString.append(createDirectiveLine(key, node.attributes[key].value, varName)));
     };
 
     const reservedTags = (name: string) => (<IKeyValue<Function>>{
@@ -169,6 +193,9 @@ export default (html: string) => {
         const regex = /@{\s*([^\s}}]+)\s*}/g;
         let result;
         let currentIndex = 0;
+
+        parent = parent || ROOT_ELEMENT;
+        
         while ((result = regex.exec(text))) {
             const previous = text.substring(currentIndex, result.index);
             if (previous) {
@@ -176,13 +203,22 @@ export default (html: string) => {
             }
             currentIndex += previous.length;
             const match = result[0];
-            magicString.append(boundTextLine(result[1], parent));
+            const textLine = boundTextLine(result[1], parent);
+
+            const start = node.startIndex + result.index;
+            const end = start + match.length;
+
+            magicString.overwrite(start, end, textLine);
+
             currentIndex += match.length;
         }
 
-        if (currentIndex < text.length) {
-            const previous = text.substring(currentIndex, text.length);
-            magicString.append(setTextLine(previous, parent));
+        const start = node.startIndex + currentIndex;
+        if (start < node.endIndex) {
+            const previous = text.substring(currentIndex, text.length).trim();
+            const end = node.endIndex;
+            const textLine = setTextLine(previous, parent);
+            magicString.overwrite(start, end, textLine);
         }
     };
 
@@ -212,8 +248,6 @@ export default (html: string) => {
     var wrap = 
         `"use strict";
         import * as ${TEMPLATE_FACTORY_VARIABLE} from '${BASE_FRAMEWORK_URI}/templates/template.factory';
-import { ElementTypeEnum } from '../_types/index';
-import { ElementTypeEnum } from '_types/index';
         ${imps.join('\r\n')}
         export default {
             selector: '${selector}',
@@ -221,12 +255,13 @@ import { ElementTypeEnum } from '_types/index';
             render: ${magicString.toString()}
         };`;
 
-    debugger;
-    const maps = magicString.generateMap({
+    const map = magicString.generateMap({
         file: 'component.view.js.map',
         source: 'component.view.js',
         includeContent: true
     });
+    console.log('MAPPAPAPAP');
+    console.log(map.toString());
 
     return wrap;
 };

@@ -1,31 +1,24 @@
 "use strict";
         import * as templateFactory from 'base/templates/template.factory';
-import { ElementTypeEnum } from '../_types/index';
-import { ElementTypeEnum } from '_types/index';
-        import { AnotherComponent } from './another.component.js';
+        import { TitleComponent } from './title.component.js';
 
         export default {
-            selector: 'a-component',
-            controller: AnotherComponent,
+            selector: 'title-comp',
+            controller: TitleComponent,
             render: (controller, container) => {
-	const root = templateFactory.createRoot('a-component', AnotherComponent, root);
-	const p0 = templateFactory.createElement(container, 'p', root);
-	templateFactory.setAttribute('class', 'whatever', p0);
-	templateFactory.boundText(container, 'prop', p0, () => controller.prop);
-	templateFactory.setText(' is cool', p0);
-	const input0 = templateFactory.createElement(container, 'input', root);
-	templateFactory.setBinding(container, 'prop', () => {
-	    if (input0.value !== controller.prop) {
-	        input0.value = controller.prop;
-	    }
-	});
-	const button0DirectiveContext = (context) => {
-	const button0 = templateFactory.createElement(container, 'button', root);
-	templateFactory.setEvent(container, 'click', ($event) => controller.clicked(), button0);
-	templateFactory.setText('click here', button0);
-	return button0;
-	            };
-	templateFactory.setDirective(container, controller, '@if', 'true !== false', root, button0DirectiveContext);
+    const root = templateFactory.createRoot('title-comp', TitleComponent, root);
+
+        
+        
+    const h10 = templateFactory.createElement(container, 'h1', root);
+    templateFactory.setText('This is a title component', h10);
+
+    const div0 = templateFactory.createElement(container, 'div', root);
+    templateFactory.boundText(container, 'potato', div0, () => controller.potato);
+
+    const button0 = templateFactory.createElement(container, 'button', root);
+     templateFactory.setEvent(container, 'click', ($event) => controller.clicked(), button0);
+    templateFactory.setText('POtato button', button0);
 return root;
     }
 

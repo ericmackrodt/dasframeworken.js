@@ -1,7 +1,6 @@
-<component 
-    selector="a-component"
-    controller="{ 'AnotherComponent': './another.component.js' }" />
-    
-<p class="whatever">@{prop} is cool</p>
-<input bind:value="prop"></input>
-<button @if="true !== false" trigger:click="clicked()">click here</button>
+<component
+    selector="title-comp"
+    controller="{ 'TitleComponent': './title.component.js' }" />
+<h1>This is a title component</h1>
+<div>@{potato}</div>
+<button trigger:click="clicked()">POtato button</button>

@@ -3,7 +3,7 @@ export default class {
     private readonly TAG_REGEX = /([\w-]+)/;
     private readonly END_TAG_REGEX = /<\/\s*([\w-]+)\s*>/;
 
-    public onOpenTag: (name: string, startIndex: number, endIndex: number) => void;
+    public onOpenTag: (name: string, startIndex: number, endIndex: number, tailIndex?: number) => void;
     public onAttribute: (key: string, value: string, startIndex: number, endIndex: number) => void;
     public onCloseTag: (name: string, startIndex: number, endIndex: number) => void;
     public onText: (name: string, startIndex: number, endIndex: number) => void;
@@ -20,13 +20,16 @@ export default class {
                 const fullTag = match[1].trim();
                 const nameMatch = fullTag.match(this.TAG_REGEX);
                 const ATTRIBUTE_REGEX = /([\w-:@]+[^=])=["]([^"]+)["]|[']([^"]+)[']/gi;
-
-                this.onOpenTag && this.onOpenTag(nameMatch[0], match.index, match.index + nameMatch[0].length);
+                let tailIndex: number;
+                if (!fullTag.endsWith('/')) {
+                    tailIndex = match[0].indexOf('>');
+                }
+                this.onOpenTag && this.onOpenTag(nameMatch[0], match.index, match.index + nameMatch[0].length + 1, match.index + tailIndex);
 
                 let attribMatch;
                 while((attribMatch = ATTRIBUTE_REGEX.exec(fullTag))) {
                     // console.log(attribMatch);
-                    this.onAttribute && this.onAttribute(attribMatch[1], attribMatch[2], match.index + attribMatch.index, match.index + attribMatch.index + attribMatch[0].length);
+                    this.onAttribute && this.onAttribute(attribMatch[1], attribMatch[2], match.index + attribMatch.index + 1, match.index + attribMatch.index + attribMatch[0].length + 1);
                 }
 
                 if (fullTag.endsWith('/')) {
