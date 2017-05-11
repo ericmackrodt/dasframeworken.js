@@ -207,9 +207,13 @@ var _anotherComponent = __webpack_require__(19);function _interopRequireWildcard
     selector: 'another-comp',
     controller: _anotherComponent.AnotherComponent,
     render: function render(controller, container) {
-        var root = templateFactory.createRoot('another-comp', _anotherComponent.AnotherComponent);
-        var h10 = templateFactory.createElement(container, 'h1', root);
-        templateFactory.setText('Another comp', h10);
+        var root = templateFactory.createRoot('another-comp', _anotherComponent.AnotherComponent, root);
+
+
+
+        var h11 = templateFactory.createElement(container, 'h1', root);
+        templateFactory.setText('Another comp', h11);
+
         var title_comp0 = templateFactory.createElement(container, 'title-comp', root);
         return root;
     } };
@@ -224,37 +228,44 @@ var _template = __webpack_require__(1);var templateFactory = _interopRequireWild
 var _homeComponent = __webpack_require__(8);function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];}}newObj.default = obj;return newObj;}}exports.default =
 
 {
-				selector: 'a-component',
-				controller: _homeComponent.HomeComponent,
-				render: function render(controller, container) {
-								var root = templateFactory.createRoot('a-component', _homeComponent.HomeComponent);
-								var p0 = templateFactory.createElement(container, 'p', root);
-								templateFactory.boundText(container, 'prop', p0, function () {return controller.prop;});
-								templateFactory.setText(' is cool ey oh', p0);
-								var input0 = templateFactory.createElement(container, 'input', root);
-								templateFactory.setBinding(container, 'prop', function () {
-												if (input0.value !== controller.prop) {
-																input0.value = controller.prop;
-												}
-								});
-								templateFactory.setEvent(container, 'input', function ($event) {return controller.inputUpdated($event);}, input0);
-								var button0 = templateFactory.createElement(container, 'button', root);
-								templateFactory.setEvent(container, 'click', function ($event) {return controller.clicked();}, button0);
-								templateFactory.setText('click here dude!', button0);
-								templateFactory.setText('This is just a text', root);
-								var br0 = templateFactory.createElement(container, 'br', root);
-								var span0DirectiveContext = function span0DirectiveContext(context) {
-												var span0 = templateFactory.createElement(container, 'span', root);
-												templateFactory.setAttribute('style', 'background: yellow', span0);
-												templateFactory.setText('This is iffable', span0);
-												return span0;
-								};
-								templateFactory.setDirective(container, controller, '@if', 'iffable === true', root, span0DirectiveContext);
-								var button1 = templateFactory.createElement(container, 'button', root);
-								templateFactory.setEvent(container, 'click', function ($event) {return controller.showHide();}, button1);
-								templateFactory.setText('Show/hide', button1);
-								return root;
-				} };
+    selector: 'a-component',
+    controller: _homeComponent.HomeComponent,
+    render: function render(controller, container) {
+        var root = templateFactory.createRoot('a-component', _homeComponent.HomeComponent, root);
+
+
+
+        var p0 = templateFactory.createElement(container, 'p', root);
+        templateFactory.boundText(container, 'prop', p0, function () {return controller.prop;});
+        templateFactory.setText('is cool ey oh', p0);
+
+        var input0 = templateFactory.createElement(container, 'input', root);
+        templateFactory.setBinding(container, 'prop', function () {
+            if (input0.value !== controller.prop) {
+                input0.value = controller.prop;
+            }
+        });
+        templateFactory.setEvent(container, 'input', function ($event) {return controller.inputUpdated($event);}, input0);
+
+        var button0 = templateFactory.createElement(container, 'button', root);
+        templateFactory.setEvent(container, 'click', function ($event) {return controller.clicked();}, button0);
+        templateFactory.setText('click here dude!', button0);
+        templateFactory.setText('This is just a text', root);
+        var br0 = templateFactory.createElement(container, 'br', root);
+
+        var span0DirectiveContext = function span0DirectiveContext(context) {
+            var span0 = templateFactory.createElement(container, 'span', root);
+            templateFactory.setAttribute('style', 'background: yellow', span0);
+            templateFactory.setText('This is iffable', span0);
+            return span0;
+        };
+        templateFactory.setDirective(container, controller, '@if', 'iffable === true', root, span0DirectiveContext);
+
+        var button1 = templateFactory.createElement(container, 'button', root);
+        templateFactory.setEvent(container, 'click', function ($event) {return controller.showHide();}, button1);
+        templateFactory.setText('Show/hide', button1);
+        return root;
+    } };
 
 /***/ }),
 /* 6 */
@@ -269,9 +280,13 @@ var _rootComponent = __webpack_require__(20);function _interopRequireWildcard(ob
     selector: 'root-comp',
     controller: _rootComponent.RootComponent,
     render: function render(controller, container) {
-        var root = templateFactory.createRoot('root-comp', _rootComponent.RootComponent);
-        var h11 = templateFactory.createElement(container, 'h1', root);
-        templateFactory.setText('Application Root', h11);
+        var root = templateFactory.createRoot('root-comp', _rootComponent.RootComponent, root);
+
+
+
+        var h10 = templateFactory.createElement(container, 'h1', root);
+        templateFactory.setText('Application Root', h10);
+
         var router_outlet0 = templateFactory.createElement(container, 'router-outlet', root);
         return root;
     } };
@@ -289,11 +304,16 @@ var _titleComponent = __webpack_require__(21);function _interopRequireWildcard(o
     selector: 'title-comp',
     controller: _titleComponent.TitleComponent,
     render: function render(controller, container) {
-        var root = templateFactory.createRoot('title-comp', _titleComponent.TitleComponent);
+        var root = templateFactory.createRoot('title-comp', _titleComponent.TitleComponent, root);
+
+
+
         var h12 = templateFactory.createElement(container, 'h1', root);
         templateFactory.setText('This is a title component', h12);
+
         var div0 = templateFactory.createElement(container, 'div', root);
         templateFactory.boundText(container, 'potato', div0, function () {return controller.potato;});
+
         var button2 = templateFactory.createElement(container, 'button', root);
         templateFactory.setEvent(container, 'click', function ($event) {return controller.clicked();}, button2);
         templateFactory.setText('POtato button', button2);

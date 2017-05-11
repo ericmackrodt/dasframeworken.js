@@ -52,7 +52,7 @@ const buildVarName = (node: IHtmlElement) => {
     return result;
 };
 
-export default (html: string) => {
+export default (html: string, fileName?: string) => {
     if (this.cacheable) this.cacheable();
 
     const magicString = new MagicString(html, { filename: 'component.view.js' });
@@ -256,12 +256,12 @@ export default (html: string) => {
         };`;
 
     const map = magicString.generateMap({
-        file: 'component.view.js.map',
-        source: 'component.view.js',
+        file: fileName + '.map',
+        source: fileName,
         includeContent: true
     });
-    console.log('MAPPAPAPAP');
+    debugger;
     console.log(map.toString());
 
-    return wrap;
+    return { source: wrap, map: map };
 };
