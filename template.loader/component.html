@@ -1,6 +1,9 @@
-<component
-    selector="title-comp"
-    controller="{ 'TitleComponent': './title.component.js' }" />
-<h1>This is a title component</h1>
-<div>@{potato}</div>
-<button trigger:click="clicked()">POtato button</button>
+<component 
+    selector="a-component"
+    controller="{ 'HomeComponent': './home.component.ts' }" />
+<p>@{prop} is cool ey oh</p>
+<input bind:value="prop" trigger:input="inputUpdated($event)"></input>
+<button trigger:click="clicked()">click here dude!</button>
+This is just a text <br />
+<span @if="iffable === true" style="background: yellow">This is iffable</span>
+<button trigger:click="showHide()">Show/hide</button>

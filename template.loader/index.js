@@ -9,7 +9,7 @@ var html = fs.readFileSync('./template.loader/component.html', 'utf-8');
 var result = builder.default(html);
 // sys.puts(sys.inspect(handler.dom, false, null));
 
-fs.writeFile('./template.loader/component.view.js', result);
+fs.writeFile('./template.loader/component.view.js', result.source);
 console.log(result);
 
 

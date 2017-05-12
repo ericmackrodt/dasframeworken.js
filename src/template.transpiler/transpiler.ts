@@ -9,12 +9,13 @@ const TEMPLATE_FACTORY_VARIABLE = 'templateFactory';
 const CONTROLLER_VARIABLE = 'controller';
 const COMPONENT_CONTAINER_VARIABLE = 'container';
 const ROOT_ELEMENT = 'root';
+const VAR_TYPE = 'const';
 
 var directiveRegistry = require('./../base/directives/registry.ts');
 
 const parentParameter = (parent: string) => parent ? ', ' + parent : '';
-const createRootLine = (varName: string, selector: string, key: string, parent: string) => `const ${varName} = ${TEMPLATE_FACTORY_VARIABLE}.createRoot('${selector}', ${key}${parentParameter(parent)});\r\n`;
-const createElementLine = (varName: string, nodeName: string, parent: string) => `const ${varName} = ${TEMPLATE_FACTORY_VARIABLE}.createElement(${COMPONENT_CONTAINER_VARIABLE}, '${nodeName}'${parentParameter(parent)});\r\n`;
+const createRootLine = (selector: string, key: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.createRoot('${selector}', ${key}${parentParameter(parent)});\r\n`;
+const createElementLine = (nodeName: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.createElement(${COMPONENT_CONTAINER_VARIABLE}, '${nodeName}'${parentParameter(parent)});\r\n`;
 const createAttributeLine = (key: string, value: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setAttribute('${key}', '${value}', ${parentVarName});\r\n`;
 const createEventLine = (event: string, fn: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setEvent(${COMPONENT_CONTAINER_VARIABLE}, '${event}', ($event) => ${CONTROLLER_VARIABLE}.${fn}, ${parentVarName});\r\n`;
 
@@ -27,8 +28,9 @@ const createBindingLine = (elementProperty: string, property: string, element: s
 const createDirectiveLine = (directive: string, value: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.setDirective(${COMPONENT_CONTAINER_VARIABLE}, ${CONTROLLER_VARIABLE}, '${directive}', '${value}', ${ROOT_ELEMENT}, ${parent}DirectiveContext);\r\n`;
 
 const setTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setText('${property}', ${parentVarName});\r\n`;
-const boundTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.boundText(${COMPONENT_CONTAINER_VARIABLE}, '${property}', ${parentVarName}, () => ${CONTROLLER_VARIABLE}.${property});\r\n`;
+const boundTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.boundText(${COMPONENT_CONTAINER_VARIABLE}, '${property}', ${parentVarName}, () => `;
 const importLine = (key: string, imported: IKeyValue<string>) => `import { ${key} } from '${imported[key]}';\r\n`;
+const FUNCTION_TAIL = ');\r\n';
 
 interface ICounts {
     [key: string]: { count: number };
@@ -55,11 +57,22 @@ const buildVarName = (node: IHtmlElement) => {
 export default (html: string, fileName?: string) => {
     if (this.cacheable) this.cacheable();
 
-    const magicString = new MagicString(html, { filename: 'component.view.js' });
+    const magicString = new MagicString(html, { filename: fileName });
     const imports: IKeyValue<string>[] = [];
     let selector = '';
 
     const processChildren = (children: any[], varName: string) => children && children.forEach((child) => processNode(child, varName));
+
+    const setLine = (replace: string, start: number, end: number, prepend?: string, append?: string) => {
+        magicString.overwrite(start, end, replace, true);
+        if (prepend) {
+            magicString.prependLeft(start, prepend);
+        }
+
+        if (append) {
+            magicString.appendRight(end, append);
+        }
+    }
 
     const processRoot = (node: IHtmlElement, parent: string) => {
         const parentName = parent ? ', ' + parent : '';
@@ -73,14 +86,17 @@ export default (html: string, fileName?: string) => {
         const key = Object.keys(controller)[0];
 
         selector = node.attributes['selector'].value;
-        const root = createRootLine(ROOT_ELEMENT, selector, key, parent);
+
+        const rootLine = createRootLine(selector, key, parent);
+
+        // magicString.overwrite(node.startIndex, node.endIndex, ROOT_ELEMENT);
+
+        setLine(ROOT_ELEMENT, node.startIndex, node.endIndex, 'const ', ' = ' + rootLine);
 
         const select = node.attributes['selector'];
         magicString.overwrite(select.startIndex, select.endIndex, '');
         const ctrl = node.attributes['controller'];
         magicString.overwrite(ctrl.startIndex, ctrl.endIndex, '');
-
-        magicString.overwrite(node.startIndex, node.endIndex, root);
 
         if (node.closingTag) {
             magicString.overwrite(node.closingTag.startIndex, node.closingTag.endIndex, '');
@@ -138,17 +154,19 @@ export default (html: string, fileName?: string) => {
         const directives = attributeKeys.filter((key) => internalDirectives.indexOf(key) > -1);
         const normalAttributes = attributeKeys.filter((key) => internalDirectives.indexOf(key) < 0);
 
-        const element = createElementLine(varName, node.name, parent);
-
         if (node.closingTag) {
             magicString.overwrite(node.closingTag.startIndex, node.closingTag.endIndex, '');
         }
 
-        magicString.overwrite(node.startIndex, node.endIndex, element);
+        // magicString.overwrite(node.startIndex, node.endIndex, element);
 
         if (node.tail) {
             magicString.remove(node.tail, node.tail + 1);
         }
+
+        const elementLine = ' = ' + createElementLine(node.name, parent);
+
+        setLine(varName, node.startIndex, node.endIndex, 'const ', elementLine);
 
         if (normalAttributes && normalAttributes.length) {
             normalAttributes.forEach((key) => processAttribute(varName, key, node.attributes[key]));
@@ -163,8 +181,8 @@ export default (html: string, fileName?: string) => {
         });
 
         if (directives && directives.length) {
-            magicString.insertLeft(node.startIndex, `const ${varName}DirectiveContext = (context) => {\r\n`);
-            magicString.insertLeft(node.closingTag.endIndex, `return ${varName};
+            magicString.prependLeft(node.startIndex, `const ${varName}DirectiveContext = (context) => {\r\n`);
+            magicString.appendLeft(node.closingTag.endIndex, `return ${varName};
             };\r\n`);
         }
     };
@@ -195,7 +213,7 @@ export default (html: string, fileName?: string) => {
         let currentIndex = 0;
 
         parent = parent || ROOT_ELEMENT;
-        
+        debugger;
         while ((result = regex.exec(text))) {
             const previous = text.substring(currentIndex, result.index);
             if (previous) {
@@ -208,7 +226,11 @@ export default (html: string, fileName?: string) => {
             const start = node.startIndex + result.index;
             const end = start + match.length;
 
-            magicString.overwrite(start, end, textLine);
+            magicString.overwrite(start, end, `${CONTROLLER_VARIABLE}.${result[1]}`, true);
+            magicString.prependLeft(start, textLine);
+            magicString.appendLeft(end, FUNCTION_TAIL);
+
+            // magicString.overwrite(start, end, textLine);
 
             currentIndex += match.length;
         }
@@ -258,7 +280,8 @@ export default (html: string, fileName?: string) => {
     const map = magicString.generateMap({
         file: fileName + '.map',
         source: fileName,
-        includeContent: true
+        includeContent: true,
+        hires: true
     });
     debugger;
     console.log(map.toString());
