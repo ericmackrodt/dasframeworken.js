@@ -70,7 +70,7 @@ export default (html: string, fileName?: string) => {
         }
 
         if (append) {
-            magicString.appendRight(end, append);
+            magicString.prependLeft(end, append);
         }
     }
 
@@ -90,16 +90,18 @@ export default (html: string, fileName?: string) => {
         const rootLine = createRootLine(selector, key, parent);
 
         // magicString.overwrite(node.startIndex, node.endIndex, ROOT_ELEMENT);
+        debugger;
+
+        // Remove attributes
+        Object.keys(node.attributes).forEach((key) => {
+            const attr = node.attributes[key];
+            magicString.remove(attr.startIndex, attr.endIndex);
+        });
 
         setLine(ROOT_ELEMENT, node.startIndex, node.endIndex, 'const ', ' = ' + rootLine);
 
-        const select = node.attributes['selector'];
-        magicString.overwrite(select.startIndex, select.endIndex, '');
-        const ctrl = node.attributes['controller'];
-        magicString.overwrite(ctrl.startIndex, ctrl.endIndex, '');
-
         if (node.closingTag) {
-            magicString.overwrite(node.closingTag.startIndex, node.closingTag.endIndex, '');
+            magicString.remove(node.closingTag.startIndex, node.closingTag.endIndex);
         }
 
         processChildren(node.children, ROOT_ELEMENT);
@@ -143,8 +145,6 @@ export default (html: string, fileName?: string) => {
     };
 
     const processTag = (node: IHtmlElement, parent: string) => {
-        const varName = buildVarName(node);
-
         const attributeKeys = Object.keys(node.attributes);
 
         const internalDirectives = [
@@ -154,8 +154,10 @@ export default (html: string, fileName?: string) => {
         const directives = attributeKeys.filter((key) => internalDirectives.indexOf(key) > -1);
         const normalAttributes = attributeKeys.filter((key) => internalDirectives.indexOf(key) < 0);
 
+        const varName = buildVarName(node);
+
         if (node.closingTag) {
-            magicString.overwrite(node.closingTag.startIndex, node.closingTag.endIndex, '');
+            magicString.remove(node.closingTag.startIndex, node.closingTag.endIndex);
         }
 
         // magicString.overwrite(node.startIndex, node.endIndex, element);
@@ -165,8 +167,7 @@ export default (html: string, fileName?: string) => {
         }
 
         const elementLine = ' = ' + createElementLine(node.name, parent);
-
-        setLine(varName, node.startIndex, node.endIndex, 'const ', elementLine);
+        debugger;
 
         if (normalAttributes && normalAttributes.length) {
             normalAttributes.forEach((key) => processAttribute(varName, key, node.attributes[key]));
@@ -180,10 +181,11 @@ export default (html: string, fileName?: string) => {
             magicString.move(directive.startIndex, directive.endIndex, node.closingTag.endIndex);
         });
 
+        setLine(varName, node.startIndex, node.endIndex, 'const ', elementLine);
+
         if (directives && directives.length) {
             magicString.prependLeft(node.startIndex, `const ${varName}DirectiveContext = (context) => {\r\n`);
-            magicString.appendLeft(node.closingTag.endIndex, `return ${varName};
-            };\r\n`);
+            magicString.appendLeft(node.closingTag.endIndex, `return ${varName};\r\n};\r\n`);
         }
     };
 
@@ -213,7 +215,7 @@ export default (html: string, fileName?: string) => {
         let currentIndex = 0;
 
         parent = parent || ROOT_ELEMENT;
-        debugger;
+
         while ((result = regex.exec(text))) {
             const previous = text.substring(currentIndex, result.index);
             if (previous) {
@@ -237,7 +239,7 @@ export default (html: string, fileName?: string) => {
 
         const start = node.startIndex + currentIndex;
         if (start < node.endIndex) {
-            const previous = text.substring(currentIndex, text.length).trim();
+            const previous = text.substring(currentIndex, text.length);
             const end = node.endIndex;
             const textLine = setTextLine(previous, parent);
             magicString.overwrite(start, end, textLine);
@@ -260,22 +262,21 @@ export default (html: string, fileName?: string) => {
         return importLine(key, imported);
     });
 
-    magicString.indent()
+    magicString
         .prepend(`(${CONTROLLER_VARIABLE}, ${COMPONENT_CONTAINER_VARIABLE}) => {\r\n`)
         .append(`return ${ROOT_ELEMENT};
     }\r\n`);
 
     const key = Object.keys(imports[0])[0];
-    console.log(key);
     var wrap = 
-        `"use strict";
-        import * as ${TEMPLATE_FACTORY_VARIABLE} from '${BASE_FRAMEWORK_URI}/templates/template.factory';
-        ${imps.join('\r\n')}
-        export default {
-            selector: '${selector}',
-            controller: ${key},
-            render: ${magicString.toString()}
-        };`;
+`"use strict";
+import * as ${TEMPLATE_FACTORY_VARIABLE} from '${BASE_FRAMEWORK_URI}/templates/template.factory';
+${imps.join('\r\n')}
+export default {
+    selector: '${selector}',
+    controller: ${key},
+    render: ${magicString.toString()}
+};`;
 
     const map = magicString.generateMap({
         file: fileName + '.map',
@@ -284,7 +285,6 @@ export default (html: string, fileName?: string) => {
         hires: true
     });
     debugger;
-    console.log(map.toString());
 
     return { source: wrap, map: map };
 };

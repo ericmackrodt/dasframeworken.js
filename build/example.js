@@ -209,8 +209,6 @@ var _anotherComponent = __webpack_require__(19);function _interopRequireWildcard
     render: function render(controller, container) {
         var root = templateFactory.createRoot('another-comp', _anotherComponent.AnotherComponent, root);
 
-
-
         var h10 = templateFactory.createElement(container, 'h1', root);
         templateFactory.setText('Another comp', h10);
 
@@ -233,11 +231,9 @@ var _homeComponent = __webpack_require__(8);function _interopRequireWildcard(obj
     render: function render(controller, container) {
         var root = templateFactory.createRoot('a-component', _homeComponent.HomeComponent, root);
 
-
-
         var p0 = templateFactory.createElement(container, 'p', root);
         templateFactory.boundText(container, 'prop', p0, function () {return controller.prop;});
-        templateFactory.setText('is cool ey oh', p0);
+        templateFactory.setText(' is cool ey oh', p0);
 
         var input0 = templateFactory.createElement(container, 'input', root);
         templateFactory.setBinding(container, 'prop', function () {
@@ -282,10 +278,8 @@ var _rootComponent = __webpack_require__(20);function _interopRequireWildcard(ob
     render: function render(controller, container) {
         var root = templateFactory.createRoot('root-comp', _rootComponent.RootComponent, root);
 
-
-
-        var h12 = templateFactory.createElement(container, 'h1', root);
-        templateFactory.setText('Application Root', h12);
+        var h11 = templateFactory.createElement(container, 'h1', root);
+        templateFactory.setText('Application Root', h11);
 
         var router_outlet0 = templateFactory.createElement(container, 'router-outlet', root);
         return root;
@@ -306,10 +300,8 @@ var _titleComponent = __webpack_require__(21);function _interopRequireWildcard(o
     render: function render(controller, container) {
         var root = templateFactory.createRoot('title-comp', _titleComponent.TitleComponent, root);
 
-
-
-        var h11 = templateFactory.createElement(container, 'h1', root);
-        templateFactory.setText('This is a title component', h11);
+        var h12 = templateFactory.createElement(container, 'h1', root);
+        templateFactory.setText('This is a title component', h12);
 
         var div0 = templateFactory.createElement(container, 'div', root);
         templateFactory.boundText(container, 'potato', div0, function () {return controller.potato;});
