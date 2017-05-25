@@ -111,36 +111,36 @@ describe('HtmlParser', () => {
 
     testEvent('onText', [
         { html: 'Text', assert: (expect) => expect.to.have.been.calledWith('Text', 0, 4) },
-        { html: ' Text', assert: (expect) => expect.to.have.been.calledWith('Text', 0, 5) },
-        { html: '  Text', assert: (expect) => expect.to.have.been.calledWith('Text', 0, 6) },
-        { html: 'Text ', assert: (expect) => expect.to.have.been.calledWith('Text', 0, 5) },
-        { html: 'Text  ', assert: (expect) => expect.to.have.been.calledWith('Text', 0, 6) },
-        { html: ' Text ', assert: (expect) => expect.to.have.been.calledWith('Text', 0, 6) },
-        { html: '  Text  ', assert: (expect) => expect.to.have.been.calledWith('Text', 0, 8) },
+        { html: ' Text', assert: (expect) => expect.to.have.been.calledWith(' Text', 0, 5) },
+        { html: '  Text', assert: (expect) => expect.to.have.been.calledWith('  Text', 0, 6) },
+        { html: 'Text ', assert: (expect) => expect.to.have.been.calledWith('Text ', 0, 5) },
+        { html: 'Text  ', assert: (expect) => expect.to.have.been.calledWith('Text  ', 0, 6) },
+        { html: ' Text ', assert: (expect) => expect.to.have.been.calledWith(' Text ', 0, 6) },
+        { html: '  Text  ', assert: (expect) => expect.to.have.been.calledWith('  Text  ', 0, 8) },
 
         { html: '<span>Text</span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 10) },
-        { html: '<span> Text</span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 11) },
-        { html: '<span>  Text</span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 12) },
-        { html: '<span>Text </span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 11) },
-        { html: '<span>Text  </span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 12) },
-        { html: '<span> Text </span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 12) },
-        { html: '<span>  Text  </span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 14) },
+        { html: '<span> Text</span>', assert: (expect) => expect.to.have.been.calledWith(' Text', 6, 11) },
+        { html: '<span>  Text</span>', assert: (expect) => expect.to.have.been.calledWith('  Text', 6, 12) },
+        { html: '<span>Text </span>', assert: (expect) => expect.to.have.been.calledWith('Text ', 6, 11) },
+        { html: '<span>Text  </span>', assert: (expect) => expect.to.have.been.calledWith('Text  ', 6, 12) },
+        { html: '<span> Text </span>', assert: (expect) => expect.to.have.been.calledWith(' Text ', 6, 12) },
+        { html: '<span>  Text  </span>', assert: (expect) => expect.to.have.been.calledWith('  Text  ', 6, 14) },
 
         { html: '<span><br/>Text</span>', assert: (expect) => expect.to.have.been.calledWith('Text', 11, 15) },
-        { html: '<span><br/> Text</span>', assert: (expect) => expect.to.have.been.calledWith('Text', 11, 16) },
-        { html: '<span><br/>  Text</span>', assert: (expect) => expect.to.have.been.calledWith('Text', 11, 17) },
-        { html: '<span><br/>Text </span>', assert: (expect) => expect.to.have.been.calledWith('Text', 11, 16) },
-        { html: '<span><br/>Text  </span>', assert: (expect) => expect.to.have.been.calledWith('Text', 11, 17) },
-        { html: '<span><br/> Text </span>', assert: (expect) => expect.to.have.been.calledWith('Text', 11, 17) },
-        { html: '<span><br/>  Text  </span>', assert: (expect) => expect.to.have.been.calledWith('Text', 11, 19) },
+        { html: '<span><br/> Text</span>', assert: (expect) => expect.to.have.been.calledWith(' Text', 11, 16) },
+        { html: '<span><br/>  Text</span>', assert: (expect) => expect.to.have.been.calledWith('  Text', 11, 17) },
+        { html: '<span><br/>Text </span>', assert: (expect) => expect.to.have.been.calledWith('Text ', 11, 16) },
+        { html: '<span><br/>Text  </span>', assert: (expect) => expect.to.have.been.calledWith('Text  ', 11, 17) },
+        { html: '<span><br/> Text </span>', assert: (expect) => expect.to.have.been.calledWith(' Text ', 11, 17) },
+        { html: '<span><br/>  Text  </span>', assert: (expect) => expect.to.have.been.calledWith('  Text  ', 11, 19) },
 
         { html: '<span>Text<div></div></span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 10) },
-        { html: '<span> Text<div></div></span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 11) },
-        { html: '<span>  Text<div></div></span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 12) },
-        { html: '<span>Text <div></div></span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 11) },
-        { html: '<span>Text  <div></div></span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 12) },
-        { html: '<span> Text <div></div></span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 12) },
-        { html: '<span>  Text  <div></div></span>', assert: (expect) => expect.to.have.been.calledWith('Text', 6, 14) },
+        { html: '<span> Text<div></div></span>', assert: (expect) => expect.to.have.been.calledWith(' Text', 6, 11) },
+        { html: '<span>  Text<div></div></span>', assert: (expect) => expect.to.have.been.calledWith('  Text', 6, 12) },
+        { html: '<span>Text <div></div></span>', assert: (expect) => expect.to.have.been.calledWith('Text ', 6, 11) },
+        { html: '<span>Text  <div></div></span>', assert: (expect) => expect.to.have.been.calledWith('Text  ', 6, 12) },
+        { html: '<span> Text <div></div></span>', assert: (expect) => expect.to.have.been.calledWith(' Text ', 6, 12) },
+        { html: '<span>  Text  <div></div></span>', assert: (expect) => expect.to.have.been.calledWith('  Text  ', 6, 14) },
 
         { html: '<span>Text1<div>Text2</div></span>', assert: (expect) => {
             expect.to.have.been.calledWith('Text1', 6, 11);
@@ -186,6 +186,8 @@ describe('HtmlParser', () => {
             '/div'
         ]);
     });
+
+    it('should throw error if closing tag that has not been opened');
 
     // Test calling order!
 });

@@ -40,8 +40,8 @@ export default class {
                 const endTagMatch = this.END_TAG_REGEX.exec(match[0]);
                 this.onCloseTag && this.onCloseTag(endTagMatch[1], match.index, match.index + endTagMatch[0].length);
             } else {
-                const text = match[0].trim();//.replace('\n', '').replace('\r', '');
-                this.onText && this.onText(text, match.index, match.index + match[0].length);
+                const text = match[0];
+                this.onText && this.onText(text, match.index, match.index + text.length);
             }
         }
     }

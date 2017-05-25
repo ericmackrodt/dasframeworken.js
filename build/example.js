@@ -278,8 +278,8 @@ var _rootComponent = __webpack_require__(20);function _interopRequireWildcard(ob
     render: function render(controller, container) {
         var root = templateFactory.createRoot('root-comp', _rootComponent.RootComponent, root);
 
-        var h11 = templateFactory.createElement(container, 'h1', root);
-        templateFactory.setText('Application Root', h11);
+        var h12 = templateFactory.createElement(container, 'h1', root);
+        templateFactory.setText('Application Root', h12);
 
         var router_outlet0 = templateFactory.createElement(container, 'router-outlet', root);
         return root;
@@ -300,8 +300,8 @@ var _titleComponent = __webpack_require__(21);function _interopRequireWildcard(o
     render: function render(controller, container) {
         var root = templateFactory.createRoot('title-comp', _titleComponent.TitleComponent, root);
 
-        var h12 = templateFactory.createElement(container, 'h1', root);
-        templateFactory.setText('This is a title component', h12);
+        var h11 = templateFactory.createElement(container, 'h1', root);
+        templateFactory.setText('This is a title component', h11);
 
         var div0 = templateFactory.createElement(container, 'div', root);
         templateFactory.boundText(container, 'potato', div0, function () {return controller.potato;});

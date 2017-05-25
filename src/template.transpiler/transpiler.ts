@@ -14,23 +14,23 @@ const VAR_TYPE = 'const';
 var directiveRegistry = require('./../base/directives/registry.ts');
 
 const parentParameter = (parent: string) => parent ? ', ' + parent : '';
-const createRootLine = (selector: string, key: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.createRoot('${selector}', ${key}${parentParameter(parent)});\r\n`;
-const createElementLine = (nodeName: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.createElement(${COMPONENT_CONTAINER_VARIABLE}, '${nodeName}'${parentParameter(parent)});\r\n`;
-const createAttributeLine = (key: string, value: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setAttribute('${key}', '${value}', ${parentVarName});\r\n`;
-const createEventLine = (event: string, fn: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setEvent(${COMPONENT_CONTAINER_VARIABLE}, '${event}', ($event) => ${CONTROLLER_VARIABLE}.${fn}, ${parentVarName});\r\n`;
+const createRootLine = (selector: string, key: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.createRoot('${selector}', ${key}${parentParameter(parent)});\n`;
+const createElementLine = (nodeName: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.createElement(${COMPONENT_CONTAINER_VARIABLE}, '${nodeName}'${parentParameter(parent)});\n`;
+const createAttributeLine = (key: string, value: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setAttribute('${key}', '${value}', ${parentVarName});\n`;
+const createEventLine = (event: string, fn: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setEvent(${COMPONENT_CONTAINER_VARIABLE}, '${event}', ($event) => ${CONTROLLER_VARIABLE}.${fn}, ${parentVarName});\n`;
 
 const createBindingLine = (elementProperty: string, property: string, element: string) => `${TEMPLATE_FACTORY_VARIABLE}.setBinding(${COMPONENT_CONTAINER_VARIABLE}, '${property}', () => {
     if (${element}.${elementProperty} !== ${CONTROLLER_VARIABLE}.${property}) {
         ${element}.${elementProperty} = ${CONTROLLER_VARIABLE}.${property};
     }
-});\r\n`;
+});\n`;
 
-const createDirectiveLine = (directive: string, value: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.setDirective(${COMPONENT_CONTAINER_VARIABLE}, ${CONTROLLER_VARIABLE}, '${directive}', '${value}', ${ROOT_ELEMENT}, ${parent}DirectiveContext);\r\n`;
+const createDirectiveLine = (directive: string, value: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.setDirective(${COMPONENT_CONTAINER_VARIABLE}, ${CONTROLLER_VARIABLE}, '${directive}', '${value}', ${ROOT_ELEMENT}, ${parent}DirectiveContext);\n`;
 
-const setTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setText('${property}', ${parentVarName});\r\n`;
+const setTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setText('${property}', ${parentVarName});\n`;
 const boundTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.boundText(${COMPONENT_CONTAINER_VARIABLE}, '${property}', ${parentVarName}, () => `;
-const importLine = (key: string, imported: IKeyValue<string>) => `import { ${key} } from '${imported[key]}';\r\n`;
-const FUNCTION_TAIL = ');\r\n';
+const importLine = (key: string, imported: IKeyValue<string>) => `import { ${key} } from '${imported[key]}';\n`;
+const FUNCTION_TAIL = ');\n';
 
 interface ICounts {
     [key: string]: { count: number };
@@ -40,7 +40,7 @@ interface IKeyValue<T> {
     [key: string]: T
 }
 
-const usageCounts: ICounts = {
+let usageCounts: ICounts = {
     'div': { count: 0 }
 };
 
@@ -56,6 +56,10 @@ const buildVarName = (node: IHtmlElement) => {
 
 export default (html: string, fileName?: string) => {
     if (this.cacheable) this.cacheable();
+
+    usageCounts = {
+        'div': { count: 0 }
+    };
 
     const magicString = new MagicString(html, { filename: fileName });
     const imports: IKeyValue<string>[] = [];
@@ -80,7 +84,7 @@ export default (html: string, fileName?: string) => {
         while (json.indexOf('\'') > -1) {
             json = json.replace('\'', '"');
         }
-
+        debugger;
         const controller = JSON.parse(json);
         imports.push(controller);
         const key = Object.keys(controller)[0];
@@ -89,20 +93,17 @@ export default (html: string, fileName?: string) => {
 
         const rootLine = createRootLine(selector, key, parent);
 
-        // magicString.overwrite(node.startIndex, node.endIndex, ROOT_ELEMENT);
-        debugger;
-
         // Remove attributes
         Object.keys(node.attributes).forEach((key) => {
             const attr = node.attributes[key];
             magicString.remove(attr.startIndex, attr.endIndex);
         });
 
-        setLine(ROOT_ELEMENT, node.startIndex, node.endIndex, 'const ', ' = ' + rootLine);
-
         if (node.closingTag) {
             magicString.remove(node.closingTag.startIndex, node.closingTag.endIndex);
         }
+
+        setLine(ROOT_ELEMENT, node.startIndex, node.endIndex, 'const ', ' = ' + rootLine);
 
         processChildren(node.children, ROOT_ELEMENT);
     };
@@ -159,7 +160,7 @@ export default (html: string, fileName?: string) => {
         if (node.closingTag) {
             magicString.remove(node.closingTag.startIndex, node.closingTag.endIndex);
         }
-
+        debugger;
         // magicString.overwrite(node.startIndex, node.endIndex, element);
 
         if (node.tail) {
@@ -184,8 +185,8 @@ export default (html: string, fileName?: string) => {
         setLine(varName, node.startIndex, node.endIndex, 'const ', elementLine);
 
         if (directives && directives.length) {
-            magicString.prependLeft(node.startIndex, `const ${varName}DirectiveContext = (context) => {\r\n`);
-            magicString.appendLeft(node.closingTag.endIndex, `return ${varName};\r\n};\r\n`);
+            magicString.prependLeft(node.startIndex, `const ${varName}DirectiveContext = (context) => {\n`);
+            magicString.appendLeft(node.closingTag.endIndex, `return ${varName};\n};\n`);
         }
     };
 
@@ -205,11 +206,25 @@ export default (html: string, fileName?: string) => {
         }
     };
 
+    const textCleanup = (text: string) => {
+        const spacingRegex = /(\s\s+)/;
+        const lineBreaksRegex = /([\n\r]+)|(\\[rn])/;
+        let result = text;
+        while (spacingRegex.test(result)) {
+            result = result.replace(spacingRegex, ' ');
+        }
+        while (lineBreaksRegex.test(result)) {
+            result = result.replace(lineBreaksRegex, '');
+        }
+        return result;
+    };
+
     const processText = (node: IHtmlElement, parent: string) => {
-        const text = node.value.replace('\r', '').replace('\n', '').trim();
+        debugger;
+        const text = node.value;//.replace('\r', '').replace('\n', '').trim();
 
         if (!text) return;
-
+        debugger;
         const regex = /@{\s*([^\s}}]+)\s*}/g;
         let result;
         let currentIndex = 0;
@@ -218,8 +233,15 @@ export default (html: string, fileName?: string) => {
 
         while ((result = regex.exec(text))) {
             const previous = text.substring(currentIndex, result.index);
-            if (previous) {
-                magicString.append(setTextLine(previous, parent));
+
+            // If there's text before the binding, clean it and replace it for a text line.
+            const cleaned = textCleanup(previous);
+            const cleanStart = node.startIndex + currentIndex;
+            const cleanEnd = cleanStart + previous.length;
+            if (cleaned && cleaned.trim()) {
+                magicString.overwrite(cleanStart, cleanEnd, setTextLine(cleaned, parent));
+            } else if (previous) {
+                magicString.remove(cleanStart, cleanEnd);
             }
             currentIndex += previous.length;
             const match = result[0];
@@ -229,7 +251,7 @@ export default (html: string, fileName?: string) => {
             const end = start + match.length;
 
             magicString.overwrite(start, end, `${CONTROLLER_VARIABLE}.${result[1]}`, true);
-            magicString.prependLeft(start, textLine);
+            magicString.prependRight(start, textLine);
             magicString.appendLeft(end, FUNCTION_TAIL);
 
             // magicString.overwrite(start, end, textLine);
@@ -240,9 +262,14 @@ export default (html: string, fileName?: string) => {
         const start = node.startIndex + currentIndex;
         if (start < node.endIndex) {
             const previous = text.substring(currentIndex, text.length);
+            const cleaned = textCleanup(previous);
             const end = node.endIndex;
-            const textLine = setTextLine(previous, parent);
-            magicString.overwrite(start, end, textLine);
+            if (cleaned && cleaned.trim()) {
+                const textLine = setTextLine(cleaned, parent);
+                magicString.overwrite(start, end, textLine);
+            } else if (previous) {
+                magicString.remove(start, end);
+            }
         }
     };
 
@@ -263,15 +290,15 @@ export default (html: string, fileName?: string) => {
     });
 
     magicString
-        .prepend(`(${CONTROLLER_VARIABLE}, ${COMPONENT_CONTAINER_VARIABLE}) => {\r\n`)
-        .append(`return ${ROOT_ELEMENT};
-    }\r\n`);
+        .prepend(`(${CONTROLLER_VARIABLE}, ${COMPONENT_CONTAINER_VARIABLE}) => {\n`)
+        .append(`        return ${ROOT_ELEMENT};
+    }\n`);
 
-    const key = Object.keys(imports[0])[0];
+    const key = Object.keys(imports[0] || {})[0];
     var wrap = 
 `"use strict";
 import * as ${TEMPLATE_FACTORY_VARIABLE} from '${BASE_FRAMEWORK_URI}/templates/template.factory';
-${imps.join('\r\n')}
+${imps.join('\n')}
 export default {
     selector: '${selector}',
     controller: ${key},
@@ -284,7 +311,6 @@ export default {
         includeContent: true,
         hires: true
     });
-    debugger;
 
     return { source: wrap, map: map };
 };
