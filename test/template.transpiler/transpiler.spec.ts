@@ -442,6 +442,8 @@ describe('Transpiler', () => {
     //     result.source.should.be.equal(expected);
     // });
 
+    it('should transpile bind attribute');
+
     it('should transpile @for with other context variables');
 
     it('should apply custom variable name to element');
