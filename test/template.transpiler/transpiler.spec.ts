@@ -3,7 +3,7 @@ import * as chai from 'chai';
 
 chai.should();
 
-describe.only('Transpiler', () => {
+describe('Transpiler', () => {
     const componentBase = (...lines: string[]) => [
         `"use strict";`,
         `import * as templateFactory from 'base/templates/template.factory';`,
