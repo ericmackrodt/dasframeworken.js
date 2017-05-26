@@ -7,3 +7,7 @@
 This is just a text <br />
 <span @if="iffable === true" style="background: yellow">This is iffable</span>
 <button trigger:click="showHide()">Show/hide</button>
+<button trigger:click="addItem()">Add Item</button>
+<ul>
+    <li @for="item in list">@{item}</li>
+</ul>

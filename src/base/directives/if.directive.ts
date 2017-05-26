@@ -19,7 +19,7 @@ export class IfDirective implements IDirective {
         private _parent: Element, 
         private _controller: IController, 
         private _evtAggregator: Pubsub,
-        private _context: (context: any) => Element
+        private _context: () => Element
     ) {
     }
 
@@ -28,7 +28,7 @@ export class IfDirective implements IDirective {
             this._placeholder = document.createComment('@if');
         }
         if (result === true) {
-            this._lastElement = this._context({});
+            this._lastElement = this._context();
             replaceElement(this._placeholder, this._lastElement);
         } else {
             if (this._lastElement) {
@@ -55,10 +55,10 @@ export class IfDirective implements IDirective {
             this._evtAggregator.subscribe(field, (key: string) => 
                 this._onFieldChanged(key)));
         
-        this._processEvaluation(result);          
+        this._processEvaluation(result);   
     }
 
     public teardown() {
-
+        //TODO: IMPLEMENT TEARDOWN
     }
 }

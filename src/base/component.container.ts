@@ -1,8 +1,9 @@
+import { IfDirective } from './directives/if.directive';
 import { Pubsub } from './events/pubsub';
 import * as utils from './component.utils';
-import * as directivesRegistry from './directives/registry';
 import Container from './di.container';
 import { IController, IEventListener, IDirective } from './types/interfaces';
+import { ForDirective } from './directives/for.directive';
 
 export class ComponentContainer {
     private _controller: IController;
@@ -43,7 +44,6 @@ export class ComponentContainer {
 
     initialize(element: Element) {
         this._controller = this._container.resolve(this._component.controller);
-        // const builder = templateBuilder(this, element);
         const rendered = this._component.render(this._controller, this);
         element.appendChild(rendered);
 
@@ -82,12 +82,16 @@ export class ComponentContainer {
         return child.initialize(parent);
     }
 
-    instantiateDirective(name: string, value: any, parent: Element, contextFn: (context: any) => Element) {
-        const directive = directivesRegistry.find(name);
-        if (!directive) return false;
-        const instance = directivesRegistry.instantiate(directive, parent, this._controller, this._bindings, value, contextFn);
-        this._directives.push(instance);
+    instantiateIfDirective(condition: string, parent: Element, contextFn: () => Element) {
+        const directive = new IfDirective(parent, this._controller, this._bindings, contextFn);
+        directive.setup(condition);
+        this._directives.push(directive);
         return true;
+    }
+
+    instantiateForDirective(propertyFn: () => any, propertyName: string, parent: Element, contextFn: (item: any) => Element) {
+        const directive = new ForDirective(parent, this._controller, this._bindings, contextFn, propertyFn);
+        directive.setup(propertyName);
     }
 
     teardown() {

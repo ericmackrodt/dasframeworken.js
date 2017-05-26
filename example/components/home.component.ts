@@ -15,9 +15,18 @@ export class HomeComponent {
     @observable()
     public iffable: boolean;
 
+    @observable()
+    public list: string[];
+
     constructor(fakeService: FakeService) {
         fakeService.doSomething();
         this.prop = 'predefined';
+
+        this.list = [
+            'item1',
+            'item2',
+            'item3'
+        ];
     }
 
     inputUpdated(event: Event) {
@@ -36,5 +45,12 @@ export class HomeComponent {
 
     showHide() {
         this.iffable = !this.iffable;
+    }
+
+    addItem() {
+        // Little hack for now:
+        const lst = [...this.list];
+        lst.push('Item!');
+        this.list = lst;
     }
 }

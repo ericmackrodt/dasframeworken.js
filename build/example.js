@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 26);
+/******/ 	return __webpack_require__(__webpack_require__.s = 25);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -171,9 +171,12 @@ exports.boundText = function (container, property, parent, fn) {
         node.textContent = fn();
     });
 };
-exports.setDirective = function (container, controller, directive, value, parent, contextFn) {
-    container.instantiateDirective(directive, value, parent, contextFn);
-    // componentContainer.instantiateDirective(directive, value, parent)
+exports.ifDirective = function (container, controller, value, parent, contextFn) {
+    container.instantiateIfDirective(value, parent, contextFn);
+};
+exports.forDirective = function (container, controller, propertyName, propertyFn, parent, contextFn) {
+    debugger;
+    container.instantiateForDirective(propertyFn, propertyName, parent, contextFn);
 };
 
 /***/ }),
@@ -201,17 +204,15 @@ exports.FakeService = FakeService;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var _template = __webpack_require__(1);var templateFactory = _interopRequireWildcard(_template);
-var _anotherComponent = __webpack_require__(19);function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];}}newObj.default = obj;return newObj;}}exports.default =
+var _anotherComponent = __webpack_require__(18);function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];}}newObj.default = obj;return newObj;}}exports.default =
 
 {
     selector: 'another-comp',
     controller: _anotherComponent.AnotherComponent,
     render: function render(controller, container) {
         var root = templateFactory.createRoot('another-comp', _anotherComponent.AnotherComponent, root);
-
         var h10 = templateFactory.createElement(container, 'h1', root);
         templateFactory.setText('Another comp', h10);
-
         var title_comp0 = templateFactory.createElement(container, 'title-comp', root);
         return root;
     } };
@@ -230,11 +231,9 @@ var _homeComponent = __webpack_require__(8);function _interopRequireWildcard(obj
     controller: _homeComponent.HomeComponent,
     render: function render(controller, container) {
         var root = templateFactory.createRoot('a-component', _homeComponent.HomeComponent, root);
-
         var p0 = templateFactory.createElement(container, 'p', root);
         templateFactory.boundText(container, 'prop', p0, function () {return controller.prop;});
         templateFactory.setText(' is cool ey oh', p0);
-
         var input0 = templateFactory.createElement(container, 'input', root);
         templateFactory.setBinding(container, 'prop', function () {
             if (input0.value !== controller.prop) {
@@ -242,24 +241,31 @@ var _homeComponent = __webpack_require__(8);function _interopRequireWildcard(obj
             }
         });
         templateFactory.setEvent(container, 'input', function ($event) {return controller.inputUpdated($event);}, input0);
-
         var button0 = templateFactory.createElement(container, 'button', root);
         templateFactory.setEvent(container, 'click', function ($event) {return controller.clicked();}, button0);
         templateFactory.setText('click here dude!', button0);
-        templateFactory.setText('This is just a text', root);
+        templateFactory.setText('This is just a text ', root);
         var br0 = templateFactory.createElement(container, 'br', root);
-
-        var span0DirectiveContext = function span0DirectiveContext(context) {
+        var span0IfDirectiveContext = function span0IfDirectiveContext(context) {
             var span0 = templateFactory.createElement(container, 'span', root);
             templateFactory.setAttribute('style', 'background: yellow', span0);
             templateFactory.setText('This is iffable', span0);
             return span0;
         };
-        templateFactory.setDirective(container, controller, '@if', 'iffable === true', root, span0DirectiveContext);
-
+        templateFactory.ifDirective(container, controller, 'iffable === true', root, span0IfDirectiveContext);
         var button1 = templateFactory.createElement(container, 'button', root);
         templateFactory.setEvent(container, 'click', function ($event) {return controller.showHide();}, button1);
         templateFactory.setText('Show/hide', button1);
+        var button2 = templateFactory.createElement(container, 'button', root);
+        templateFactory.setEvent(container, 'click', function ($event) {return controller.addItem();}, button2);
+        templateFactory.setText('Add Item', button2);
+        var ul0 = templateFactory.createElement(container, 'ul', root);
+        var li0ForDirectiveContext = function li0ForDirectiveContext(item) {
+            var li0 = templateFactory.createElement(container, 'li', ul0);
+            templateFactory.boundText(container, 'item', li0, function () {return item;});
+            return li0;
+        };
+        templateFactory.forDirective(container, controller, 'list', function () {return controller.list;}, ul0, li0ForDirectiveContext);
         return root;
     } };
 
@@ -270,17 +276,15 @@ var _homeComponent = __webpack_require__(8);function _interopRequireWildcard(obj
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var _template = __webpack_require__(1);var templateFactory = _interopRequireWildcard(_template);
-var _rootComponent = __webpack_require__(20);function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];}}newObj.default = obj;return newObj;}}exports.default =
+var _rootComponent = __webpack_require__(19);function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];}}newObj.default = obj;return newObj;}}exports.default =
 
 {
     selector: 'root-comp',
     controller: _rootComponent.RootComponent,
     render: function render(controller, container) {
         var root = templateFactory.createRoot('root-comp', _rootComponent.RootComponent, root);
-
-        var h12 = templateFactory.createElement(container, 'h1', root);
-        templateFactory.setText('Application Root', h12);
-
+        var h10 = templateFactory.createElement(container, 'h1', root);
+        templateFactory.setText('Application Root', h10);
         var router_outlet0 = templateFactory.createElement(container, 'router-outlet', root);
         return root;
     } };
@@ -292,23 +296,20 @@ var _rootComponent = __webpack_require__(20);function _interopRequireWildcard(ob
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var _template = __webpack_require__(1);var templateFactory = _interopRequireWildcard(_template);
-var _titleComponent = __webpack_require__(21);function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];}}newObj.default = obj;return newObj;}}exports.default =
+var _titleComponent = __webpack_require__(20);function _interopRequireWildcard(obj) {if (obj && obj.__esModule) {return obj;} else {var newObj = {};if (obj != null) {for (var key in obj) {if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];}}newObj.default = obj;return newObj;}}exports.default =
 
 {
     selector: 'title-comp',
     controller: _titleComponent.TitleComponent,
     render: function render(controller, container) {
         var root = templateFactory.createRoot('title-comp', _titleComponent.TitleComponent, root);
-
-        var h11 = templateFactory.createElement(container, 'h1', root);
-        templateFactory.setText('This is a title component', h11);
-
+        var h10 = templateFactory.createElement(container, 'h1', root);
+        templateFactory.setText('This is a title component', h10);
         var div0 = templateFactory.createElement(container, 'div', root);
         templateFactory.boundText(container, 'potato', div0, function () {return controller.potato;});
-
-        var button2 = templateFactory.createElement(container, 'button', root);
-        templateFactory.setEvent(container, 'click', function ($event) {return controller.clicked();}, button2);
-        templateFactory.setText('POtato button', button2);
+        var button0 = templateFactory.createElement(container, 'button', root);
+        templateFactory.setEvent(container, 'click', function ($event) {return controller.clicked();}, button0);
+        templateFactory.setText('POtato button', button0);
         return root;
     } };
 
@@ -329,11 +330,16 @@ var __metadata = undefined && undefined.__metadata || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var fake_service_1 = __webpack_require__(2);
-var ts_1 = __webpack_require__(18);
+var ts_1 = __webpack_require__(17);
 var HomeComponent = function () {
     function HomeComponent(fakeService) {
         fakeService.doSomething();
         this.prop = 'predefined';
+        this.list = [
+        'item1',
+        'item2',
+        'item3'];
+
     }
     Object.defineProperty(HomeComponent, "metadata", {
         get: function get() {
@@ -360,6 +366,12 @@ var HomeComponent = function () {
     HomeComponent.prototype.showHide = function () {
         this.iffable = !this.iffable;
     };
+    HomeComponent.prototype.addItem = function () {
+        // Little hack for now:
+        var lst = this.list.slice();
+        lst.push('Item!');
+        this.list = lst;
+    };
     return HomeComponent;
 }();
 __decorate([
@@ -370,6 +382,10 @@ __decorate([
 ts_1.observable(),
 __metadata("design:type", Boolean)],
 HomeComponent.prototype, "iffable", void 0);
+__decorate([
+ts_1.observable(),
+__metadata("design:type", Array)],
+HomeComponent.prototype, "list", void 0);
 HomeComponent = __decorate([
 ts_1.inject,
 __metadata("design:paramtypes", [typeof (_a = typeof fake_service_1.FakeService !== "undefined" && fake_service_1.FakeService) === "function" && _a || Object])],
@@ -385,8 +401,7 @@ var _a;
 /* 13 */,
 /* 14 */,
 /* 15 */,
-/* 16 */,
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -416,7 +431,7 @@ function inject(target) {
 exports.inject = inject;
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -425,10 +440,10 @@ function __export(m) {
     for (var p in m) {if (!exports.hasOwnProperty(p)) exports[p] = m[p];}
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(17));
+__export(__webpack_require__(16));
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -446,7 +461,7 @@ AnotherComponent = exports.AnotherComponent = function () {_createClass(AnotherC
     }return AnotherComponent;}();
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -461,7 +476,7 @@ Object.defineProperty(exports, "__esModule", { value: true });var _createClass =
     }return RootComponent;}();
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -491,11 +506,11 @@ Object.defineProperty(exports, "__esModule", { value: true });var _createClass =
         } }]);return TitleComponent;}();
 
 /***/ }),
+/* 21 */,
 /* 22 */,
 /* 23 */,
 /* 24 */,
-/* 25 */,
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

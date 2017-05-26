@@ -17,7 +17,6 @@ describe.only('Transpiler', () => {
         ...lines,
         `        return root;`,
         `    }`,
-        ``,
         `};`
     ].join('\n');
 
@@ -346,17 +345,104 @@ describe.only('Transpiler', () => {
         let result = transpiler(html, 'file.html');
 
         const expected = componentBase(
-            `const span0DirectiveContext = (context) => {`,
+            `const span0IfDirectiveContext = (context) => {`,
             `const span0 = templateFactory.createElement(container, 'span', root);`,
             `return span0;`,
             `};`,
-            `templateFactory.setDirective(container, controller, '@if', 'test === true', root, span0DirectiveContext);`
+            `templateFactory.ifDirective(container, controller, 'test === true', root, span0IfDirectiveContext);`
         );
 
         result.source.should.be.equal(expected);
     });
 
-    it('should transpile @for directive');
-    it('should transpile @if and @for directives together');
+    it('should transpile @for directive', () => { 
+        const html = htmlBase('<span @for="variable in list"></span>');
+
+        let result = transpiler(html, 'file.html');
+
+        const expected = componentBase(
+            `const span0ForDirectiveContext = (variable) => {`,
+            `const span0 = templateFactory.createElement(container, 'span', root);`,
+            `return span0;`,
+            `};`,
+            `templateFactory.forDirective(container, controller, 'list', () => controller.list, root, span0ForDirectiveContext);`
+        );
+
+        result.source.should.be.equal(expected);
+    });
+
+    it('should transpile @for directive with context variable', () => { 
+        const html = htmlBase('<span @for="variable in list">@{variable}</span>');
+
+        let result = transpiler(html, 'file.html');
+
+        const expected = componentBase(
+            `const span0ForDirectiveContext = (variable) => {`,
+            `const span0 = templateFactory.createElement(container, 'span', root);`,
+            `templateFactory.boundText(container, 'variable', span0, () => variable);`,
+            `return span0;`,
+            `};`,
+            `templateFactory.forDirective(container, controller, 'list', () => controller.list, root, span0ForDirectiveContext);`
+        );
+
+        result.source.should.be.equal(expected);
+    });
+
+    it('should transpile @for directive with controller context variable', () => { 
+        const html = htmlBase('<span @for="variable in list">@{other}</span>');
+
+        let result = transpiler(html, 'file.html');
+
+        const expected = componentBase(
+            `const span0ForDirectiveContext = (variable) => {`,
+            `const span0 = templateFactory.createElement(container, 'span', root);`,
+            `templateFactory.boundText(container, 'other', span0, () => controller.other);`,
+            `return span0;`,
+            `};`,
+            `templateFactory.forDirective(container, controller, 'list', () => controller.list, root, span0ForDirectiveContext);`
+        );
+
+        result.source.should.be.equal(expected);
+    });
+
+    it('should transpile @for directive with both controller and context variable', () => { 
+        const html = htmlBase('<span @for="variable in list">@{other} @{variable}</span>');
+
+        let result = transpiler(html, 'file.html');
+
+        const expected = componentBase(
+            `const span0ForDirectiveContext = (variable) => {`,
+            `const span0 = templateFactory.createElement(container, 'span', root);`,
+            `templateFactory.boundText(container, 'other', span0, () => controller.other);`,
+            `templateFactory.boundText(container, 'variable', span0, () => variable);`,
+            `return span0;`,
+            `};`,
+            `templateFactory.forDirective(container, controller, 'list', () => controller.list, root, span0ForDirectiveContext);`
+        );
+
+        result.source.should.be.equal(expected);
+    });
+
+    it('should transpile @if and @for directives together');//, () => { 
+    //     const html = htmlBase('<span @for="variable in list" @if="property === true"></span>');
+
+    //     let result = transpiler(html, 'file.html');
+
+    //     const expected = componentBase(
+    //         `const span0ForDirectiveContext = (context, variable) => {`,
+    //         `const span0IfDirectiveContext = (context) => {`,
+    //         `const span0 = templateFactory.createElement(container, 'span', root);`,
+    //         `return span0;`,
+    //         `};`,
+    //         `return templateFactory.setDirective(container, controller, '@if', 'test === true', root, span0DirectiveContext);`,
+    //         `};`,
+    //         `templateFactory.setDirective(container, controller, '@for', 'variable', root, span0ForDirectiveContext);`
+    //     );
+
+    //     result.source.should.be.equal(expected);
+    // });
+
+    it('should transpile @for with other context variables');
+
     it('should apply custom variable name to element');
 });

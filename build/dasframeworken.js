@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 27);
+/******/ 	return __webpack_require__(__webpack_require__.s = 26);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -142,7 +142,7 @@ exports.isFunction = function (fn) {return typeof fn === 'function';};
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var module_1 = __webpack_require__(15);
+var module_1 = __webpack_require__(14);
 var di_container_1 = __webpack_require__(11);
 var modules = {};
 var container = new di_container_1.default();
@@ -167,9 +167,10 @@ exports.module = function (name, options) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var pubsub_1 = __webpack_require__(22);
+var if_directive_1 = __webpack_require__(13);
+var pubsub_1 = __webpack_require__(21);
 var utils = __webpack_require__(10);
-var directivesRegistry = __webpack_require__(13);
+var for_directive_1 = __webpack_require__(12);
 var ComponentContainer = function () {
     function ComponentContainer(_container, _module, _component) {
         this._container = _container;
@@ -203,7 +204,6 @@ var ComponentContainer = function () {
     ComponentContainer.prototype.initialize = function (element) {
         var _this = this;
         this._controller = this._container.resolve(this._component.controller);
-        // const builder = templateBuilder(this, element);
         var rendered = this._component.render(this._controller, this);
         element.appendChild(rendered);
         if (typeof this._controller.onPropertyChanged !== 'function') {
@@ -238,13 +238,15 @@ var ComponentContainer = function () {
         this._children.push(child);
         return child.initialize(parent);
     };
-    ComponentContainer.prototype.instantiateDirective = function (name, value, parent, contextFn) {
-        var directive = directivesRegistry.find(name);
-        if (!directive)
-        return false;
-        var instance = directivesRegistry.instantiate(directive, parent, this._controller, this._bindings, value, contextFn);
-        this._directives.push(instance);
+    ComponentContainer.prototype.instantiateIfDirective = function (condition, parent, contextFn) {
+        var directive = new if_directive_1.IfDirective(parent, this._controller, this._bindings, contextFn);
+        directive.setup(condition);
+        this._directives.push(directive);
         return true;
+    };
+    ComponentContainer.prototype.instantiateForDirective = function (propertyFn, propertyName, parent, contextFn) {
+        var directive = new for_directive_1.ForDirective(parent, this._controller, this._bindings, contextFn, propertyFn);
+        directive.setup(propertyName);
     };
     ComponentContainer.prototype.teardown = function () {
         while (this._children.length) {
@@ -359,7 +361,57 @@ exports.default = default_1;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var goatjs_1 = __webpack_require__(24);
+var ForDirective = function () {
+    function ForDirective(_parent, _controller, _evtAggregator, _context, _collectionFn) {
+        this._parent = _parent;
+        this._controller = _controller;
+        this._evtAggregator = _evtAggregator;
+        this._context = _context;
+        this._collectionFn = _collectionFn;
+    }
+    Object.defineProperty(ForDirective, "metadata", {
+        get: function get() {
+            return {
+                selector: 'repeat' };
+
+        },
+        enumerable: true,
+        configurable: true });
+
+    ForDirective.prototype._updateList = function () {
+        var _this = this;
+        this._parent.innerHTML = '';
+        this._collectionFn().forEach(function (item) {
+            var child = _this._context(item);
+            // this._parent.appendChild(child);   
+        });
+    };
+    ForDirective.prototype._onFieldChanged = function () {
+        this._updateList();
+    };
+    ForDirective.prototype.setup = function (field) {
+        var _this = this;
+        debugger;
+        this._evtAggregator.subscribe(field, function (key) {
+            return _this._onFieldChanged();
+        });
+        this._updateList();
+    };
+    ForDirective.prototype.teardown = function () {
+        //TODO: IMPLEMENT TEARDOWN
+    };
+    return ForDirective;
+}();
+exports.ForDirective = ForDirective;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var goatjs_1 = __webpack_require__(23);
 var replaceElement = function replaceElement(oldEl, newEl) {return oldEl.parentNode.replaceChild(newEl, oldEl);};
 var IfDirective = function () {
     function IfDirective(_parent, _controller, _evtAggregator, _context) {
@@ -373,7 +425,7 @@ var IfDirective = function () {
             this._placeholder = document.createComment('@if');
         }
         if (result === true) {
-            this._lastElement = this._context({});
+            this._lastElement = this._context();
             replaceElement(this._placeholder, this._lastElement);
         } else
         {
@@ -403,6 +455,7 @@ var IfDirective = function () {
         this._processEvaluation(result);
     };
     IfDirective.prototype.teardown = function () {
+        //TODO: IMPLEMENT TEARDOWN
     };
     return IfDirective;
 }();
@@ -412,57 +465,7 @@ IfDirective.metadata = {
 exports.IfDirective = IfDirective;
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var if_directive_1 = __webpack_require__(12);
-var repeat_directive_1 = __webpack_require__(14);
-var utils = __webpack_require__(0);
-var registry = [
-if_directive_1.IfDirective,
-repeat_directive_1.RepeatDirective];
-
-var PREFIX = '@';
-var getName = function getName(name) {return PREFIX + name;};
-exports.find = function (name) {return registry.find(function (d) {return getName(d.metadata.selector) === name;});};
-exports.instantiate = function (directive, parent, controller, pubsub, value, context) {
-    var instance = utils.instantiateType.apply(utils, [directive].concat([parent, controller, pubsub, context]));
-    instance.setup(value);
-    return instance;
-};
-
-/***/ }),
 /* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var RepeatDirective = function () {
-    function RepeatDirective(element, controller) {
-    }
-    Object.defineProperty(RepeatDirective, "metadata", {
-        get: function get() {
-            return {
-                selector: 'repeat' };
-
-        },
-        enumerable: true,
-        configurable: true });
-
-    RepeatDirective.prototype.setup = function (value) {
-    };
-    RepeatDirective.prototype.teardown = function () {
-    };
-    return RepeatDirective;
-}();
-exports.RepeatDirective = RepeatDirective;
-
-/***/ }),
-/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -470,7 +473,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 Object.defineProperty(exports, "__esModule", { value: true });
 // import { componentFactory } from './component.factory';
 var component_container_1 = __webpack_require__(9);
-var router_1 = __webpack_require__(16);
+var router_1 = __webpack_require__(15);
 var utils = __webpack_require__(0);
 var registerTypes = function registerTypes(container, types) {return types.forEach(function (type) {return container.registerType(type);});};
 var Module = function () {
@@ -549,7 +552,7 @@ var Module = function () {
 exports.Module = Module;
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -603,16 +606,16 @@ var Router = function () {
 exports.Router = Router;
 
 /***/ }),
+/* 16 */,
 /* 17 */,
 /* 18 */,
 /* 19 */,
 /* 20 */,
-/* 21 */,
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.Pubsub = undefined;var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();var _subscriber = __webpack_require__(23);function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}var
+Object.defineProperty(exports, "__esModule", { value: true });exports.Pubsub = undefined;var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}}return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();var _subscriber = __webpack_require__(22);function _classCallCheck(instance, Constructor) {if (!(instance instanceof Constructor)) {throw new TypeError("Cannot call a class as a function");}}var
 
 Pubsub = exports.Pubsub = function () {
     function Pubsub() {_classCallCheck(this, Pubsub);
@@ -654,7 +657,7 @@ Pubsub = exports.Pubsub = function () {
         } }]);return Pubsub;}();
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -688,7 +691,7 @@ Object.defineProperty(exports, "__esModule", { value: true });var _createClass =
         } }]);return Subscriber;}();
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1048,10 +1051,10 @@ Object.defineProperty(exports, "__esModule", { value: true });var _createClass =
 
 });
 //# sourceMappingURL=goat.js.map
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(25)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(24)(module)))
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -1079,8 +1082,8 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 26 */,
-/* 27 */
+/* 25 */,
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
