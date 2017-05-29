@@ -1,46 +1,11 @@
-var MagicString = require('magic-string');
+import { ROOT_ELEMENT, FOR_DIRECTIVE_EXPRESSION_REGEX, CONTROLLER_VARIABLE, TEMPLATE_FACTORY_VARIABLE, BASE_FRAMEWORK_URI, COMPONENT_CONTAINER_VARIABLE } from './constants';
+import MagicString = require('magic-string');
 var path = require('path');
 
 import htmlObjectBuilder from './html.object.builder';
-import { IHtmlElement, ElementTypeEnum, IHtmlAttribute, IBaseHtml } from '../_types';
-
-const BASE_FRAMEWORK_URI = 'base';
-const TEMPLATE_FACTORY_VARIABLE = 'templateFactory';
-const CONTROLLER_VARIABLE = 'controller';
-const COMPONENT_CONTAINER_VARIABLE = 'container';
-const ROOT_ELEMENT = 'root';
-const VAR_TYPE = 'const';
-
-const FOR_DIRECTIVE_EXPRESSION_REGEX = /^\s*([\w-]+)\s+in\s+([\w-]+)\s*$/;
-
-type DirectiveFunction = (directive: IHtmlAttribute, node: IHtmlElement, nodeVarName: string, parentVarName: string, contextVariables?: string[]) => void;
-
-const parentParameter = (parent: string) => parent ? ', ' + parent : '';
-const createRootLine = (selector: string, key: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.createRoot('${selector}', ${key}${parentParameter(parent)});\n`;
-const createElementLine = (nodeName: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.createElement(${COMPONENT_CONTAINER_VARIABLE}, '${nodeName}'${parentParameter(parent)});\n`;
-const createAttributeLine = (key: string, value: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setAttribute('${key}', '${value}', ${parentVarName});\n`;
-const createEventLine = (event: string, fn: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setEvent(${COMPONENT_CONTAINER_VARIABLE}, '${event}', ($event) => ${CONTROLLER_VARIABLE}.${fn}, ${parentVarName});\n`;
-
-const createBindingLine = (elementProperty: string, property: string, element: string) => `${TEMPLATE_FACTORY_VARIABLE}.setBinding(${COMPONENT_CONTAINER_VARIABLE}, '${property}', () => {
-    if (${element}.${elementProperty} !== ${CONTROLLER_VARIABLE}.${property}) {
-        ${element}.${elementProperty} = ${CONTROLLER_VARIABLE}.${property};
-    }
-});\n`;
-
-const createIfDirectiveLine = (condition: string, parentVarName: string, nodeVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.ifDirective(${COMPONENT_CONTAINER_VARIABLE}, ${CONTROLLER_VARIABLE}, '${condition}', ${parentVarName}, ${nodeVarName}IfDirectiveContext);\n`;
-const createForDirectiveline = (listProperty: string, parentVarName: string, nodeVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.forDirective(${COMPONENT_CONTAINER_VARIABLE}, ${CONTROLLER_VARIABLE}, '${listProperty}', () => ${CONTROLLER_VARIABLE}.${listProperty}, ${parentVarName}, ${nodeVarName}ForDirectiveContext);\n`;
-const setTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setText('${property}', ${parentVarName});\n`;
-const boundTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.boundText(${COMPONENT_CONTAINER_VARIABLE}, '${property}', ${parentVarName}, () => `;
-const importLine = (key: string, imported: IKeyValue<string>) => `import { ${key} } from '${imported[key]}';\n`;
-const FUNCTION_TAIL = ');\n';
-
-interface ICounts {
-    [key: string]: { count: number };
-}
-
-interface IKeyValue<T> {
-    [key: string]: T
-}
+import { IHtmlElement, ElementTypeEnum, IHtmlAttribute, IBaseHtml, DirectiveFunction } from '../_types';
+import { IKeyValue, ICounts } from '_types';
+import { createRootLine, createBindingLine, createEventLine, createAttributeLine, ifDirectiveLine, forDirectiveline, createElementLine, setTextLine, boundTextLine, FUNCTION_TAIL, importLine, importAsLine } from './code.funcs';
 
 let usageCounts: ICounts = {
     'div': { count: 0 }
@@ -140,7 +105,7 @@ export default (html: string, fileName?: string) => {
     };
 
     const processIfDirective = (directive: IHtmlAttribute, node: IHtmlElement, nodeVarName: string, parentVarName: string) => {
-        const directiveLine = createIfDirectiveLine(directive.value, parentVarName, nodeVarName);
+        const directiveLine = ifDirectiveLine(directive.value, parentVarName, nodeVarName);
         magicString.overwrite(directive.startIndex, directive.endIndex, directiveLine);
         magicString.move(directive.startIndex, directive.endIndex, node.closingTag.endIndex);
 
@@ -153,7 +118,7 @@ export default (html: string, fileName?: string) => {
         const itemVariable = expressionMatch[1];
         contextVariables.push(itemVariable);
         const listVariable = expressionMatch[2];
-        const directiveLine = createForDirectiveline(listVariable, parentVarName, nodeVarName);
+        const directiveLine = forDirectiveline(listVariable, parentVarName, nodeVarName);
         magicString.overwrite(directive.startIndex, directive.endIndex, directiveLine);
         magicString.move(directive.startIndex, directive.endIndex, node.closingTag.endIndex);
         
@@ -302,16 +267,14 @@ export default (html: string, fileName?: string) => {
 
     const imps = imports.map((imported) => {
         const key = Object.keys(imported)[0];
-        return importLine(key, imported);
+        return importLine(key, imported[key]);
     });
-
-    
 
     const key = Object.keys(imports[0] || {})[0];
     const prepend = 
 `"use strict";
-import * as ${TEMPLATE_FACTORY_VARIABLE} from '${BASE_FRAMEWORK_URI}/templates/template.factory';
-${imps.join('\n')}
+${importAsLine(TEMPLATE_FACTORY_VARIABLE, BASE_FRAMEWORK_URI + '/templates/template.factory')}
+${imps.join('\n')}\n
 export default {
     selector: '${selector}',
     controller: ${key},
