@@ -7,7 +7,12 @@ export default {
     controller: TestComponent,
     render: (controller, container) => {
 const root = templateFactory.createRoot('test', TestComponent, root);
-templateFactory.boundText(container, 'bound', root, () => controller.bound);
+const input0 = templateFactory.createElement(container, 'input', root);
+templateFactory.setBinding(container, 'something', () => {
+    if (input0.value !== controller.something) {
+        input0.value = controller.something;
+    }
+});
         return root;
     }
 };

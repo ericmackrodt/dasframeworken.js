@@ -442,7 +442,22 @@ describe('Transpiler', () => {
     //     result.source.should.be.equal(expected);
     // });
 
-    it('should transpile bind attribute');
+    it('should transpile bind attribute', () => {
+        const html = htmlBase('<input bind:value="field"></input>');
+
+        let result = transpiler(html, 'file.html');
+
+        const expected = componentBase(
+            `const input0 = templateFactory.createElement(container, 'input', root);`,
+            `templateFactory.setBinding(container, 'field', () => {`,
+            `    if (input0.value !== controller.field) {`,
+            `        input0.value = controller.field;`,
+            `    }`,
+            `});`
+        );
+
+        result.source.should.be.equal(expected);
+    });
 
     it('should transpile @for with other context variables');
 
