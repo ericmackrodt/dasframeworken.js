@@ -1,0 +1,16 @@
+{
+  "name": "@dasframeworken/template.loader",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eric Mackrodt",
+  "license": "ISC",
+  "devDependencies": {
+    "magic-string": "^0.21.2",
+    "ts-node": "^3.0.4",
+    "typescript": "^2.3.3"
+  }
+}

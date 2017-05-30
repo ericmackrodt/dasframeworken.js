@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "lib": [
+            "es6",
+            "es5",
+            "es2015",
+            "dom",
+            "dom.iterable"
+        ],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "outDir": "./",
+        "sourceMap": true,
+        "baseUrl": "./src",
+        "alwaysStrict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": false,
+        "declaration": true,
+        "noEmit": false
+    },
+    "include": [
+        "_types/**/*.ts",
+        "src/dasframeworken.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
+    "awesomeTypescriptLoaderOptions": {
+        "useBabel": true,
+        "useCache": true,
+        "useTranspileModule": true
+    }
+}

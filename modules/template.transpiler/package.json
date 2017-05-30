@@ -1,0 +1,17 @@
+{
+  "name": "@dasframeworken/template.transpiler",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eric Mackrodt",
+  "license": "ISC",
+  "devDependencies": {
+    "magic-string": "^0.21.2"
+  }
+}
