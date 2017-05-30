@@ -9,12 +9,13 @@ import { IKeyValue, ICounts } from '_types';
 import { createRootLine, createBindingLine, createEventLine, createAttributeLine, ifDirectiveLine, createElementLine, setTextLine, boundTextLine, FUNCTION_TAIL, directiveContextLine, forDirectiveLine, BASE_CODE_END, baseCodeStart, importLine } from './code.funcs';
 import attributeBuilder from './attribute.builder';
 import * as utils from './utils';
+import { isInternalDirective, internalDirectives } from './internal.directives';
 
 export default (html: string, fileName?: string) => {
-
-    const usageCounts: ICounts = {
-        'div': { count: 0 }
-    };
+    const usageCounts: ICounts = {};
+    const codeBuilder = new CodeTransform(html, fileName);
+    const imports: IKeyValue<string>[] = [];
+    let selector = '';
 
     const buildVarName = (node: IHtmlElement) => {
         let el = usageCounts[node.name];
@@ -25,10 +26,6 @@ export default (html: string, fileName?: string) => {
         el.count++;
         return result;
     };
-
-    const codeBuilder = new CodeTransform(html, fileName);
-    const imports: IKeyValue<string>[] = [];
-    let selector = '';
 
     const processChildren = (children: any[], parentVarName: string, contextVariables?: string[]) => 
         children && children.forEach((child) => processNode(child, parentVarName, contextVariables));
@@ -65,36 +62,16 @@ export default (html: string, fileName?: string) => {
         codeBuilder.writeLine(attribute, attr);
     };
 
-    const processIfDirective = (directive: IHtmlAttribute, node: IHtmlElement, nodeVarName: string, parentVarName: string) => {
-        const contextVarName = `${nodeVarName}IfDirectiveContext`;
-        const directiveLine = ifDirectiveLine(directive.value, parentVarName, nodeVarName, contextVarName);
-
-        codeBuilder.writeDirectiveLine(directive, node, directiveLine,
-            directiveContextLine(contextVarName), `return ${nodeVarName};\n};\n`);
-    }
-
-    const processForDirective = (directive: IHtmlAttribute, node: IHtmlElement, nodeVarName: string, parentVarName: string, contextVariables?: string[]) => {
-        const expressionMatch = directive.value.match(FOR_DIRECTIVE_EXPRESSION_REGEX);
-        const itemVariable = expressionMatch[1];
-        contextVariables.push(itemVariable);
-        const listVariable = expressionMatch[2];
-        const contextVarName = `${nodeVarName}ForDirectiveContext`;       
-        const directiveLine = forDirectiveLine(listVariable, parentVarName, nodeVarName, contextVarName);
-        
-        codeBuilder.writeDirectiveLine(directive, node, directiveLine,
-            directiveContextLine(contextVarName, itemVariable), `return ${nodeVarName};\n};\n`);
-    }
-
-    const internalDirectives = (name: string): DirectiveFunction => (<IKeyValue<DirectiveFunction>>{
-        '@if': processIfDirective,
-        '@for': processForDirective
-    })[name];
+    const processInternalDirective = (key: string, attribute: IHtmlAttribute, node: IHtmlElement, nodeVarName: string, parent: string, contextVariables?: string[]) => {
+        const directive = internalDirectives(key)(node.attributes[key], nodeVarName, parent || ROOT_ELEMENT, contextVariables);
+        codeBuilder.writeDirectiveLine(attribute, node, directive);
+    };
 
     const processTag = (node: IHtmlElement, parent: string, contextVariables?: string[]) => {
         const attributeKeys = Object.keys(node.attributes);
 
-        const directives = attributeKeys.filter((key) => typeof internalDirectives(key) === 'function');
-        const normalAttributes = attributeKeys.filter((key) => !internalDirectives(key));
+        const directives = attributeKeys.filter((key) => isInternalDirective(key));
+        const normalAttributes = attributeKeys.filter((key) => !isInternalDirective(key));
 
         const parentVarName = buildVarName(node);
 
@@ -110,7 +87,7 @@ export default (html: string, fileName?: string) => {
 
         const elementLine = ' = ' + createElementLine(node.name, parent);
 
-        directives.forEach((key) => internalDirectives(key)(node.attributes[key], node, parentVarName, parent || ROOT_ELEMENT, contextVariables));
+        directives.forEach((key) => processInternalDirective(key, node.attributes[key], node, parentVarName, parent || ROOT_ELEMENT, contextVariables));
 
         if (normalAttributes && normalAttributes.length) {
             normalAttributes.forEach((key) => processAttribute(parentVarName, key, node.attributes[key]));
@@ -137,67 +114,67 @@ export default (html: string, fileName?: string) => {
         }
     };
 
-    const processText = (node: IHtmlElement, parent: string, contextVariables?: string[]) => {
-        const text = node.value;//.replace('\r', '').replace('\n', '').trim();
+    const processPlainText = (node: IHtmlElement, currentIndex: number, textEndIndex: number, parent: string) => {
+        const previous = node.value.substring(currentIndex, textEndIndex);
 
+        const cleaned = utils.textCleanup(previous);
+        const start = currentIndex + node.startIndex;
+        const textRange: IBaseHtml = {
+            startIndex: start,
+            endIndex: start + previous.length
+        };
+
+        if (cleaned && cleaned.trim()) {
+            codeBuilder.writeLine(textRange, setTextLine(cleaned, parent));
+        } else if (previous) {
+            codeBuilder.removeHtml(textRange);
+        }
+
+        return previous;
+    }
+
+    const processText = (node: IHtmlElement, parent: string, contextVariables?: string[]) => {
+        const text = node.value;
         if (!text) return;
 
-        const regex = /@{\s*([^\s}}]+)\s*}/g;
+        const boundTextRegex = /@{\s*([^\s}}]+)\s*}/g;
         let result;
         let currentIndex = 0;
 
         parent = parent || ROOT_ELEMENT;
 
-        while ((result = regex.exec(text))) {
-            const previous = text.substring(currentIndex, result.index);
-
+        while ((result = boundTextRegex.exec(text))) {
             // If there's text before the binding, clean it and replace it for a text line.
-            const cleaned = utils.textCleanup(previous);
-            const cleanRange: IBaseHtml = {
-                startIndex: node.startIndex + currentIndex,
-                endIndex: node.startIndex + currentIndex + previous.length
-            };
-            if (cleaned && cleaned.trim()) {
-                codeBuilder.writeLine(cleanRange, setTextLine(cleaned, parent));
-            } else if (previous) {
-                codeBuilder.removeHtml(cleanRange);
-            }
+            const previous = processPlainText(node, currentIndex, result.index, parent);
             currentIndex += previous.length;
+            
             const match = result[0];
             const textLine = boundTextLine(result[1], parent);
 
             const variable = utils.getVariableContext(result[1], contextVariables);
 
-            const textElement: IBaseHtml = {
+            const textRange: IBaseHtml = {
                 startIndex: node.startIndex + result.index,
                 endIndex: node.startIndex + result.index + match.length
             };
 
-            codeBuilder.writeLine(textElement, variable, textLine, FUNCTION_TAIL);
+            codeBuilder.writeLine(textRange, variable, textLine, FUNCTION_TAIL);
 
             currentIndex += match.length;
         }
 
-        const start = node.startIndex + currentIndex;
-        if (start < node.endIndex) {
-            const previous = text.substring(currentIndex, text.length);
-            const cleaned = utils.textCleanup(previous);
-            const end = node.endIndex;
-            if (cleaned && cleaned.trim()) {
-                const textLine = setTextLine(cleaned, parent);
-                codeBuilder.writeLine({ startIndex: start, endIndex: end }, textLine);
-            } else if (previous) {
-                codeBuilder.removeHtml({ startIndex: start, endIndex: end });
-            }
+        if (currentIndex < node.endIndex) {
+            processPlainText(node, currentIndex, text.length, parent);
         }
     };
 
     const nodeType = (type: ElementTypeEnum) => (<IKeyValue<Function>>{
-        [ElementTypeEnum.Element]: processElement, 
-        [ElementTypeEnum.Text]: processText
-    }) [type];
+            [ElementTypeEnum.Element]: processElement, 
+            [ElementTypeEnum.Text]: processText
+        }) [type];
 
-    const processNode = (node: IHtmlElement, parent?: string, contextVariables?: string[]) => nodeType(node.type)(node, parent, contextVariables);
+    const processNode = (node: IHtmlElement, parent?: string, contextVariables?: string[]) => 
+                            nodeType(node.type)(node, parent, contextVariables);
 
     const document = htmlObjectBuilder(html);
 

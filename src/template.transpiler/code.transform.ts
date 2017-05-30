@@ -1,4 +1,4 @@
-import { IKeyValue, IHtmlElement, IHtmlAttribute, IBaseHtml } from '_types';
+import { IKeyValue, IHtmlElement, IHtmlAttribute, IBaseHtml, IDirectiveCode } from '_types';
 import MagicString = require('magic-string');
 
 export class CodeTransform {
@@ -33,12 +33,12 @@ export class CodeTransform {
         });
     }
 
-    public writeDirectiveLine(directive: IHtmlAttribute, node: IHtmlElement, content: string, prepend?: string, append?: string) {
-        this._magicString.overwrite(directive.startIndex, directive.endIndex, content);
+    public writeDirectiveLine(directive: IHtmlAttribute, node: IHtmlElement, content: IDirectiveCode) {
+        this._magicString.overwrite(directive.startIndex, directive.endIndex, content.content);
         this._magicString.move(directive.startIndex, directive.endIndex, node.closingTag.endIndex);
 
-        this._magicString.prependLeft(node.startIndex, prepend);
-        this._magicString.appendLeft(node.closingTag.endIndex, append);
+        this._magicString.prependLeft(node.startIndex, content.contextStart);
+        this._magicString.appendLeft(node.closingTag.endIndex, content.contextEnd);
     }
 
     public prepend(value: string) {
