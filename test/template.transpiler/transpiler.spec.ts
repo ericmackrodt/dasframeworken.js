@@ -345,7 +345,7 @@ describe('Transpiler', () => {
         let result = transpiler(html, 'file.html');
 
         const expected = componentBase(
-            `const span0IfDirectiveContext = (context) => {`,
+            `const span0IfDirectiveContext = () => {`,
             `const span0 = templateFactory.createElement(container, 'span', root);`,
             `return span0;`,
             `};`,
