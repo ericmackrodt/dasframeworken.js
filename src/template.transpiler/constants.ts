@@ -1,4 +1,6 @@
 export const FOR_DIRECTIVE_EXPRESSION_REGEX = /^\s*([\w-]+)\s+in\s+([\w-]+)\s*$/;
+export const SPACING_REGEX = /(\s\s+)/;
+export const LINE_BREAK_REGEX = /([\n\r]+)|(\\[rn])/;
 export const BASE_FRAMEWORK_URI = 'base';
 export const TEMPLATE_FACTORY_VARIABLE = 'templateFactory';
 export const CONTROLLER_VARIABLE = 'controller';

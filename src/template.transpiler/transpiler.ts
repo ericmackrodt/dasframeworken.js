@@ -7,33 +7,31 @@ import htmlObjectBuilder from './html.object.builder';
 import { IHtmlElement, ElementTypeEnum, IHtmlAttribute, IBaseHtml, DirectiveFunction } from '../_types';
 import { IKeyValue, ICounts } from '_types';
 import { createRootLine, createBindingLine, createEventLine, createAttributeLine, ifDirectiveLine, createElementLine, setTextLine, boundTextLine, FUNCTION_TAIL, directiveContextLine, forDirectiveLine, BASE_CODE_END, baseCodeStart, importLine } from './code.funcs';
-
-let usageCounts: ICounts = {
-    'div': { count: 0 }
-};
-
-const buildVarName = (node: IHtmlElement) => {
-    let el = usageCounts[node.name];
-    if (!el) {
-        el = usageCounts[node.name] = { count: 0 };
-    }
-    const result = node.name.replace('-', '_') +  el.count;
-    el.count++;
-    return result;
-};
+import attributeBuilder from './attribute.builder';
+import * as utils from './utils';
 
 export default (html: string, fileName?: string) => {
-    if (this.cacheable) this.cacheable();
 
-    usageCounts = {
+    const usageCounts: ICounts = {
         'div': { count: 0 }
+    };
+
+    const buildVarName = (node: IHtmlElement) => {
+        let el = usageCounts[node.name];
+        if (!el) {
+            el = usageCounts[node.name] = { count: 0 };
+        }
+        const result = node.name.replace('-', '_') +  el.count;
+        el.count++;
+        return result;
     };
 
     const codeBuilder = new CodeTransform(html, fileName);
     const imports: IKeyValue<string>[] = [];
     let selector = '';
 
-    const processChildren = (children: any[], parentVarName: string, contextVariables?: string[]) => children && children.forEach((child) => processNode(child, parentVarName, contextVariables));
+    const processChildren = (children: any[], parentVarName: string, contextVariables?: string[]) => 
+        children && children.forEach((child) => processNode(child, parentVarName, contextVariables));
 
     const processRoot = (node: IHtmlElement, parent: string) => {
         const parentName = parent ? ', ' + parent : '';
@@ -41,7 +39,7 @@ export default (html: string, fileName?: string) => {
         while (json.indexOf('\'') > -1) {
             json = json.replace('\'', '"');
         }
-        debugger;
+
         const controller = JSON.parse(json);
         imports.push(controller);
         const key = Object.keys(controller)[0];
@@ -62,32 +60,8 @@ export default (html: string, fileName?: string) => {
         processChildren(node.children, ROOT_ELEMENT);
     };
 
-    const frameworkAttributes = (name: string): Function => (<IKeyValue<Function>>{
-        'bind': createBindingLine,
-        'trigger': createEventLine
-    })[name];
-
-    const partialAttribute = (name: string, value: string, parentVarName: string) => {
-        const definition = name.split(':');
-        const attribute = frameworkAttributes(definition[0]);
-        if (attribute) {
-            return attribute(definition[1], value, parentVarName);
-        }
-    };
-
-    const reservedAttribute = (name: string, value: string, parentVarName: string) => {
-        const attribute = frameworkAttributes(name);
-        if (attribute) {
-            return attribute(value, parentVarName);
-        }
-    };
-
     const processAttribute = (parentVarName: string, key: string, attribute: IHtmlAttribute) => {
-        const attr = 
-            reservedAttribute(key, attribute.value, parentVarName) ||
-            partialAttribute(key, attribute.value, parentVarName) ||
-            createAttributeLine(key, attribute.value, parentVarName);
-        
+        const attr = attributeBuilder(parentVarName, key, attribute.value);
         codeBuilder.writeLine(attribute, attr);
     };
 
@@ -129,7 +103,6 @@ export default (html: string, fileName?: string) => {
         if (node.closingTag) {
             codeBuilder.removeHtml(node.closingTag);
         }
-        debugger;
 
         if (node.tail) {
             codeBuilder.removeCharacter(node.tail)
@@ -164,30 +137,11 @@ export default (html: string, fileName?: string) => {
         }
     };
 
-    const textCleanup = (text: string) => {
-        const spacingRegex = /(\s\s+)/;
-        const lineBreaksRegex = /([\n\r]+)|(\\[rn])/;
-        let result = text;
-        while (spacingRegex.test(result)) {
-            result = result.replace(spacingRegex, ' ');
-        }
-        while (lineBreaksRegex.test(result)) {
-            result = result.replace(lineBreaksRegex, '');
-        }
-        return result;
-    };
-
-    const processVariableContext = (variable: string, contextVariables: string[]) => {
-        const arr = variable.split('.');
-        return (contextVariables || []).indexOf(arr[0]) >= 0 ? variable : `${CONTROLLER_VARIABLE}.${variable}`;
-    }
-
     const processText = (node: IHtmlElement, parent: string, contextVariables?: string[]) => {
-        debugger;
         const text = node.value;//.replace('\r', '').replace('\n', '').trim();
 
         if (!text) return;
-        debugger;
+
         const regex = /@{\s*([^\s}}]+)\s*}/g;
         let result;
         let currentIndex = 0;
@@ -198,7 +152,7 @@ export default (html: string, fileName?: string) => {
             const previous = text.substring(currentIndex, result.index);
 
             // If there's text before the binding, clean it and replace it for a text line.
-            const cleaned = textCleanup(previous);
+            const cleaned = utils.textCleanup(previous);
             const cleanRange: IBaseHtml = {
                 startIndex: node.startIndex + currentIndex,
                 endIndex: node.startIndex + currentIndex + previous.length
@@ -212,7 +166,7 @@ export default (html: string, fileName?: string) => {
             const match = result[0];
             const textLine = boundTextLine(result[1], parent);
 
-            const variable = processVariableContext(result[1], contextVariables);
+            const variable = utils.getVariableContext(result[1], contextVariables);
 
             const textElement: IBaseHtml = {
                 startIndex: node.startIndex + result.index,
@@ -227,7 +181,7 @@ export default (html: string, fileName?: string) => {
         const start = node.startIndex + currentIndex;
         if (start < node.endIndex) {
             const previous = text.substring(currentIndex, text.length);
-            const cleaned = textCleanup(previous);
+            const cleaned = utils.textCleanup(previous);
             const end = node.endIndex;
             if (cleaned && cleaned.trim()) {
                 const textLine = setTextLine(cleaned, parent);
