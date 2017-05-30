@@ -73,7 +73,8 @@ export default (html: string, fileName?: string) => {
         const directives = attributeKeys.filter((key) => isInternalDirective(key));
         const normalAttributes = attributeKeys.filter((key) => !isInternalDirective(key));
 
-        const parentVarName = buildVarName(node);
+        const nodeVarName = buildVarName(node);
+        parent = parent || ROOT_ELEMENT;
 
         contextVariables = contextVariables || [];
 
@@ -87,15 +88,15 @@ export default (html: string, fileName?: string) => {
 
         const elementLine = ' = ' + createElementLine(node.name, parent);
 
-        directives.forEach((key) => processInternalDirective(key, node.attributes[key], node, parentVarName, parent || ROOT_ELEMENT, contextVariables));
+        directives.forEach((key) => processInternalDirective(key, node.attributes[key], node, nodeVarName, parent, contextVariables));
 
         if (normalAttributes && normalAttributes.length) {
-            normalAttributes.forEach((key) => processAttribute(parentVarName, key, node.attributes[key]));
+            normalAttributes.forEach((key) => processAttribute(nodeVarName, key, node.attributes[key]));
         }
 
-        processChildren(node.children, parentVarName, contextVariables);        
+        processChildren(node.children, nodeVarName, contextVariables);        
 
-        codeBuilder.writeLine(node, parentVarName, 'const ', elementLine);
+        codeBuilder.writeLine(node, nodeVarName, 'const ', elementLine);
     };
 
     const reservedTags = (name: string) => (<IKeyValue<Function>>{
