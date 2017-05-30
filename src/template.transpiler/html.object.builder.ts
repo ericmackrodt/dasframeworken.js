@@ -1,4 +1,4 @@
-import { IKeyValue, IHtmlElement, ElementTypeEnum } from '../_types';
+import { IHtmlElement, ElementTypeEnum } from '../_types';
 import HtmlParser from './html.parser';
 
 export default (html: string) => {

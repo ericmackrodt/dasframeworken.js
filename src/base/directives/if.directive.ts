@@ -39,7 +39,7 @@ export class IfDirective implements IDirective {
         }
     }
 
-    private _onFieldChanged(key: string) {
+    private _onFieldChanged() {
         const result = this._expression.evaluate();
         this._processEvaluation(result);          
     }
@@ -52,8 +52,8 @@ export class IfDirective implements IDirective {
         const result = this._expression.evaluate();
 
         this._expression.fields.forEach((field: string) => 
-            this._evtAggregator.subscribe(field, (key: string) => 
-                this._onFieldChanged(key)));
+            this._evtAggregator.subscribe(field, () => 
+                this._onFieldChanged()));
         
         this._processEvaluation(result);   
     }

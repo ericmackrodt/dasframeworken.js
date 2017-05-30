@@ -1,4 +1,3 @@
-import { ITypeMetadata } from './../src/base/types/interfaces';
 import * as chai from 'chai';
 const expect = chai.expect;
 

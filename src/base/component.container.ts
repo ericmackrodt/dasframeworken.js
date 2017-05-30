@@ -90,7 +90,7 @@ export class ComponentContainer {
     }
 
     instantiateForDirective(propertyFn: () => any, propertyName: string, parent: Element, contextFn: (item: any) => Element) {
-        const directive = new ForDirective(parent, this._controller, this._bindings, contextFn, propertyFn);
+        const directive = new ForDirective(parent, this._bindings, contextFn, propertyFn);
         directive.setup(propertyName);
     }
 

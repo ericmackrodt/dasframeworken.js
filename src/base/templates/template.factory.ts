@@ -1,5 +1,4 @@
 import { ComponentContainer } from './../component.container';
-import { IController } from './../types/interfaces';
 export const createRoot = (name: string) => {
     return document.createElement(name);
 };
@@ -39,11 +38,10 @@ export const boundText = (container: ComponentContainer, property: string, paren
     });
 };
 
-export const ifDirective = (container: ComponentContainer, controller: IController, value: string, parent: Element, contextFn: () => Element) => {
+export const ifDirective = (container: ComponentContainer, value: string, parent: Element, contextFn: () => Element) => {
     container.instantiateIfDirective(value, parent, contextFn);
 }
 
-export const forDirective = (container: ComponentContainer, controller: IController, propertyName: string, propertyFn: () => any, parent: Element, contextFn: (item: any) => Element) => {
-    debugger;
+export const forDirective = (container: ComponentContainer, propertyName: string, propertyFn: () => any, parent: Element, contextFn: (item: any) => Element) => {
     container.instantiateForDirective(propertyFn, propertyName, parent, contextFn);
 }

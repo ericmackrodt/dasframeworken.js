@@ -5,7 +5,6 @@ import {
     BASE_FRAMEWORK_URI,
     ROOT_ELEMENT
 } from './constants';
-import { IKeyValue } from "_types";
 
 export const parentParameter = (parent: string) => parent ? ', ' + parent : '';
 export const createRootLine = (selector: string, key: string, parent: string) => `${TEMPLATE_FACTORY_VARIABLE}.createRoot('${selector}', ${key}${parentParameter(parent)});\n`;
@@ -19,8 +18,8 @@ export const createBindingLine = (elementProperty: string, property: string, ele
     }
 });\n`;
 
-export const ifDirectiveLine = (condition: string, parentVarName: string, nodeVarName: string, contextVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.ifDirective(${COMPONENT_CONTAINER_VARIABLE}, ${CONTROLLER_VARIABLE}, '${condition}', ${parentVarName}, ${contextVarName});\n`;
-export const forDirectiveLine = (listProperty: string, parentVarName: string, nodeVarName: string, contextVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.forDirective(${COMPONENT_CONTAINER_VARIABLE}, ${CONTROLLER_VARIABLE}, '${listProperty}', () => ${CONTROLLER_VARIABLE}.${listProperty}, ${parentVarName}, ${contextVarName});\n`;
+export const ifDirectiveLine = (condition: string, parentVarName: string, contextVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.ifDirective(${COMPONENT_CONTAINER_VARIABLE}, '${condition}', ${parentVarName}, ${contextVarName});\n`;
+export const forDirectiveLine = (listProperty: string, parentVarName: string, contextVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.forDirective(${COMPONENT_CONTAINER_VARIABLE}, '${listProperty}', () => ${CONTROLLER_VARIABLE}.${listProperty}, ${parentVarName}, ${contextVarName});\n`;
 export const setTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.setText('${property}', ${parentVarName});\n`;
 export const boundTextLine = (property: string, parentVarName: string) => `${TEMPLATE_FACTORY_VARIABLE}.boundText(${COMPONENT_CONTAINER_VARIABLE}, '${property}', ${parentVarName}, () => `;
 export const importLine = (symbol: string, file: string) => `import { ${symbol} } from '${file}';`;

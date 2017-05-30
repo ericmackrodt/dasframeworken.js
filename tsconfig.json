@@ -15,7 +15,10 @@
         "allowJs": true,
         "outDir": "./build",
         "sourceMap": true,
-        "baseUrl": "./src"
+        "baseUrl": "./src",
+        "alwaysStrict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": false
     },
     "include": [
         "src/dasframeworken.d.ts",

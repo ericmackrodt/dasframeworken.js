@@ -1,4 +1,4 @@
-import { IHtmlAttribute, IHtmlElement } from './index';
+import { IHtmlAttribute } from './index';
 
 export interface IDirectiveCode {
     content: string;

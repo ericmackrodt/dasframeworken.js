@@ -1,4 +1,3 @@
-import { IController } from './../types/interfaces';
 import { Pubsub } from "../events/pubsub";
 
 export class ForDirective {
@@ -10,7 +9,6 @@ export class ForDirective {
 
     constructor(
         private _parent: Element, 
-        private _controller: IController, 
         private _evtAggregator: Pubsub,
         private _context: (item: any) => Element,
         private _collectionFn: () => any
@@ -20,10 +18,7 @@ export class ForDirective {
 
     private _updateList() {
         this._parent.innerHTML = '';
-        this._collectionFn().forEach((item: any) => {
-            const child = this._context(item);
-            // this._parent.appendChild(child);   
-        });
+        this._collectionFn().forEach((item: any) => this._context(item));
     }
 
     private _onFieldChanged() {
@@ -32,7 +27,7 @@ export class ForDirective {
 
     setup(field: string) {
         debugger;
-        this._evtAggregator.subscribe(field, (key: string) => 
+        this._evtAggregator.subscribe(field, () => 
             this._onFieldChanged());
         
         this._updateList();

@@ -56,7 +56,7 @@ declare module 'magic-string' {
         trimStart(charType?: string): MagicString;
         trimEnd(charType?: string): MagicString;
         trimLines(): MagicString;
-        static Bundle;
+        static Bundle: any;
     }
 
     interface BundleOptions {

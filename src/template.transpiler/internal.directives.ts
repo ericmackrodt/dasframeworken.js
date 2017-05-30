@@ -1,10 +1,10 @@
-import { IHtmlAttribute, IHtmlElement, DirectiveFunction, IKeyValue } from '_types';
+import { IHtmlAttribute, DirectiveFunction, IKeyValue } from '_types';
 import { ifDirectiveLine, forDirectiveLine, directiveContextLine } from './code.funcs';
 import { FOR_DIRECTIVE_EXPRESSION_REGEX } from './constants';
 
 const processIfDirective = (directive: IHtmlAttribute, nodeVarName: string, parentVarName: string) => {
     const contextVarName = `${nodeVarName}IfDirectiveContext`;
-    const directiveLine = ifDirectiveLine(directive.value, parentVarName, nodeVarName, contextVarName);
+    const directiveLine = ifDirectiveLine(directive.value, parentVarName, contextVarName);
 
     return {
         content: directiveLine,
@@ -19,7 +19,7 @@ const processForDirective = (directive: IHtmlAttribute, nodeVarName: string, par
     contextVariables.push(itemVariable);
     const listVariable = expressionMatch[2];
     const contextVarName = `${nodeVarName}ForDirectiveContext`;       
-    const directiveLine = forDirectiveLine(listVariable, parentVarName, nodeVarName, contextVarName);
+    const directiveLine = forDirectiveLine(listVariable, parentVarName, contextVarName);
 
     return {
         content: directiveLine,

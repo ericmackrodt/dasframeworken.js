@@ -3,7 +3,7 @@ import MagicString = require('magic-string');
 
 export class CodeTransform {
     private _magicString: MagicString;
-    constructor(private _html: string, private _fileName: string) {
+    constructor(_html: string, private _fileName: string) {
         this._magicString = new MagicString(_html, { filename: _fileName });
     }
 

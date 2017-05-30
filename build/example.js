@@ -171,11 +171,10 @@ exports.boundText = function (container, property, parent, fn) {
         node.textContent = fn();
     });
 };
-exports.ifDirective = function (container, controller, value, parent, contextFn) {
+exports.ifDirective = function (container, value, parent, contextFn) {
     container.instantiateIfDirective(value, parent, contextFn);
 };
-exports.forDirective = function (container, controller, propertyName, propertyFn, parent, contextFn) {
-    debugger;
+exports.forDirective = function (container, propertyName, propertyFn, parent, contextFn) {
     container.instantiateForDirective(propertyFn, propertyName, parent, contextFn);
 };
 
@@ -246,13 +245,13 @@ var _homeComponent = __webpack_require__(8);function _interopRequireWildcard(obj
         templateFactory.setText('click here dude!', button0);
         templateFactory.setText('This is just a text ', root);
         var br0 = templateFactory.createElement(container, 'br', root);
-        var span0IfDirectiveContext = function span0IfDirectiveContext(context) {
+        var span0IfDirectiveContext = function span0IfDirectiveContext() {
             var span0 = templateFactory.createElement(container, 'span', root);
             templateFactory.setAttribute('style', 'background: yellow', span0);
             templateFactory.setText('This is iffable', span0);
             return span0;
         };
-        templateFactory.ifDirective(container, controller, 'iffable === true', root, span0IfDirectiveContext);
+        templateFactory.ifDirective(container, 'iffable === true', root, span0IfDirectiveContext);
         var button1 = templateFactory.createElement(container, 'button', root);
         templateFactory.setEvent(container, 'click', function ($event) {return controller.showHide();}, button1);
         templateFactory.setText('Show/hide', button1);
@@ -265,7 +264,7 @@ var _homeComponent = __webpack_require__(8);function _interopRequireWildcard(obj
             templateFactory.boundText(container, 'item', li0, function () {return item;});
             return li0;
         };
-        templateFactory.forDirective(container, controller, 'list', function () {return controller.list;}, ul0, li0ForDirectiveContext);
+        templateFactory.forDirective(container, 'list', function () {return controller.list;}, ul0, li0ForDirectiveContext);
         return root;
     } };
 

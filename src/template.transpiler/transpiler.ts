@@ -1,19 +1,17 @@
 import { CodeTransform } from './code.transform';
-import { ROOT_ELEMENT, FOR_DIRECTIVE_EXPRESSION_REGEX, CONTROLLER_VARIABLE, TEMPLATE_FACTORY_VARIABLE, BASE_FRAMEWORK_URI, COMPONENT_CONTAINER_VARIABLE } from './constants';
-import MagicString = require('magic-string');
-var path = require('path');
+import { ROOT_ELEMENT } from './constants';
 
 import htmlObjectBuilder from './html.object.builder';
-import { IHtmlElement, ElementTypeEnum, IHtmlAttribute, IBaseHtml, DirectiveFunction } from '../_types';
+import { IHtmlElement, ElementTypeEnum, IHtmlAttribute, IBaseHtml } from '../_types';
 import { IKeyValue, ICounts } from '_types';
-import { createRootLine, createBindingLine, createEventLine, createAttributeLine, ifDirectiveLine, createElementLine, setTextLine, boundTextLine, FUNCTION_TAIL, directiveContextLine, forDirectiveLine, BASE_CODE_END, baseCodeStart, importLine } from './code.funcs';
+import { createRootLine, createElementLine, setTextLine, boundTextLine, FUNCTION_TAIL, BASE_CODE_END, baseCodeStart, importLine } from './code.funcs';
 import attributeBuilder from './attribute.builder';
 import * as utils from './utils';
 import { isInternalDirective, internalDirectives } from './internal.directives';
 
 export default (html: string, fileName?: string) => {
     const usageCounts: ICounts = {};
-    const codeBuilder = new CodeTransform(html, fileName);
+    const codeBuilder = new CodeTransform(html, fileName || '');
     const imports: IKeyValue<string>[] = [];
     let selector = '';
 
@@ -31,7 +29,6 @@ export default (html: string, fileName?: string) => {
         children && children.forEach((child) => processNode(child, parentVarName, contextVariables));
 
     const processRoot = (node: IHtmlElement, parent: string) => {
-        const parentName = parent ? ', ' + parent : '';
         let json = node.attributes['controller'].value;
         while (json.indexOf('\'') > -1) {
             json = json.replace('\'', '"');

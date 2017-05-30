@@ -36,7 +36,7 @@ export class Module {
 
     _registerRoutes(routes: Frameworken.IRoute[]) {
         this._router = new Router(routes);
-        this._router.onRouteChanging = (oldRoute, newRoute) => {
+        this._router.onRouteChanging = () => {
             if (this._routeComponentContainer) {
                 this._routeComponentContainer.teardown();
             }

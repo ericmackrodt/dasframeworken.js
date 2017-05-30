@@ -245,7 +245,7 @@ var ComponentContainer = function () {
         return true;
     };
     ComponentContainer.prototype.instantiateForDirective = function (propertyFn, propertyName, parent, contextFn) {
-        var directive = new for_directive_1.ForDirective(parent, this._controller, this._bindings, contextFn, propertyFn);
+        var directive = new for_directive_1.ForDirective(parent, this._bindings, contextFn, propertyFn);
         directive.setup(propertyName);
     };
     ComponentContainer.prototype.teardown = function () {
@@ -362,9 +362,8 @@ exports.default = default_1;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var ForDirective = function () {
-    function ForDirective(_parent, _controller, _evtAggregator, _context, _collectionFn) {
+    function ForDirective(_parent, _evtAggregator, _context, _collectionFn) {
         this._parent = _parent;
-        this._controller = _controller;
         this._evtAggregator = _evtAggregator;
         this._context = _context;
         this._collectionFn = _collectionFn;
@@ -381,10 +380,7 @@ var ForDirective = function () {
     ForDirective.prototype._updateList = function () {
         var _this = this;
         this._parent.innerHTML = '';
-        this._collectionFn().forEach(function (item) {
-            var child = _this._context(item);
-            // this._parent.appendChild(child);   
-        });
+        this._collectionFn().forEach(function (item) {return _this._context(item);});
     };
     ForDirective.prototype._onFieldChanged = function () {
         this._updateList();
@@ -392,7 +388,7 @@ var ForDirective = function () {
     ForDirective.prototype.setup = function (field) {
         var _this = this;
         debugger;
-        this._evtAggregator.subscribe(field, function (key) {
+        this._evtAggregator.subscribe(field, function () {
             return _this._onFieldChanged();
         });
         this._updateList();
@@ -437,7 +433,7 @@ var IfDirective = function () {
             }
         }
     };
-    IfDirective.prototype._onFieldChanged = function (key) {
+    IfDirective.prototype._onFieldChanged = function () {
         var result = this._expression.evaluate();
         this._processEvaluation(result);
     };
@@ -448,8 +444,8 @@ var IfDirective = function () {
         }
         var result = this._expression.evaluate();
         this._expression.fields.forEach(function (field) {
-            return _this._evtAggregator.subscribe(field, function (key) {
-                return _this._onFieldChanged(key);
+            return _this._evtAggregator.subscribe(field, function () {
+                return _this._onFieldChanged();
             });
         });
         this._processEvaluation(result);
@@ -501,7 +497,7 @@ var Module = function () {
     Module.prototype._registerRoutes = function (routes) {
         var _this = this;
         this._router = new router_1.Router(routes);
-        this._router.onRouteChanging = function (oldRoute, newRoute) {
+        this._router.onRouteChanging = function () {
             if (_this._routeComponentContainer) {
                 _this._routeComponentContainer.teardown();
             }
