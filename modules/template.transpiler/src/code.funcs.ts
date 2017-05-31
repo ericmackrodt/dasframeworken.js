@@ -30,7 +30,7 @@ export const directiveContextLine = (contextVarName: string, ...contextArguments
 export const FUNCTION_TAIL = ');\n';
 
 export const baseCodeStart = (selector: string, controller: string, imports: string[]) => `"use strict";
-${importAsLine(TEMPLATE_FACTORY_VARIABLE, BASE_FRAMEWORK_URI + '/templates/template.factory')}
+${importAsLine(TEMPLATE_FACTORY_VARIABLE, BASE_FRAMEWORK_URI + '/src/templates/template.factory')}
 ${imports.join('\n')}\n
 export default {
     selector: '${selector}',

@@ -1,4 +1,4 @@
-import { IHtmlAttribute, DirectiveFunction, IKeyValue } from './../_types';
+import { IHtmlAttribute, DirectiveFunction, IKeyValue } from './_types';
 import { ifDirectiveLine, forDirectiveLine, directiveContextLine } from './code.funcs';
 import { FOR_DIRECTIVE_EXPRESSION_REGEX } from './constants';
 

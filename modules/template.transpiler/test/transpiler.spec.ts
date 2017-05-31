@@ -1,4 +1,4 @@
-import transpiler from './../../src/template.transpiler/transpiler';
+import transpiler from './../src/transpiler';
 import * as chai from 'chai';
 
 chai.should();

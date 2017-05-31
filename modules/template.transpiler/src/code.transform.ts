@@ -1,8 +1,8 @@
-import { IKeyValue, IHtmlElement, IHtmlAttribute, IBaseHtml, IDirectiveCode } from './../_types';
-import MagicString = require('magic-string');
+import { IKeyValue, IHtmlElement, IHtmlAttribute, IBaseHtml, IDirectiveCode } from './_types';
+const MagicString = require('magic-string').default;
 
 export class CodeTransform {
-    private _magicString: MagicString;
+    private _magicString: any;
     constructor(_html: string, private _fileName: string) {
         this._magicString = new MagicString(_html, { filename: _fileName });
     }

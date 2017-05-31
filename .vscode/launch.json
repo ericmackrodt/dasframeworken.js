@@ -30,7 +30,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}/template.loader/index.js"
+            "program": "${workspaceRoot}/modules/template.transpiler/tester/index.js",
         },
         {
             "type": "node",

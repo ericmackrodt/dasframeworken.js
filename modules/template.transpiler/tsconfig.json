@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "lib": [
+            "es6",
+            "es5",
+            "es2015",
+            "dom",
+            "dom.iterable"
+        ],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "outDir": "./",
+        "sourceMap": true,
+        "baseUrl": "./",
+        "alwaysStrict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": false,
+        "declaration": false,
+        "allowJs": true,
+        "noEmit": false
+    },
+    "include": [
+        "./**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ],
+    "awesomeTypescriptLoaderOptions": {
+        "useBabel": false,
+        "useCache": true,
+        "useTranspileModule": true
+    }
+}

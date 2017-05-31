@@ -2,8 +2,7 @@ import { CodeTransform } from './code.transform';
 import { ROOT_ELEMENT } from './constants';
 
 import htmlObjectBuilder from './html.object.builder';
-import { IHtmlElement, ElementTypeEnum, IHtmlAttribute, IBaseHtml } from '../_types';
-import { IKeyValue, ICounts } from '../_types';
+import { IHtmlElement, ElementTypeEnum, IHtmlAttribute, IBaseHtml, IKeyValue, ICounts } from './_types';
 import { createRootLine, createElementLine, setTextLine, boundTextLine, FUNCTION_TAIL, BASE_CODE_END, baseCodeStart, importLine } from './code.funcs';
 import attributeBuilder from './attribute.builder';
 import * as utils from './utils';

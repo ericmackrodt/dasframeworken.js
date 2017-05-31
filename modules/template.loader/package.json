@@ -2,7 +2,7 @@
   "name": "@dasframeworken/template.loader",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "template.loader.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,7 +10,11 @@
   "license": "ISC",
   "devDependencies": {
     "magic-string": "^0.21.2",
+    "ts-loader": "^2.1.0",
     "ts-node": "^3.0.4",
     "typescript": "^2.3.3"
+  },
+  "peerDependencies": {
+   "@dasframeworken/template.transpiler": "^0.0.1" 
   }
 }

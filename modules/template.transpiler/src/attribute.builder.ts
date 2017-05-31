@@ -1,4 +1,4 @@
-import { IKeyValue } from './../_types';
+import { IKeyValue } from './_types';
 import { createAttributeLine, createBindingLine, createEventLine } from './code.funcs';
 
 const frameworkAttributes = (name: string): Function => (<IKeyValue<Function>>{

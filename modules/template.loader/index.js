@@ -1,16 +1,9 @@
-require('ts-node/register');
+var path = require('path');
 
-var fs = require('fs');
-var sys = require('sys');
-var builder = require('./../src/template.transpiler');
+var templateBuilder = require('@dasframeworken/template.transpiler');
 
-var html = fs.readFileSync('./template.loader/component.html', 'utf-8');
-
-var result = builder.default(html);
-// sys.puts(sys.inspect(handler.dom, false, null));
-
-fs.writeFile('./template.loader/component.view.js', result.source);
-console.log(result);
-
-
-
+module.exports = function (content) {
+    if (this.cacheable) this.cacheable();
+    var result = templateBuilder.default(content, path.basename(this.resourcePath));
+    this.callback(null, result.source, result.map);
+};

@@ -1,6 +1,6 @@
-import { IBaseHtml } from './../../src/_types/index';
-import { IHtmlElement, ElementTypeEnum, IKeyValue, IHtmlAttribute } from './../../src/_types';
-import htmlObjectBuilder from './../../src/template.transpiler/html.object.builder';
+import { IBaseHtml } from './../src/_types/index';
+import { IHtmlElement, ElementTypeEnum, IKeyValue, IHtmlAttribute } from './../src/_types';
+import htmlObjectBuilder from './../src/html.object.builder';
 import * as chai from 'chai';
 
 chai.should();

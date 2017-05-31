@@ -1,4 +1,4 @@
-import HtmlParser from './../../src/template.transpiler/html.parser';
+import HtmlParser from './../src/html.parser';
 import * as chai from 'chai';
 import * as sinon from "Sinon";
 import * as sinonChai from 'sinon-chai';
