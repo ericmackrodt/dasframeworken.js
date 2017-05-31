@@ -102,8 +102,6 @@ export default (html: string, fileName?: string) => {
     const processElement = (node: IHtmlElement, parent: string, contextVariables?: string[]) => {
         const reserved = reservedTags(node.name);
 
-        parent = parent || ROOT_ELEMENT;
-
         if (reserved) {
             reserved(node, parent);
         } else {
