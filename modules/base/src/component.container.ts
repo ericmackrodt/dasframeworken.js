@@ -2,8 +2,9 @@ import { IfDirective } from './directives/if.directive';
 import { Pubsub } from './events/pubsub';
 import * as utils from './component.utils';
 import { Container } from './di.container';
-import { IController, IEventListener, IDirective } from './types/interfaces';
+import { IController, IEventListener, IDirective, IComponent } from './types/interfaces';
 import { ForDirective } from './directives/for.directive';
+import { Module } from './module';
 
 export class ComponentContainer {
     private _controller: IController;
@@ -18,8 +19,8 @@ export class ComponentContainer {
 
     constructor(
         private _container: Container,
-        private _module: Frameworken.IModule, 
-        private _component: Frameworken.IComponent
+        private _module: Module, 
+        private _component: IComponent
     ) {
         this._bindings = new Pubsub();
         this._eventListeners = [];

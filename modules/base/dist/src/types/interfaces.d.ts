@@ -28,3 +28,20 @@ export interface IRegisteredType {
 export interface ITypeRegistry {
     [key: string]: IRegisteredType;
 }
+export interface IComponent {
+    controller: any;
+    render: (controller: any, container: any) => Element;
+    selector: string;
+}
+export interface IRoute {
+    path: string;
+    root: IComponent;
+    resolve?: <T>(route: IRoute) => Promise<T> | boolean | void;
+}
+export interface IModuleOptions {
+    preLoad?: <T>() => Promise<T> | boolean | void;
+    types?: any[];
+    routes?: IRoute[];
+    components: Object[];
+    rootComponent: IComponent;
+}

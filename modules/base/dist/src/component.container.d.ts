@@ -1,5 +1,6 @@
 import { Container } from './di.container';
-import { IController } from './types/interfaces';
+import { IController, IComponent } from './types/interfaces';
+import { Module } from './module';
 export declare class ComponentContainer {
     private _container;
     private _module;
@@ -10,7 +11,7 @@ export declare class ComponentContainer {
     private _children;
     private _directives;
     readonly controller: IController;
-    constructor(_container: Container, _module: Frameworken.IModule, _component: Frameworken.IComponent);
+    constructor(_container: Container, _module: Module, _component: IComponent);
     registerEvent(element: Element, event: string, callback: (arg: any) => void): void;
     initialize(element: Element): Element;
     registerBinding(property: string, binding: (property: string) => void): void;

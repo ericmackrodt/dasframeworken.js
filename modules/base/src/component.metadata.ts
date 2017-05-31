@@ -1,4 +1,4 @@
-import { call } from './../base/utils';
+import { call } from './utils';
 
 export function observable() {
     return function (target: any, propertyKey: string): any {

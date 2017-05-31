@@ -3,16 +3,16 @@ import { ComponentContainer } from './component.container';
 import { Router } from './router';
 import * as utils from './utils';
 import { Container } from './di.container';
-import { Type } from './types/interfaces';
+import { Type, IComponent, IModuleOptions, IRoute } from './types/interfaces';
 
 const registerTypes = (container: Container, types: Type<any>[]) => types.forEach((type) => container.registerType(type));
 
 export class Module {
-    private _rootComponent: Frameworken.IComponent;
+    private _rootComponent: IComponent;
     private _preLoad: <T>() => Promise<T> | boolean | void;
     private _router: Router;
     private _routeComponentContainer: ComponentContainer;
-    private _components: { [key:string]: Frameworken.IComponent };
+    private _components: { [key:string]: IComponent };
     private _rootComponentContainer: ComponentContainer;
 
     get rootComponent() {
@@ -22,7 +22,7 @@ export class Module {
     constructor(
         private _container: Container,
         private _name: string, 
-        options: Partial<Frameworken.IModuleOptions>
+        options: Partial<IModuleOptions>
     ) {
         options = options || {};
         this._name = name;
@@ -34,7 +34,7 @@ export class Module {
         if (options.routes) this._registerRoutes(options.routes);
     }
 
-    _registerRoutes(routes: Frameworken.IRoute[]) {
+    _registerRoutes(routes: IRoute[]) {
         this._router = new Router(routes);
         this._router.onRouteChanging = () => {
             if (this._routeComponentContainer) {
@@ -60,7 +60,7 @@ export class Module {
         });
     }
 
-    _buildComponent(type: Frameworken.IComponent, element: Element) {
+    _buildComponent(type: IComponent, element: Element) {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }

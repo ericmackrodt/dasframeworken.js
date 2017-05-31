@@ -22,8 +22,7 @@
         "noEmit": false
     },
     "include": [
-        "_types/**/*.ts",
-        "src/dasframeworken.ts"
+        "entry.ts"
     ],
     "exclude": [
         "node_modules"

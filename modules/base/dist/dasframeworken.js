@@ -141,78 +141,9 @@ exports.isFunction = function (fn) { return typeof fn === 'function'; };
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var utils = __webpack_require__(0);
-var getName = function (type) { return isString(type) ? type : type.name; };
-var isString = function (obj) { return typeof obj === 'string'; };
-var throwException = function (text) { throw new Error(text); };
-/**
- * Represents the container
- */
-var Container = (function () {
-    function Container() {
-        this._typeRegistry = {};
-    }
-    Object.defineProperty(Container.prototype, "typeRegistry", {
-        get: function () {
-            return this._typeRegistry;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    /**
-     * Instantiates a type that is registered in the container with its dependencies.
-     * @param type Type that will be instantiated, it can be the type itself or the name.
-     */
-    Container.prototype.getInstance = function (type) {
-        var name = getName(type);
-        var registered = this._typeRegistry[name];
-        if (!registered)
-            throwException("Type (" + name + ") not registered");
-        if (!registered.instance) {
-            registered.instance = this.resolve(registered.type);
-        }
-        return registered.instance;
-    };
-    /**
-     * Instantiates any type and tries to resolve dependencies that are registered in the container.
-     * @param type The type to be resolved
-     */
-    Container.prototype.resolve = function (type) {
-        var _this = this;
-        var dependencies = type.metadata && type.metadata.dependencies || type.dependencies;
-        if (!dependencies) {
-            return utils.instantiateType(type);
-        }
-        var instances = dependencies.map(function (d) { return _this.getInstance(d); });
-        return utils.instantiateType.apply(utils, [type].concat(instances));
-    };
-    /**
-     * Registers a type in the container.
-     * @param type Type to be registered
-     */
-    Container.prototype.registerType = function (type) {
-        var name = getName(type);
-        var registered = this._typeRegistry[name];
-        if (!registered) {
-            this._typeRegistry[name] = { type: type, instance: undefined };
-        }
-    };
-    return Container;
-}());
-exports.Container = Container;
-;
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
 // import { componentFactory } from './component.factory';
-var component_container_1 = __webpack_require__(4);
-var router_1 = __webpack_require__(11);
+var component_container_1 = __webpack_require__(7);
+var router_1 = __webpack_require__(14);
 var utils = __webpack_require__(0);
 var registerTypes = function (container, types) { return types.forEach(function (type) { return container.registerType(type); }); };
 var Module = (function () {
@@ -292,7 +223,105 @@ exports.Module = Module;
 
 
 /***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var module_1 = __webpack_require__(1);
+var di_container_1 = __webpack_require__(9);
+var modules = {};
+var container = new di_container_1.Container();
+exports.module = function (name, options) {
+    var module = modules[name];
+    if (!module) {
+        module = new module_1.Module(container, name, options);
+        modules[name] = module;
+    }
+    return module;
+};
+
+
+/***/ }),
 /* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var utils_1 = __webpack_require__(0);
+function observable() {
+    return function (target, propertyKey) {
+        var _private;
+        return {
+            get: function () {
+                return _private;
+            },
+            set: function (val) {
+                if (_private !== val) {
+                    _private = val;
+                    utils_1.call(this._notifyChange, this, propertyKey);
+                }
+            },
+            enumerable: true
+        };
+    };
+}
+exports.observable = observable;
+function inject(target) {
+}
+exports.inject = inject;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createRoot = function (name) {
+    return document.createElement(name);
+};
+exports.createElement = function (container, name, parent) {
+    var element = container.instantiateChildComponent(name, parent);
+    if (!element) {
+        element = document.createElement(name);
+        parent.appendChild(element);
+    }
+    return element;
+};
+exports.setAttribute = function (name, value, parent) {
+    parent.setAttribute(name, value);
+};
+exports.setBinding = function (container, property, fn) {
+    container.registerBinding(property, fn);
+};
+exports.setEvent = function (container, event, fn, parent) {
+    container.registerEvent(parent, event, fn);
+};
+exports.setText = function (text, parent) {
+    var node = document.createTextNode(text);
+    parent.appendChild(node);
+};
+exports.boundText = function (container, property, parent, fn) {
+    var node = document.createTextNode('');
+    parent.appendChild(node);
+    exports.setBinding(container, property, function () {
+        node.textContent = fn();
+    });
+};
+exports.ifDirective = function (container, value, parent, contextFn) {
+    container.instantiateIfDirective(value, parent, contextFn);
+};
+exports.forDirective = function (container, propertyName, propertyFn, parent, contextFn) {
+    container.instantiateForDirective(propertyFn, propertyName, parent, contextFn);
+};
+
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -650,16 +679,34 @@ exports.default = default_1;
 //# sourceMappingURL=goat.js.map
 
 /***/ }),
-/* 4 */
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+var tf = __webpack_require__(4);
+var base_1 = __webpack_require__(2);
+exports.module = base_1.module;
+__export(__webpack_require__(1));
+__export(__webpack_require__(3));
+exports.templateFactory = tf;
+
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var if_directive_1 = __webpack_require__(8);
-var pubsub_1 = __webpack_require__(9);
-var utils = __webpack_require__(5);
-var for_directive_1 = __webpack_require__(7);
+var if_directive_1 = __webpack_require__(11);
+var pubsub_1 = __webpack_require__(12);
+var utils = __webpack_require__(8);
+var for_directive_1 = __webpack_require__(10);
 var ComponentContainer = (function () {
     function ComponentContainer(_container, _module, _component) {
         this._container = _container;
@@ -758,7 +805,7 @@ exports.ComponentContainer = ComponentContainer;
 
 
 /***/ }),
-/* 5 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -778,28 +825,76 @@ exports.setupController = function (controllerType) {
 
 
 /***/ }),
-/* 6 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var module_1 = __webpack_require__(2);
-var di_container_1 = __webpack_require__(1);
-var modules = {};
-var container = new di_container_1.Container();
-exports.module = function (name, options) {
-    var module = modules[name];
-    if (!module) {
-        module = new module_1.Module(container, name, options);
-        modules[name] = module;
+var utils = __webpack_require__(0);
+var getName = function (type) { return isString(type) ? type : type.name; };
+var isString = function (obj) { return typeof obj === 'string'; };
+var throwException = function (text) { throw new Error(text); };
+/**
+ * Represents the container
+ */
+var Container = (function () {
+    function Container() {
+        this._typeRegistry = {};
     }
-    return module;
-};
+    Object.defineProperty(Container.prototype, "typeRegistry", {
+        get: function () {
+            return this._typeRegistry;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Instantiates a type that is registered in the container with its dependencies.
+     * @param type Type that will be instantiated, it can be the type itself or the name.
+     */
+    Container.prototype.getInstance = function (type) {
+        var name = getName(type);
+        var registered = this._typeRegistry[name];
+        if (!registered)
+            throwException("Type (" + name + ") not registered");
+        if (!registered.instance) {
+            registered.instance = this.resolve(registered.type);
+        }
+        return registered.instance;
+    };
+    /**
+     * Instantiates any type and tries to resolve dependencies that are registered in the container.
+     * @param type The type to be resolved
+     */
+    Container.prototype.resolve = function (type) {
+        var _this = this;
+        var dependencies = type.metadata && type.metadata.dependencies || type.dependencies;
+        if (!dependencies) {
+            return utils.instantiateType(type);
+        }
+        var instances = dependencies.map(function (d) { return _this.getInstance(d); });
+        return utils.instantiateType.apply(utils, [type].concat(instances));
+    };
+    /**
+     * Registers a type in the container.
+     * @param type Type to be registered
+     */
+    Container.prototype.registerType = function (type) {
+        var name = getName(type);
+        var registered = this._typeRegistry[name];
+        if (!registered) {
+            this._typeRegistry[name] = { type: type, instance: undefined };
+        }
+    };
+    return Container;
+}());
+exports.Container = Container;
+;
 
 
 /***/ }),
-/* 7 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -846,13 +941,13 @@ exports.ForDirective = ForDirective;
 
 
 /***/ }),
-/* 8 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var goatjs_1 = __webpack_require__(3);
+var goatjs_1 = __webpack_require__(5);
 var replaceElement = function (oldEl, newEl) { return oldEl.parentNode.replaceChild(newEl, oldEl); };
 var IfDirective = (function () {
     function IfDirective(_parent, _controller, _evtAggregator, _context) {
@@ -907,13 +1002,13 @@ exports.IfDirective = IfDirective;
 
 
 /***/ }),
-/* 9 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var subscriber_1 = __webpack_require__(10);
+var subscriber_1 = __webpack_require__(13);
 var Pubsub = (function () {
     function Pubsub() {
         this._subscriptions = {};
@@ -954,7 +1049,7 @@ exports.Pubsub = Pubsub;
 
 
 /***/ }),
-/* 10 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -990,7 +1085,7 @@ exports.Subscriber = Subscriber;
 
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

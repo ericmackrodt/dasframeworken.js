@@ -37,7 +37,7 @@ if (env === 'build') {
 
 const config = {
   entry: { 
-    dasframeworken: __dirname + '/src/dasframeworken.ts'
+    dasframeworken: __dirname + '/entry.ts'
   },
   devtool: 'source-map',
   output: {
