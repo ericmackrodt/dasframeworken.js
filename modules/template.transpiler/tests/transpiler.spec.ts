@@ -6,14 +6,14 @@ chai.should();
 describe('Transpiler', () => {
     const componentBase = (...lines: string[]) => [
         `"use strict";`,
-        `import * as templateFactory from 'base/templates/template.factory';`,
+        `import { templateFactory } from '@dasframeworken/base';`,
         `import { TestComponent } from './test.component.ts';`,
         ``,
         `export default {`,
         `    selector: 'test',`,
         `    controller: TestComponent,`,
         `    render: (controller, container) => {`,
-        `const root = templateFactory.createRoot('test', TestComponent, root);`,
+        `const root = templateFactory.createRoot('test', TestComponent);`,
         ...lines,
         `        return root;`,
         `    }`,
@@ -349,7 +349,7 @@ describe('Transpiler', () => {
             `const span0 = templateFactory.createElement(container, 'span', root);`,
             `return span0;`,
             `};`,
-            `templateFactory.ifDirective(container, controller, 'test === true', root, span0IfDirectiveContext);`
+            `templateFactory.ifDirective(container, 'test === true', root, span0IfDirectiveContext);`
         );
 
         result.source.should.be.equal(expected);
@@ -365,7 +365,7 @@ describe('Transpiler', () => {
             `const span0 = templateFactory.createElement(container, 'span', root);`,
             `return span0;`,
             `};`,
-            `templateFactory.forDirective(container, controller, 'list', () => controller.list, root, span0ForDirectiveContext);`
+            `templateFactory.forDirective(container, 'list', () => controller.list, root, span0ForDirectiveContext);`
         );
 
         result.source.should.be.equal(expected);
@@ -382,7 +382,7 @@ describe('Transpiler', () => {
             `templateFactory.boundText(container, 'variable', span0, () => variable);`,
             `return span0;`,
             `};`,
-            `templateFactory.forDirective(container, controller, 'list', () => controller.list, root, span0ForDirectiveContext);`
+            `templateFactory.forDirective(container, 'list', () => controller.list, root, span0ForDirectiveContext);`
         );
 
         result.source.should.be.equal(expected);
@@ -399,7 +399,7 @@ describe('Transpiler', () => {
             `templateFactory.boundText(container, 'other', span0, () => controller.other);`,
             `return span0;`,
             `};`,
-            `templateFactory.forDirective(container, controller, 'list', () => controller.list, root, span0ForDirectiveContext);`
+            `templateFactory.forDirective(container, 'list', () => controller.list, root, span0ForDirectiveContext);`
         );
 
         result.source.should.be.equal(expected);
@@ -417,7 +417,7 @@ describe('Transpiler', () => {
             `templateFactory.boundText(container, 'variable', span0, () => variable);`,
             `return span0;`,
             `};`,
-            `templateFactory.forDirective(container, controller, 'list', () => controller.list, root, span0ForDirectiveContext);`
+            `templateFactory.forDirective(container, 'list', () => controller.list, root, span0ForDirectiveContext);`
         );
 
         result.source.should.be.equal(expected);

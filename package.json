@@ -4,8 +4,8 @@
   "description": "A stupid simple javascript framework",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env mocha",
-    "test:coverage": "cross-env nyc mocha",
+    "test": "cross-env mocha --compilers ts-node/register --require source-map-support/register --full-trace --bail modules/**/tests/**/*.spec.ts",
+    "test:coverage": "cross-env nyc mocha --compilers ts-node/register --require source-map-support/register --full-trace --bail modules/**/tests/**/*.spec.ts",
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",
     "report-coverage": "nyc report --reporter=text-lcov | coveralls"
@@ -51,7 +51,7 @@
   },
   "nyc": {
     "include": [
-      "src/**/*.ts"
+      "modules/**/*.ts"
     ],
     "extension": [
       ".ts",

@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 const expect = chai.expect;
 
-import DIContainer from './../src/di.container';
+import { Container } from './../src/di.container';
 
 class TestType1 {
 
@@ -36,10 +36,10 @@ class MultiMetadataType {
 }
 
 describe('di.container', () => {
-    let sut: DIContainer;
+    let sut: Container;
 
     beforeEach(() => {
-        sut = new DIContainer();
+        sut = new Container();
     });
 
     describe('registerType', () => {
