@@ -40,3 +40,5 @@ export const call = (fn: Function, ctx: Function, ...args: any[]) => isFunction(
  * @param fn Function to verify
  */
 export const isFunction = (fn: any) => typeof fn === 'function';
+
+export const randomName = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);

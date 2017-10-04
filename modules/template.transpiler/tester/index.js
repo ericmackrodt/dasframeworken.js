@@ -1,16 +1,11 @@
-// require('ts-node/register');
+require('ts-node/register');
+const path = require('path');
 
 var fs = require('fs');
-var sys = require('sys');
-var builder = require('./../dist/template.transpiler');
+var builder = require('./../src/transpiler');
 
-var html = fs.readFileSync('./modules/template.transpiler/tester/component.html', 'utf-8');
-debugger;
-var result = builder.default(html);
-// sys.puts(sys.inspect(handler.dom, false, null));
+var html = fs.readFileSync(path.join(__dirname + '/component.html'), 'utf-8');
+var result = builder.default(html, __dirname + '/component.html');
 
-fs.writeFile('./modules/template.transpiler/tester/component.view.js', result.source);
+fs.writeFileSync(path.join(__dirname + '/component.view.js'), result);
 console.log(result);
-
-
-

@@ -2,7 +2,7 @@ import { IfDirective } from './directives/if.directive';
 import { Pubsub } from './events/pubsub';
 import * as utils from './component.utils';
 import { Container } from './di.container';
-import { IController, IEventListener, IDirective, IComponent } from './types/interfaces';
+import { IController, IEventListener, IDirective, IComponentMetadata } from './types/interfaces';
 import { ForDirective } from './directives/for.directive';
 import { Module } from './module';
 
@@ -20,7 +20,7 @@ export class ComponentContainer {
     constructor(
         private _container: Container,
         private _module: Module, 
-        private _component: IComponent
+        private _component: IComponentMetadata
     ) {
         this._bindings = new Pubsub();
         this._eventListeners = [];
@@ -45,7 +45,7 @@ export class ComponentContainer {
 
     initialize(element: Element) {
         this._controller = this._container.resolve(this._component.controller);
-        const rendered = this._component.render(this._controller, this);
+        const rendered = this._component.view(this._controller, this);
         element.appendChild(rendered);
 
         if (typeof this._controller.onPropertyChanged !== 'function') {
@@ -78,9 +78,9 @@ export class ComponentContainer {
         const component = this._module.getComponent(name);
         if (!component) return;
 
-        const child = new ComponentContainer(this._container, this._module, component);
-        this._children.push(child);
-        return child.initialize(parent);
+        // const child = new ComponentContainer(this._container, this._module, component);
+        // this._children.push(child);
+        // return child.initialize(parent);
     }
 
     instantiateIfDirective(condition: string, parent: Element, contextFn: () => Element) {

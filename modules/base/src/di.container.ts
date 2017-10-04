@@ -1,4 +1,4 @@
-import { Type, ITypeRegistry } from './types/interfaces';
+import { Type, ITypeRegistry, IKeyValue, IRegisteredType } from './types/interfaces';
 import * as utils from './utils';
 
 const getName = <T>(type: Type<T> | string) => isString(type) ? type : type.name;
@@ -23,11 +23,19 @@ export class Container {
      * Instantiates a type that is registered in the container with its dependencies.
      * @param type Type that will be instantiated, it can be the type itself or the name.
      */
-    public getInstance<T>(type: Type<T> | string) {
+    public getInstance<T>(type: Type<T> | string, autoRegister?: boolean) {
         const name = getName(type);
-        const registered = this._typeRegistry[name];
+        let registered = this._typeRegistry[name];
 
-        if (!registered) throwException(`Type (${name}) not registered`);
+        if (!registered && !autoRegister) throwException(`Type (${name}) not registered`);
+
+        if (autoRegister === true && !registered) {
+            if (typeof type === 'string') {
+                throwException(`Type registering type ${name} has to be a class`);
+            }
+
+            registered = this.registerType(type as Type<T>);
+        }
 
         if (!registered.instance) {
             registered.instance = this.resolve(registered.type);
@@ -39,26 +47,39 @@ export class Container {
      * Instantiates any type and tries to resolve dependencies that are registered in the container.
      * @param type The type to be resolved
      */
-    public resolve<T>(type: Type<T>) {
-        const dependencies = type.metadata && type.metadata.dependencies || type.dependencies;
+    public resolve<T>(type: Type<T>, autoRegister?: boolean) {
+        const constructorDependencies = type.prototype._constructorDependencies;
+        const propertyDependencies = type.prototype.propertyDependencies;
 
-        if (!dependencies) {
+        if (!constructorDependencies && !propertyDependencies) {
             return utils.instantiateType(type);
         }
 
-        const instances = dependencies.map((d) => this.getInstance(d as Type<T>));
-        return utils.instantiateType(type, ...instances);
+        const serviceInstances = 
+            constructorDependencies && constructorDependencies.map((d: Function) => this.getInstance(d as Type<T>, autoRegister));
+        const instance = utils.instantiateType(type, ...serviceInstances);
+
+        if (propertyDependencies) {
+            Object.keys(propertyDependencies).forEach((key) => {
+                const type = propertyDependencies[key];
+                (instance as IKeyValue<any>)[key] = this.getInstance(type, autoRegister);
+            });
+        }
+
+        return instance;
     }
 
     /**
      * Registers a type in the container.
      * @param type Type to be registered
      */
-    public registerType <T>(type: Type<T>) {
+    public registerType <T>(type: Type<T>): IRegisteredType {
         const name = getName(type);
-        const registered = this._typeRegistry[name];
+        let registered = this._typeRegistry[name];
         if (!registered) {
-            this._typeRegistry[name] = { type: type, instance: undefined };
+            registered = this._typeRegistry[name] = { type: type, instance: undefined };
         }
+
+        return registered;
     }
 };

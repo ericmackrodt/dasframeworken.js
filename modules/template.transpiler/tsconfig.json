@@ -16,7 +16,7 @@
         "sourceMap": true,
         "baseUrl": "./",
         "alwaysStrict": true,
-        "noUnusedLocals": true,
+        "noUnusedLocals": false,
         "noUnusedParameters": false,
         "declaration": false,
         "allowJs": true,

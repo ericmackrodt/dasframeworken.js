@@ -1,4 +1,23 @@
-<component 
-            selector="test"
-            controller="{ 'TestComponent': './test.component.ts' }" />
-<input bind:value="something"></input>
+<template 
+    controller="./home.component.ts">
+<blockquote>
+    <p>@{prop} is cool ey oh</p>
+    <small>wooohooo</small>
+</blockquote>
+<div class="input-control text">
+    <input type="text" bind:value="prop" trigger:input="inputUpdated($event)"></input>
+</div>
+<button class="button success block-shadow-success text-shadow" trigger:click="clicked()">click here dude!</button>
+This is just a text <br />
+<button class="button warning block-shadow-warning text-shadow" trigger:click="showHide()">Show/hide</button>
+<button class="button danger block-shadow-warning text-shadow" trigger:click="addItem()">Add Item</button>
+<ul class="numeric-list square-marker">
+    <li @for="item in list">@{item}</li>
+</ul>
+<div @if="iffable === true" class="tile-wide bg-blue fg-white" data-role="tile">
+    <div class="tile-content iconic">
+        <span class="icon mif-cloud"></span>
+        <span class="tile-label">This is iffable</span>
+    </div>
+</div>
+</template>

@@ -3,6 +3,7 @@ export const SPACING_REGEX = /(\s\s+)/;
 export const LINE_BREAK_REGEX = /([\n\r]+)|(\\[rn])/;
 export const BASE_FRAMEWORK_URI = '@dasframeworken/base';
 export const TEMPLATE_FACTORY_VARIABLE = 'templateFactory';
+export const COMPONENT_FUNCTION_VARIABLE = 'Component';
 export const CONTROLLER_VARIABLE = 'controller';
 export const COMPONENT_CONTAINER_VARIABLE = 'container';
 export const ROOT_ELEMENT = 'root';

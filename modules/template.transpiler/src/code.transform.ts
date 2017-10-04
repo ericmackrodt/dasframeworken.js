@@ -1,9 +1,11 @@
+// Not used anyore, at least for now
+
 import { IKeyValue, IHtmlElement, IHtmlAttribute, IBaseHtml, IDirectiveCode } from './_types';
 const MagicString = require('magic-string').default;
 
 export class CodeTransform {
     private _magicString: any;
-    constructor(_html: string, private _fileName: string) {
+    constructor(_html: string, _fileName: string) {
         this._magicString = new MagicString(_html, { filename: _fileName });
     }
 
@@ -52,13 +54,6 @@ export class CodeTransform {
     }
 
     public generate() {
-        const map = this._magicString.generateMap({
-            file: this._fileName + '.map',
-            source: this._fileName,
-            includeContent: true,
-            hires: true
-        });
-
-        return { source: this._magicString.toString(), map: map };
+        return this._magicString.toString();
     }
 }

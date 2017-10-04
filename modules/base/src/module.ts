@@ -1,19 +1,16 @@
 // import { componentFactory } from './component.factory';
-import { ComponentContainer } from './component.container';
 import { Router } from './router';
 import * as utils from './utils';
 import { Container } from './di.container';
-import { Type, IComponent, IModuleOptions, IRoute } from './types/interfaces';
-
-const registerTypes = (container: Container, types: Type<any>[]) => types.forEach((type) => container.registerType(type));
+import { Type, IComponentInstance, IModuleOptions, IRoute } from './types/interfaces';
 
 export class Module {
-    private _rootComponent: IComponent;
+    private _rootComponent: IComponentInstance;
+    private _routeComponent: IComponentInstance;
     private _preLoad: <T>() => Promise<T> | boolean | void;
     private _router: Router;
-    private _routeComponentContainer: ComponentContainer;
-    private _components: { [key:string]: IComponent };
-    private _rootComponentContainer: ComponentContainer;
+    // private _routerComponent: ComponentContainer;;
+    // private _rootComponentContainer: ComponentContainer;
 
     get rootComponent() {
         return this._rootComponent;
@@ -22,64 +19,47 @@ export class Module {
     constructor(
         private _container: Container,
         private _name: string, 
-        options: Partial<IModuleOptions>
+        private options: Partial<IModuleOptions>
     ) {
         options = options || {};
         this._name = name;
-        this._rootComponent = options.rootComponent;
         this._preLoad = options.preLoad;
-
-        if (options.types) registerTypes(this._container, options.types);
-        if (options.components) this._registerComponents(options.components);
+        
         if (options.routes) this._registerRoutes(options.routes);
     }
 
     _registerRoutes(routes: IRoute[]) {
         this._router = new Router(routes);
         this._router.onRouteChanging = () => {
-            if (this._routeComponentContainer) {
-                this._routeComponentContainer.teardown();
+            if (this._routeComponent) {
+                this._routeComponent.teardown();
             }
         };
         this._router.onRouteChanged = (route) => {
             const outlet: Element = document.getElementsByTagName('router-outlet')[0];
             if (route.root && outlet) {
-                this._routeComponentContainer = this._buildComponent(route.root, outlet);
+                this._routeComponent = this._buildComponent(route.root, outlet);
             }
         };
     }
 
-    _registerComponents(components: any[]) {
-        this._components = {};
-        components.forEach((c) => { 
-            if (typeof c === 'function' && typeof c.metadata.template) {    
-                this._components[c.metadata.selector] = c;
-            } else if (typeof c === 'object' && typeof c.render === 'function') {
-                this._components[c.selector] = c;
-            }
-        });
-    }
-
-    _buildComponent(type: IComponent, element: Element) {
+    _buildComponent(type: Type<IComponentInstance>, element: Element) {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }
 
-        const container = new ComponentContainer(this._container, this, type);
-        container.initialize(element);
-        return container;
-    }
-
-    getComponent(name: string) {
-        return this._components[name];
+        const component = utils.instantiateType(type, this._container, this);
+        component.initialize(element);
+        return component;
     }
 
     deploy(element: HTMLElement) {
         const preLoad = this._preLoad && this._preLoad();
         utils.returnPromise(preLoad).then(() => {
-            if (this._rootComponent) {
-                this._rootComponentContainer = this._buildComponent(this._rootComponent, element);
-            }// else if (this._routes) {
+            if (this.options.root) {
+                this._rootComponent = this._buildComponent(this.options.root, element);
+            } 
+            // else if (this.options.routes) {
             //     this._initializeRouting(element);
             // }
         });

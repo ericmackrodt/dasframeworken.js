@@ -1,4 +1,5 @@
 import { call } from './utils';
+import { Type } from './types/interfaces';
 
 export function observable() {
     return function (target: any, propertyKey: string): any {
@@ -11,7 +12,7 @@ export function observable() {
             set: function(val: any) {
                 if (_private !== val) {
                     _private = val;
-                    call(this._notifyChange, this, propertyKey);
+                    setTimeout(() => call(this.onPropertyChanged, this, propertyKey), 1);
                 }
             },
             enumerable: true
@@ -19,5 +20,13 @@ export function observable() {
     };
 }
 
-export function inject(target: any) {
+export function inject(type: Type<any>) {
+    return function (target: any, propertyKey: string): any {
+        if (!target.propertyDependencies) {
+            target.propertyDependencies = {};
+        }
+
+        target.propertyDependencies[propertyKey] = type;
+        return null;
+    };
 }

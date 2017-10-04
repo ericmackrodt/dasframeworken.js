@@ -1,4 +1,4 @@
-import { Type, ITypeRegistry } from './types/interfaces';
+import { Type, ITypeRegistry, IRegisteredType } from './types/interfaces';
 /**
  * Represents the container
  */
@@ -10,15 +10,15 @@ export declare class Container {
      * Instantiates a type that is registered in the container with its dependencies.
      * @param type Type that will be instantiated, it can be the type itself or the name.
      */
-    getInstance<T>(type: Type<T> | string): any;
+    getInstance<T>(type: Type<T> | string, autoRegister?: boolean): any;
     /**
      * Instantiates any type and tries to resolve dependencies that are registered in the container.
      * @param type The type to be resolved
      */
-    resolve<T>(type: Type<T>): T;
+    resolve<T>(type: Type<T>, autoRegister?: boolean): T;
     /**
      * Registers a type in the container.
      * @param type Type to be registered
      */
-    registerType<T>(type: Type<T>): void;
+    registerType<T>(type: Type<T>): IRegisteredType;
 }

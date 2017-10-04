@@ -25,3 +25,4 @@ export declare const call: (fn: Function, ctx: Function, ...args: any[]) => any;
  * @param fn Function to verify
  */
 export declare const isFunction: (fn: any) => boolean;
+export declare const randomName: () => string;

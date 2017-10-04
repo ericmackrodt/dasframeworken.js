@@ -15,3 +15,13 @@ export const getVariableContext = (variable: string, contextVariables: string[])
     const arr = variable.split('.');
     return (contextVariables || []).indexOf(arr[0]) >= 0 ? variable : `${CONTROLLER_VARIABLE}.${variable}`;
 };
+
+export const eachInbetween = <T>(arr: T[], action: (item: T, index: number, arr: T[]) => void, between: () => void) => {
+    arr.forEach((item, index, array) => {
+        action(item, index, arr);
+        console.log(item);
+        if (index < array.length -1) {
+            between();
+        }
+    });
+};
