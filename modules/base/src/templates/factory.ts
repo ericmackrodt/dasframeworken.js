@@ -5,7 +5,7 @@ import { Container } from './../di.container';
 export class Factory {
     constructor(
         private _elementRegistry: IKeyValue<Element | Text>,
-        private _componentRegistry: any[],
+        private _componentRegistry: IComponentInstance[],
         private _component: IComponentInstance,
         private _container: Container
     ) {
@@ -46,13 +46,21 @@ export class Factory {
         return text;
     }
 
-    public setEvent(element: Element, event: string, fn: ($event: Event) => any) {
+    public setEvent(element: Element, event: string, fn: ($event: Event) => void) {
         this._component.registerEvent(element, event, fn);
+    }
+
+    public bind(property: string, fn: () => void) {
+        this._component.registerBinding(property, fn);
     }
 
     public component(component: any) {
         const c = new component(this._container);
         this._componentRegistry.push(c);
         return c.initialize();
+    }
+
+    public setIf(condition: () => boolean, renderFn: () => void) {
+
     }
 }

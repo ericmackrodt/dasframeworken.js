@@ -4,10 +4,14 @@ import { ROOT_ELEMENT } from './constants';
 import htmlObjectBuilder from './html.object.builder';
 import { IHtmlElement, ElementTypeEnum, IHtmlAttribute, IKeyValue, ICounts, IBaseHtml } from './_types';
 import { BASE_CODE_END, baseCodeStart, importLine, defaultImportLine } from './code.funcs';
-// import attributeBuilder from './attribute.builder';
+import { partialAttribute, reservedAttribute } from './attribute.builder';
 import * as utils from './utils';
 import { isInternalDirective } from './internal.directives';
 import * as path from 'path';
+
+const CODE_AREA_ELEMENTS = 'elements';
+const CODE_AREA_VARIABLES = 'variables';
+const CODE_AREA_HIDRATION = 'hidration';
 
 export default (html: string, fileName?: string) => {
     const usageCounts: ICounts = {};
@@ -28,7 +32,7 @@ export default (html: string, fileName?: string) => {
     const processChildren = (children: any[], contextVariables?: string[]) => {
         codeBuilder.indent();
         const cleaned = cleanChildren(children);
-        children && utils.eachInbetween(cleaned, (child) => processNode(child, contextVariables), () => codeBuilder.append(', '));
+        children && utils.eachInbetween(cleaned, (child) => processNode(child, contextVariables), () => codeBuilder.append(', ', CODE_AREA_ELEMENTS));
         codeBuilder.deindent();
     };
 
@@ -43,22 +47,67 @@ export default (html: string, fileName?: string) => {
     };
 
     const processTag = (node: IHtmlElement, contextVariables?: string[]) => {
-        codeBuilder.appendLine(`factory.element('${node.name}'`);
+        const attributes: IKeyValue<any> = {};
+        const reserved: IKeyValue<any> = {};
+        const reservedPartials: IKeyValue<any> = {};
+
+
+        const reservedAttributes: { [key: string]: Function } = {
+            'trigger': (elementVar: string, property: string, fn: string) => `factory.setEvent(${elementVar}, '${property}', ($event) => controller.${fn});`,
+            'bind': (elementVar: string, property: string, elementProperty: string) => `factory.bind('property', () => {
+                if (${elementVar}.${elementProperty} !== controller.${property}) {
+                    ${elementVar}.${elementProperty} = controller.${property};
+                }
+            });`
+        };
 
         if (node.attributes && Object.keys(node.attributes).length) {
-            codeBuilder.append(', ');
-            const attrs = Object.keys(node.attributes).map(key => `'${key}': '${node.attributes[key].value}'`);
-            codeBuilder.append(`{ ${attrs.join(', ')} }`);
-        } else {
-            codeBuilder.append(', null');
+            const attrKeys = Object.keys(node.attributes);
+
+            attrKeys.forEach(key => {
+                if (reservedAttributes[key]) {
+                    reserved[key] = node.attributes[key];
+                } else if (reservedAttributes[key.split(':')[0]]) {
+                    reservedPartials[key] = node.attributes[key];
+                } else {
+                    attributes[key] = node.attributes[key];
+                }
+            });
         }
-        debugger;
-        if (node.children && cleanChildren(node.children).length) {
-            codeBuilder.append(', ');
-            processChildren(node.children, contextVariables);
-            codeBuilder.appendLine(')');
+
+        codeBuilder.appendLine('');
+        const varName = buildVarName(node);
+
+        if (Object.keys(reservedPartials).length > 0) {
+            codeBuilder.appendLine(`let ${varName};`, CODE_AREA_VARIABLES);
+            codeBuilder.append(`${varName} = `, CODE_AREA_ELEMENTS);
+        }
+
+        codeBuilder.append(`factory.element('${node.name}'`, CODE_AREA_ELEMENTS);
+
+        if (attributes && Object.keys(attributes).length) {
+            codeBuilder.append(', ', CODE_AREA_ELEMENTS);
+            const attrs = Object.keys(attributes).map(key => `'${key}': '${attributes[key].value}'`);
+            codeBuilder.append(`{ ${attrs.join(', ')} }`, CODE_AREA_ELEMENTS);
         } else {
-            codeBuilder.append(')');
+            codeBuilder.append(', null', CODE_AREA_ELEMENTS);
+        }
+
+        if (node.children && cleanChildren(node.children).length) {
+            codeBuilder.append(', ', CODE_AREA_ELEMENTS);
+            processChildren(node.children, contextVariables);
+            codeBuilder.appendLine(')', CODE_AREA_ELEMENTS);
+        } else {
+            codeBuilder.append(')', CODE_AREA_ELEMENTS);
+        }
+
+        if (reservedPartials && Object.keys(reservedPartials).length) {
+            const attrs = Object.keys(reservedPartials).forEach(key => {
+                const keys = key.split(':');
+                const built = reservedAttributes[keys[0]](varName, keys[1], reservedPartials[key].value);
+                codeBuilder.appendLine(built, CODE_AREA_HIDRATION);
+            });
+
         }
 
         // const attributeKeys = Object.keys(node.attributes);
@@ -99,20 +148,20 @@ export default (html: string, fileName?: string) => {
     const isComponent = (name: string) => imports.findIndex(o => o.key === name) > -1;
 
     const processComponent = (node: IHtmlElement, contextVariables?: string[]) => {
-        codeBuilder.appendLine(`factory.component(${node.name}`);
+        codeBuilder.appendLine(`factory.component(${node.name}`, CODE_AREA_ELEMENTS);
         
         if (node.attributes && Object.keys(node.attributes).length) {
-            codeBuilder.append(', ');
+            codeBuilder.append(', ', CODE_AREA_ELEMENTS);
             const attrs = Object.keys(node.attributes).map(key => `'${key}': '${node.attributes[key].value}'`);
-            codeBuilder.append(`{ ${attrs.join(', ')} }`);
+            codeBuilder.append(`{ ${attrs.join(', ')} }`, CODE_AREA_ELEMENTS);
         }
 
         if (node.children && cleanChildren(node.children).length) {
-            codeBuilder.append(', ');
+            codeBuilder.append(', ', CODE_AREA_ELEMENTS);
             processChildren(node.children, contextVariables);
-            codeBuilder.appendLine(')');
+            codeBuilder.appendLine(')', CODE_AREA_ELEMENTS);
         } else {
-            codeBuilder.append(')');
+            codeBuilder.append(')', CODE_AREA_ELEMENTS);
         }
     }
 
@@ -139,7 +188,7 @@ export default (html: string, fileName?: string) => {
         };
 
         if (cleaned && cleaned.trim()) {
-            codeBuilder.appendLine(`factory.text('${cleaned}')`);
+            codeBuilder.appendLine(`factory.text('${cleaned}')`, CODE_AREA_ELEMENTS);
             // codeBuilder.writeLine(textRange, setTextLine(cleaned, parent));
         } else if (previous) {
             // codeBuilder.removeHtml(textRange);
@@ -162,7 +211,7 @@ export default (html: string, fileName?: string) => {
             // If there's text before the binding, clean it and replace it for a text line.
             const previous = processPlainText(node, currentIndex, result.index, parent);
             debugger;
-            if (previous.length > 0) codeBuilder.append(', ');
+            if (previous.length > 0) codeBuilder.append(', ', CODE_AREA_ELEMENTS);
 
             currentIndex += previous.length;
             
@@ -176,14 +225,14 @@ export default (html: string, fileName?: string) => {
                 endIndex: node.startIndex + result.index + match.length
             };
 
-            codeBuilder.appendLine(textLine);
+            codeBuilder.appendLine(textLine, CODE_AREA_ELEMENTS);
             // codeBuilder.writeLine(textRange, variable, textLine, FUNCTION_TAIL);
 
             currentIndex += match.length;
         }
 
         if (currentIndex < node.endIndex) {
-            if (currentIndex > 0) codeBuilder.append(', ');
+            if (currentIndex > 0) codeBuilder.append(', ', CODE_AREA_ELEMENTS);
 
             processPlainText(node, currentIndex, text.length, parent);
         }
@@ -218,14 +267,14 @@ export default (html: string, fileName?: string) => {
         tag = tag.replace('.', '-');
 
         const rootLine = `factory.root('${tag}'`
-        codeBuilder.append(rootLine);
+        codeBuilder.append(rootLine, CODE_AREA_ELEMENTS);
 
         if (node.children && cleanChildren(node.children).length) {
-            codeBuilder.append(', ');
+            codeBuilder.append(', ', CODE_AREA_ELEMENTS);
             processChildren(node.children);
-            codeBuilder.appendLine(');');
+            codeBuilder.appendLine(');', CODE_AREA_ELEMENTS);
         } else {
-            codeBuilder.append(');');
+            codeBuilder.append(');', CODE_AREA_ELEMENTS);
         }
 
         
@@ -267,12 +316,15 @@ export default (html: string, fileName?: string) => {
 
     const key = imports[0].key as string;
     const prepend = baseCodeStart(key, imps);
-    codeBuilder
-        .prepend('const root = ')
-        .indentAll()
-        .indentAll()
-        .prepend(prepend)
-        .appendLine(BASE_CODE_END);
+    codeBuilder.prepend('const root = ', CODE_AREA_ELEMENTS);
+    codeBuilder.indentAll(CODE_AREA_ELEMENTS);
+    codeBuilder.indentAll(CODE_AREA_ELEMENTS);
+    codeBuilder.prepend(prepend, CODE_AREA_VARIABLES);
+    codeBuilder.appendLine(BASE_CODE_END, CODE_AREA_HIDRATION);
 
-    return codeBuilder.generate();
+    return codeBuilder.generate(
+        CODE_AREA_VARIABLES, 
+        CODE_AREA_ELEMENTS, 
+        CODE_AREA_HIDRATION
+    );
 };

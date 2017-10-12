@@ -57,16 +57,15 @@ export class Container {
 
         const serviceInstances = 
             constructorDependencies && constructorDependencies.map((d: Function) => this.getInstance(d as Type<T>, autoRegister));
-        const instance = utils.instantiateType(type, ...serviceInstances);
 
         if (propertyDependencies) {
             Object.keys(propertyDependencies).forEach((key) => {
-                const type = propertyDependencies[key];
-                (instance as IKeyValue<any>)[key] = this.getInstance(type, autoRegister);
+                const dependency = propertyDependencies[key];
+                type.prototype[key] = this.getInstance(dependency, autoRegister);
             });
         }
 
-        return instance;
+        return utils.instantiateType(type, ...serviceInstances);
     }
 
     /**

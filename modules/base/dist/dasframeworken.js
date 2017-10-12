@@ -261,6 +261,9 @@ var Factory = (function () {
     Factory.prototype.setEvent = function (element, event, fn) {
         this._component.registerEvent(element, event, fn);
     };
+    Factory.prototype.bind = function (property, fn) {
+        this._component.registerBinding(property, fn);
+    };
     Factory.prototype.component = function (component) {
         var c = new component(this._container);
         this._componentRegistry.push(c);
@@ -328,14 +331,13 @@ var Container = (function () {
             return utils.instantiateType(type);
         }
         var serviceInstances = constructorDependencies && constructorDependencies.map(function (d) { return _this.getInstance(d, autoRegister); });
-        var instance = utils.instantiateType.apply(utils, [type].concat(serviceInstances));
         if (propertyDependencies) {
             Object.keys(propertyDependencies).forEach(function (key) {
-                var type = propertyDependencies[key];
-                instance[key] = _this.getInstance(type, autoRegister);
+                var dependency = propertyDependencies[key];
+                type.prototype[key] = _this.getInstance(dependency, autoRegister);
             });
         }
-        return instance;
+        return utils.instantiateType.apply(utils, [type].concat(serviceInstances));
     };
     /**
      * Registers a type in the container.
@@ -617,7 +619,6 @@ var Router = (function () {
                 }
             })
                 .catch(function (ex) {
-                debugger;
                 console.error(ex);
                 history.replaceState({}, route.path, '#' + _this._getHash(oldUrl));
             });

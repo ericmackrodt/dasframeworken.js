@@ -32,7 +32,6 @@ export class Router {
                     }
                 })
                 .catch((ex: any) => {
-                    debugger;
                     console.error(ex);
                     history.replaceState({}, route.path, '#' + this._getHash(oldUrl));
                 });
