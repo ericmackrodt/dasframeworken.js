@@ -53,8 +53,8 @@ export default (html: string, fileName?: string) => {
 
 
         const reservedAttributes: { [key: string]: Function } = {
-            'trigger': (elementVar: string, property: string, fn: string) => `factory.setEvent(${elementVar}, '${property}', ($event) => controller.${fn});`,
-            'bind': (elementVar: string, property: string, elementProperty: string) => `factory.bind('property', () => {
+            'trigger': (elementVar: string, elementProperty: string, fn: string) => `factory.setEvent(${elementVar}, '${elementProperty}', ($event) => controller.${fn});`,
+            'bind': (elementVar: string, elementProperty: string, property: string) => `factory.bind('${property}', () => {
                 if (${elementVar}.${elementProperty} !== controller.${property}) {
                     ${elementVar}.${elementProperty} = controller.${property};
                 }
